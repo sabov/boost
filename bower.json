@@ -1,0 +1,22 @@
+{
+  "name": "boost",
+  "version": "0.0.0",
+  "homepage": "https://github.com/sabov/boost",
+  "authors": [
+    "sabov <alexsabov@gmail.com>"
+  ],
+  "description": "webGL game",
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "threejs": "*",
+    "jquery": "~2.0.3"
+  }
+}
