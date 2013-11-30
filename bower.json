@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "homepage": "https://github.com/sabov/boost",
   "authors": [
-    "sabov <alexsabov@gmail.com>"
+    "sabov <alexsabov@gmail.com>",
+    "peetwriter<pereter92@gmail.com>"	
   ],
   "description": "webGL game",
   "main": "index.html",
