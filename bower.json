@@ -17,7 +17,7 @@
     "tests"
   ],
   "dependencies": {
-    "threejs": "*",
+    "threejs": "r47",
     "jquery": "~2.0.3",
     "threex": "*"
   }

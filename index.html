@@ -18,8 +18,143 @@
    <link  href="css/main.css" rel="stylesheet"/>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+    <!-- three.js container -->
+    	<div id="container"></div>
+	<!-- info on screen display -->
+	<div id="info">
+		Tarasenko/Sabov boost	
+	</div> 
+	<div id="inlineDoc">
+		<span id="fullscreenDoc"><i>f</i> for fullscreen - </span><i>p</i> for screenshot
+	</div>
 
+<script type="text/javascript">
+		var scene, renderer;
+		var camera, cameraControl;
+		var mesh;
+
+		document.onkeydown = checkKey;
+
+		if( !init() )	animate();
+
+		// init the scene
+		function init(){
+
+			if( Detector.webgl ){
+				renderer = new THREE.WebGLRenderer({
+					antialias		: true,	// to get smoother output
+					preserveDrawingBuffer	: true	// to allow screenshot
+				});
+				renderer.setClearColorHex( 0x000000, 1 );
+			// uncomment if webgl is required
+			}else{
+				Detector.addGetWebGLMessage();
+				return true;
+			}
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.getElementById('container').appendChild(renderer.domElement);
+
+			// create a scene
+			scene = new THREE.Scene();
+
+			// put a camera in the scene
+			camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 10000 );
+			camera.position.set(0, 0, 7);
+			camera.lookAt(scene.position)
+			scene.add(camera);
+
+			// transparently support window resize
+			THREEx.WindowResize.bind(renderer, camera);
+			// allow 'p' to make screenshot
+			THREEx.Screenshot.bindKey(renderer);
+			// allow 'f' to go fullscreen where this feature is supported
+			if( THREEx.FullScreen.available() ){
+				THREEx.FullScreen.bindKey();				
+			}else{
+				document.getElementById('fullscreenDoc').style.display	= "none";				
+			}
+
+			//var light	= new THREE.DirectionalLight( 0xff8000, 1.5 );
+			//light.position.set( 1, 1, 0 ).normalize();
+			//scene.add( light );
+			
+			var light	= new THREE.DirectionalLight(  0xFFFFFF, 1.5 );
+			light.position.set( -1, 1, 0 ).normalize();
+			scene.add( light );
+			
+			var light	= new THREE.PointLight( 0xFFFFFF, 15, 25 );
+			light.position.set( 0, -3, 0 );
+			scene.add( light );
+			
+			var light	= new THREE.PointLight( 0xff4400, 20, 30 );
+			light.position.set( 3, 3, 0 );
+			scene.add( light );
+			
+			scene.fog	= new THREE.FogExp2( 0x000000, 0.15 );
+
+			// here you add your objects
+			// - you will most likely replace this part by your own
+			var geometry	= new THREE.CylinderGeometry( 1, 1, 30, 32, 1, true );
+			texture		= THREE.ImageUtils.loadTexture( "images/block.jpg" );
+			texture.wrapT	= THREE.RepeatWrapping;
+
+			var material	= new THREE.MeshLambertMaterial({color : 0xFFFFFF, map : texture});
+			mesh	= new THREE.Mesh( geometry, material );
+			mesh.rotation.x	= Math.PI/2;
+			scene.add( mesh );
+
+			mesh.flipSided	= true;
+		}
+
+		// animation loop
+		function animate() {
+
+			// loop on request animation loop
+			// - it has to be at the begining of the function
+			// - see details at http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+			requestAnimationFrame( animate );
+
+			// do the render
+			render();
+
+		}
+
+		// render the scene
+		function render() {
+
+			// move the texture to give the illusion of moving thru the tunnel
+			texture.offset.y	+= 0.008;
+			texture.offset.y	%= 1;
+			texture.needsUpdate	= true;
+
+			// move the camera back and forth
+			var seconds		= Date.now() / 1000;
+			var radius		= 0.70;
+			var angle	= 0.01;
+			//angle	= (seconds*Math.PI)/4;
+			camera.position.x	=  radius - 0.5;
+			camera.position.y	= radius - 1;
+			//camera.rotation.z	+= angle;
+
+			// actually render the scene
+			renderer.render( scene, camera );
+		}
+
+		function checkKey(e) {
+
+			var seconds		= Date.now() / 1000;
+			var angle	= 0.05;
+			var radius		= 0.70;
+		    e = e || window.event;
+
+		    if (e.keyCode == '37') {
+		     mesh.rotation.y += 0.05;	
+		    }
+		    else if (e.keyCode == '39') {
+		     mesh.rotation.y -= 0.05;
+    	}
+}
+	</script>
 </body>
 </html>
 
