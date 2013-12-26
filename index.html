@@ -38,6 +38,7 @@
             vUv = uvScale * uv;
 
             vUv.x += globalTime*1.5;
+            vUv.y -= globalTime*10.5;
 
             vec3 animated = position; 
 
@@ -82,7 +83,8 @@
                 float p = (d0 - 0.82);
                 d0 = d0-min(p*12.0, 0.7);
             }
-            gl_FragColor = vec4((color * textureColor.xyz * d0) * depthcolor, 1.0);
+            gl_FragColor = vec4((color * textureColor.xyz) * depthcolor, 1.0);
+            //gl_FragColor = vec4((color * textureColor.xyz * d0) * depthcolor, 1.0);
             
         }
 

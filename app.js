@@ -41,14 +41,14 @@ jQuery(function() {
         camera.lookAt( cameraTarget );
         scene.add( camera );
 
-        var lng = 300;
+        var lng = 200;
 
         var tube = new THREE.CylinderGeometry(20, 30, lng, 100, 50, true);
         tube.applyMatrix( new THREE.Matrix4().makeRotationFromEuler( new
                                                                     THREE.Euler(-Math.PI/2,0,0)) );
         tube.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
 
-        var map = THREE.ImageUtils.loadTexture( "textures/dstripe.jpg" );
+        var map = THREE.ImageUtils.loadTexture( "textures/sq.jpg" );
         
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         var maxAnisotropy = renderer.getMaxAnisotropy();
@@ -61,9 +61,7 @@ jQuery(function() {
             color:      { type: "c", value: new THREE.Color( 0xffffff ) },
             texture:    { type: "t", value: map },
             globalTime:	{ type: "f", value: 0.0 },
-            uvScale: 	{ type: "v2", value: new THREE.Vector2( 5.0, 10.0 ) },
-            light: 		{ type: "v3", value: new THREE.Vector3( -1.0, -1.0, 0.5 ) },
-            shadow:		{ type: "f", value: 1.0 },
+            uvScale: 	{ type: "v2", value: new THREE.Vector2( 10.0, 20.0 ) },
 
         };
 
@@ -81,42 +79,42 @@ jQuery(function() {
         mesh = new THREE.Mesh( tube, material );
         scene.add( mesh );
 
-        // tube 2
-        var tube2 = new THREE.CylinderGeometry(20, 3, lng, 50, 50, true);
-        tube2.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(
-            new THREE.Euler( -Math.PI / 2, 0, 0 ) ) );
-        tube2.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
+       /* // tube 2*/
+        //var tube2 = new THREE.CylinderGeometry(20, 3, lng, 50, 50, true);
+        //tube2.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(
+            //new THREE.Euler( -Math.PI / 2, 0, 0 ) ) );
+        //tube2.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
 
-        var map = THREE.ImageUtils.loadTexture( "textures/dstripe_flipped.jpg" );
+        //var map = THREE.ImageUtils.loadTexture( "textures/dstripe_flipped.jpg" );
         
-        map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        var maxAnisotropy = renderer.getMaxAnisotropy();
-        map.anisotropy = maxAnisotropy;
+        //map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        //var maxAnisotropy = renderer.getMaxAnisotropy();
+        //map.anisotropy = maxAnisotropy;
         
 
-        uniforms2 = {
+        //uniforms2 = {
 
-            color:      { type: "c", value: new THREE.Color( 0xffffff ) },
-            texture:    { type: "t", value: map },
-            globalTime:	{ type: "f", value: 0.0 },
-            uvScale: 	{ type: "v2", value: new THREE.Vector2( 2.0, 10.0 ) },
-            light: 		{ type: "v3", value: new THREE.Vector3( 1.0, 1.0, 0.5 ) },
-            shadow:		{ type: "f", value: 0.0 }
+            //color:      { type: "c", value: new THREE.Color( 0xffffff ) },
+            //texture:    { type: "t", value: map },
+            //globalTime:	{ type: "f", value: 0.0 },
+            //uvScale: 	{ type: "v2", value: new THREE.Vector2( 2.0, 10.0 ) },
+            //light: 		{ type: "v3", value: new THREE.Vector3( 1.0, 1.0, 0.5 ) },
+            //shadow:		{ type: "f", value: 0.0 }
 
-        };
+        //};
 
 
-        var material = new THREE.ShaderMaterial( {
+        //var material = new THREE.ShaderMaterial( {
 
-            uniforms: 		uniforms2,
-            attributes:     attributes,
-            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+            //uniforms: 		uniforms2,
+            //attributes:     attributes,
+            //vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+            //fragmentShader: document.getElementById( 'fragmentshader' ).textContent
             
-        });
+        //});
 
-        mesh2 = new THREE.Mesh( tube2, material );
-        scene.add( mesh2 );
+        //mesh2 = new THREE.Mesh( tube2, material );
+        //scene.add( mesh2 );
 
         THREEx.WindowResize(renderer, camera);
 
@@ -136,19 +134,20 @@ jQuery(function() {
         delta = time - oldTime;
         oldTime = time;
 
+        delta = -delta;
         if (isNaN(delta) || delta > 1000 || delta == 0 ) {
             delta = 1000/60;
         }
 
         uniforms.globalTime.value += delta*0.0006;
-        uniforms2.globalTime.value = uniforms.globalTime.value;
+        //uniforms2.globalTime.value = uniforms.globalTime.value;
 
         cameraTarget.x = -10 * Math.sin(time/3000);
         cameraTarget.y = -10 * Math.cos(time/4000);
 
         mesh.rotation.z += Math.abs(Math.sin(time/4000))*0.01;
         
-        mesh2.rotation.z = mesh.rotation.z;
+        //mesh2.rotation.z = mesh.rotation.z;
 
         camera.position.x = 13 * Math.sin(time/2000);
         camera.position.y = 13 * Math.cos(time/2000);
