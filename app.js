@@ -41,9 +41,9 @@ jQuery(function() {
         camera.lookAt( cameraTarget );
         scene.add( camera );
 
-        var lng = 200;
+        var lng = 600;
 
-        var tube = new THREE.CylinderGeometry(20, 30, lng, 100, 50, true);
+        var tube = new THREE.CylinderGeometry(5, 30, lng, 100, 50, true);
         tube.applyMatrix( new THREE.Matrix4().makeRotationFromEuler( new
                                                                     THREE.Euler(-Math.PI/2,0,0)) );
         tube.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
@@ -61,7 +61,7 @@ jQuery(function() {
             color:      { type: "c", value: new THREE.Color( 0xffffff ) },
             texture:    { type: "t", value: map },
             globalTime:	{ type: "f", value: 0.0 },
-            uvScale: 	{ type: "v2", value: new THREE.Vector2( 10.0, 20.0 ) },
+            uvScale: 	{ type: "v2", value: new THREE.Vector2( 12.0, 30.0 ) },
 
         };
 
@@ -139,6 +139,7 @@ jQuery(function() {
             delta = 1000/60;
         }
 
+        console.log(uniforms)
         uniforms.globalTime.value += delta*0.0006;
         //uniforms2.globalTime.value = uniforms.globalTime.value;
 
