@@ -11,6 +11,7 @@ jQuery(function() {
     var oldTime;
     var angle = 0;
     var radians;
+    var shift = 0;
 
     var uniforms, uniforms2;
     var mesh, mesh2;
@@ -118,6 +119,9 @@ jQuery(function() {
         //scene.add( mesh2 );
 
         THREEx.WindowResize(renderer, camera);
+        window.addEventListener("deviceorientation", function(e) {
+            shift = e.beta;
+        }, true);
 
     }
 
@@ -143,6 +147,9 @@ jQuery(function() {
             angle += 2;
         } else if(keyboard.pressed("right")) {
             angle -= 2;
+        }
+        if(shift !== 0) {
+            angle -= shift * 0.15;
         }
         radians = angle * Math.PI / 180;
 
