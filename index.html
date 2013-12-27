@@ -5,7 +5,11 @@
     <title>
         Boost
     </title>
+    <meta name="viewport" content="width=device-width, user-scalable=no,
+    minimum-scale=1.0, maximum-scale=1.0">
+
     <script type="text/javascript" src="bower_components/jquery/jquery.js"></script>
+<<<<<<< HEAD
     <script type="text/javascript" src="bower_components/threejs/build/three.js"></script>
     <script type="text/javascript" src="bower_components\threejs\examples\js\Detector.js"></script>
 
@@ -146,6 +150,88 @@
 			var angle	= 0.05;
 			var radius		= 0.70;
 		    e = e || window.event;
+=======
+    <script type="text/javascript" src="bower_components/three.js/three.min.js"></script>
+    <script type="text/javascript" src="bower_components/threex.windowresize/threex.windowresize.js"></script>
+
+    <script type="text/javascript" src="app.js "></script>
+
+    <style> 
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <script type="x-shader/x-vertex" id="vertexshader">
+
+        uniform float globalTime;
+        uniform vec2 uvScale;
+
+        varying vec2 vUv;
+        varying vec3 vNormal;
+
+        void main() {
+
+            vNormal = normal;
+            vUv = uvScale * uv;
+
+            vUv.x += globalTime*1.5;
+            vUv.y -= globalTime*12.5;
+
+            vec3 animated = position; 
+
+            float force = position.z*0.10;
+
+            animated.x += cos(globalTime + (position.z/90.0))*force; 
+            animated.y += sin(globalTime + (position.z/60.0))*force; 
+
+            vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
+
+            gl_Position = projectionMatrix * mvPosition;
+
+        }
+
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentshader">
+
+        uniform vec3 color;
+        uniform sampler2D texture;
+        uniform vec3 light;
+        uniform float shadow;
+                    
+        varying vec3 vNormal;
+        varying vec2 vUv;
+
+        void main() {
+
+            vec4 textureColor = texture2D(texture, vec2(vUv.s, vUv.t));
+
+            float depth = gl_FragCoord.z / gl_FragCoord.w;
+            float near = 0.0;
+            float far = 300.0;
+            float depthcolor = 1.0 - smoothstep( near, far, depth );
+            
+            vec3 l = light;
+            l = normalize(l);
+            float d0 = max(0.2,dot(vNormal, l));
+            
+            // faking shadow
+            if (shadow == 1.0 && d0 > 0.82) {
+                float p = (d0 - 0.82);
+                d0 = d0-min(p*12.0, 0.7);
+            }
+            gl_FragColor = vec4((color * textureColor.xyz) * depthcolor, 1.0);
+            //gl_FragColor = vec4((color * textureColor.xyz * d0) * depthcolor, 1.0);
+            
+        }
+
+    </script>
+>>>>>>> origin/develop
 
 		    if (e.keyCode == '37') {
 		     mesh.rotation.y += 0.05;	

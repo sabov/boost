@@ -17,8 +17,8 @@
     "tests"
   ],
   "dependencies": {
-    "threejs": "r47",
+    "three.js": "*",
     "jquery": "~2.0.3",
-    "threex": "*"
+    "threex.windowresize": "*"
   }
 }
