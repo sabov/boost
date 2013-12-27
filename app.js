@@ -4,10 +4,13 @@ jQuery(function() {
     var camera, scene, renderer, cameraTarget;
 
     var has_gl = false;
+    var keyboard = new THREEx.KeyboardState();
 
     var delta;
     var time;
     var oldTime;
+    var angle = 0;
+    var radians;
 
     var uniforms, uniforms2;
     var mesh, mesh2;
@@ -43,12 +46,12 @@ jQuery(function() {
 
         var lng = 600;
 
-        var tube = new THREE.CylinderGeometry(5, 30, lng, 100, 50, true);
+        var tube = new THREE.CylinderGeometry(5, 30, lng, 12, 50, true);
         tube.applyMatrix( new THREE.Matrix4().makeRotationFromEuler( new
                                                                     THREE.Euler(-Math.PI/2,0,0)) );
         tube.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
 
-        var map = THREE.ImageUtils.loadTexture( "textures/sq.jpg" );
+        var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
         
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         var maxAnisotropy = renderer.getMaxAnisotropy();
@@ -60,20 +63,18 @@ jQuery(function() {
 
             color:      { type: "c", value: new THREE.Color( 0xffffff ) },
             texture:    { type: "t", value: map },
-            globalTime:	{ type: "f", value: 0.0 },
-            uvScale: 	{ type: "v2", value: new THREE.Vector2( 12.0, 30.0 ) },
+            globalTime: { type: "f", value: 0.0 },
+            uvScale:    { type: "v2", value: new THREE.Vector2( 12.0, 30.0 ) }
 
         };
 
         var material = new THREE.ShaderMaterial( {
 
-            uniforms: 		uniforms,
+            uniforms:       uniforms,
             attributes:     attributes,
             vertexShader:   document.getElementById( 'vertexshader' ).textContent,
             fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-
-            side: 			THREE.BackSide,
-            
+            side:           THREE.BackSide
         });
 
         mesh = new THREE.Mesh( tube, material );
@@ -96,17 +97,17 @@ jQuery(function() {
 
             //color:      { type: "c", value: new THREE.Color( 0xffffff ) },
             //texture:    { type: "t", value: map },
-            //globalTime:	{ type: "f", value: 0.0 },
-            //uvScale: 	{ type: "v2", value: new THREE.Vector2( 2.0, 10.0 ) },
-            //light: 		{ type: "v3", value: new THREE.Vector3( 1.0, 1.0, 0.5 ) },
-            //shadow:		{ type: "f", value: 0.0 }
+            //globalTime: { type: "f", value: 0.0 },
+            //uvScale:    { type: "v2", value: new THREE.Vector2( 2.0, 10.0 ) },
+            //light:      { type: "v3", value: new THREE.Vector3( 1.0, 1.0, 0.5 ) },
+            //shadow:     { type: "f", value: 0.0 }
 
         //};
 
 
         //var material = new THREE.ShaderMaterial( {
 
-            //uniforms: 		uniforms2,
+            //uniforms:       uniforms2,
             //attributes:     attributes,
             //vertexShader:   document.getElementById( 'vertexshader' ).textContent,
             //fragmentShader: document.getElementById( 'fragmentshader' ).textContent
@@ -134,27 +135,36 @@ jQuery(function() {
         delta = time - oldTime;
         oldTime = time;
 
-        delta = -delta;
-        if (isNaN(delta) || delta > 1000 || delta == 0 ) {
+        if (isNaN(delta) || delta > 1000 || delta === 0 ) {
             delta = 1000/60;
         }
 
-        console.log(uniforms)
+        if(keyboard.pressed("left")) {
+            angle += 2;
+        } else if(keyboard.pressed("right")) {
+            angle -= 2;
+        }
+        radians = angle * Math.PI / 180;
+
         uniforms.globalTime.value += delta*0.0006;
         //uniforms2.globalTime.value = uniforms.globalTime.value;
 
-        cameraTarget.x = -10 * Math.sin(time/3000);
-        cameraTarget.y = -10 * Math.cos(time/4000);
+        //cameraTarget.x = -10 * Math.sin(time/3000);
+        //cameraTarget.y = -10 * Math.cos(time/4000);
 
-        mesh.rotation.z += Math.abs(Math.sin(time/4000))*0.01;
+        //mesh.rotation.z += Math.abs(Math.sin(time/4000))*0.01;
         
         //mesh2.rotation.z = mesh.rotation.z;
 
-        camera.position.x = 13 * Math.sin(time/2000);
-        camera.position.y = 13 * Math.cos(time/2000);
+        //camera.position.x = 13 * Math.sin(time/2000);
+        //camera.position.y = 13 * Math.cos(time/2000);
+        camera.position.x = 25 * Math.sin(radians);
+        camera.position.y = 25 * Math.cos(radians);
+        //camera.position.y = -23;
         camera.lookAt( cameraTarget );
 
-        camera.up.x = Math.sin(time/3500);
+        camera.up.x = -Math.sin(radians);
+        camera.up.y = -Math.cos(radians);
 
         if (has_gl) {
             renderer.render( scene, camera );
