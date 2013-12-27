@@ -46,12 +46,12 @@ jQuery(function() {
 
         var lng = 600;
 
-        var tube = new THREE.CylinderGeometry(5, 30, lng, 100, 50, true);
+        var tube = new THREE.CylinderGeometry(5, 30, lng, 12, 50, true);
         tube.applyMatrix( new THREE.Matrix4().makeRotationFromEuler( new
                                                                     THREE.Euler(-Math.PI/2,0,0)) );
         tube.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
 
-        var map = THREE.ImageUtils.loadTexture( "textures/sq.jpg" );
+        var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
         
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         var maxAnisotropy = renderer.getMaxAnisotropy();
@@ -158,8 +158,8 @@ jQuery(function() {
 
         //camera.position.x = 13 * Math.sin(time/2000);
         //camera.position.y = 13 * Math.cos(time/2000);
-        camera.position.x = 20 * Math.sin(radians);
-        camera.position.y = 20 * Math.cos(radians);
+        camera.position.x = 25 * Math.sin(radians);
+        camera.position.y = 25 * Math.cos(radians);
         //camera.position.y = -23;
         camera.lookAt( cameraTarget );
 
