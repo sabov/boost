@@ -14,7 +14,7 @@
 
     <script type="text/javascript" src="app.js "></script>
 
-    <style> 
+    <style>
         html, body {
             margin: 0;
             padding: 0;
@@ -38,11 +38,11 @@
             vUv = uvScale * uv;
 
             vUv.x += globalTime*1.5;
-            vUv.y -= globalTime*10.5;
+            vUv.y -= globalTime*12.5;
 
             vec3 animated = position; 
 
-            float force = position.z*0.35;
+            float force = position.z*0.10;
 
             animated.x += cos(globalTime + (position.z/90.0))*force; 
             animated.y += sin(globalTime + (position.z/60.0))*force; 
