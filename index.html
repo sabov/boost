@@ -56,6 +56,40 @@
 
     </script>
 
+    <script type="x-shader/x-vertex" id="cube.vsh">
+
+        uniform float globalTime;
+        uniform float pause;
+        uniform vec2 uvScale;
+
+        varying vec2 vUv;
+        varying vec3 vNormal;
+
+        void main() {
+
+            vNormal = normal;
+            vUv = uvScale * uv;
+
+            //vUv.x += globalTime*1.5;
+            //vUv.y += globalTime*12.5;
+
+            vec3 animated = position; 
+
+            animated.z += globalTime * 12.5 * 30.0 - pause;
+            float force = animated.z*0.10;
+
+            animated.x += cos(globalTime + (animated.z/90.0))*force; 
+            animated.y += sin(globalTime + (animated.z/60.0))*force; 
+
+            vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
+
+            gl_Position = projectionMatrix * mvPosition;
+
+        }
+
+    </script>
+
+
     <script type="x-shader/x-fragment" id="fragmentshader">
 
         uniform vec3 color;
@@ -84,7 +118,11 @@
                 float p = (d0 - 0.82);
                 d0 = d0-min(p*12.0, 0.7);
             }
-            gl_FragColor = vec4((color * textureColor.xyz) * depthcolor, 1.0);
+            vec4 Ca = textureColor;
+            vec3 Cb = color;
+            vec3 c = Ca.rgb * Ca.a + Cb.rgb * (1.0 - Ca.a);
+            //gl_FragColor = vec4((color * textureColor.rgb) * depthcolor, 1.0);
+            gl_FragColor = vec4(c * depthcolor, 1.0);
             //gl_FragColor = vec4((color * textureColor.xyz * d0) * depthcolor, 1.0);
             
         }
