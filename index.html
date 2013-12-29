@@ -59,6 +59,7 @@
     <script type="x-shader/x-vertex" id="cube.vsh">
 
         uniform float globalTime;
+        uniform float pause;
         uniform vec2 uvScale;
 
         varying vec2 vUv;
@@ -74,10 +75,11 @@
 
             vec3 animated = position; 
 
-            float force = position.z*0.10;
+            animated.z += globalTime * 12.5 * 30.0 - pause;
+            float force = animated.z*0.10;
 
-            animated.x += cos(globalTime + (position.z/90.0))*force; 
-            animated.y += sin(globalTime + (position.z/60.0))*force; 
+            animated.x += cos(globalTime + (animated.z/90.0))*force; 
+            animated.y += sin(globalTime + (animated.z/60.0))*force; 
 
             vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
 

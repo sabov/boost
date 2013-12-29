@@ -15,6 +15,7 @@ jQuery(function() {
 
     var uniforms, uniforms2;
     var mesh, mesh2;
+    var uniformsArr = [];
 
     init();
     animate();
@@ -50,7 +51,7 @@ jQuery(function() {
 
         var lng = 600;
 
-        var tube = new THREE.CylinderGeometry(5, 30, lng, 12, 50, true);
+        var tube = new THREE.CylinderGeometry(30, 30, lng, 12, 50, true);
         tube.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
         tube.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
 
@@ -78,8 +79,15 @@ jQuery(function() {
         });
 
         mesh = new THREE.Mesh( tube, material );
-        scene.add( mesh );
-        scene.add(createCube());
+        scene.add(mesh);
+        scene.add(createCube(0, 0xd03ddd, 0.0));
+        scene.add(createCube(6, 0xcb3131, 200.0));
+        scene.add(createCube(12, 0x338eda, 200.0));
+        scene.add(createCube(0, 0xd03ddd, 400.0));
+        scene.add(createCube(10, 0x43cb31, 400.0));
+        scene.add(createCube(18, 0x338eda, 400.0));
+        scene.add(createCube(16, 0x338eda, 600.0));
+        scene.add(createCube(0, 0x43cb31, 600.0));
 
         THREEx.WindowResize(renderer, camera);
         window.addEventListener("deviceorientation", function(e) {
@@ -88,10 +96,10 @@ jQuery(function() {
 
     }
 
-    function createCube() {
-        var geometry = new THREE.CubeGeometry(14,14,14);
-        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 19.5, -70 ) ) );
-        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12));
+    function createCube(pos, color, pause) {
+        var geometry = new THREE.CubeGeometry(15,15,15);
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 21.5, -400 ) ) );
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12 + Math.PI/12*pos));
         var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
         
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
@@ -100,19 +108,21 @@ jQuery(function() {
 
         var attributes = {};
 
-        uniforms2 = {
-            color:      { type: "c", value: new THREE.Color( 0xd03ddd ) },
+        var uni = {
+            color:      { type: "c", value: new THREE.Color(color) },
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
+            pause:      { type: "f", value: pause },
             uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 1.0 ) }
         };
 
         var material = new THREE.ShaderMaterial( {
-            uniforms:       uniforms2,
+            uniforms:       uni,
             attributes:     attributes,
             vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
             fragmentShader: document.getElementById( 'fragmentshader' ).textContent
         });
+        uniformsArr.push(uni);
         return new THREE.Mesh( geometry, material );
     }
 
@@ -145,7 +155,10 @@ jQuery(function() {
         radians = angle * Math.PI / 180;
 
         uniforms.globalTime.value += delta*0.0006;
-        uniforms2.globalTime.value = uniforms.globalTime.value;
+        uniformsArr.forEach(function(uniform) {
+            uniform.globalTime.value = uniforms.globalTime.value;
+        });
+
 
         //cameraTarget.x = -10 * Math.sin(time/3000);
         //cameraTarget.y = -10 * Math.cos(time/4000);
