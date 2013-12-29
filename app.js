@@ -32,9 +32,6 @@ jQuery(function() {
 
             container.appendChild( renderer.domElement );
             has_gl = true;
-            var gl = renderer.context;
-            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-            gl.enable(gl.BLEND);
         }
         catch (e) {
             // need webgl
@@ -80,14 +77,19 @@ jQuery(function() {
 
         mesh = new THREE.Mesh( tube, material );
         scene.add(mesh);
-        scene.add(createCube(0, 0xd03ddd, 0.0));
-        scene.add(createCube(6, 0xcb3131, 200.0));
-        scene.add(createCube(12, 0x338eda, 200.0));
-        scene.add(createCube(0, 0xd03ddd, 400.0));
-        scene.add(createCube(10, 0x43cb31, 400.0));
-        scene.add(createCube(18, 0x338eda, 400.0));
-        scene.add(createCube(16, 0x338eda, 600.0));
-        scene.add(createCube(0, 0x43cb31, 600.0));
+
+        scene.add(createObstacle(6, 0xcb3131, 200.0) );//add a mesh with geometry to it
+
+
+        //scene.add(createCube(6, 0xcb3131, 200.0));
+        scene.add(createObstacle(12, 0x338eda, 290.0));
+        scene.add(createObstacle(0, 0xd03ddd, 490.0));
+        scene.add(createObstacle(0, 0xcb3131, 420.0) );//add a mesh with geometry to it
+        scene.add(createObstacle(10, 0x43cb31, 360.0));
+        scene.add(createObstacle(18, 0x338eda, 400.0));
+        scene.add(createObstacle(16, 0x338eda, 500.0));
+        scene.add(createObstacle(0, 0x43cb31, 600.0));
+        scene.add(createObstacle(4, 0x43cb31, 650.0));
 
         THREEx.WindowResize(renderer, camera);
         window.addEventListener("deviceorientation", function(e) {
@@ -96,8 +98,15 @@ jQuery(function() {
 
     }
 
+    function createObstacle(pos, color, pause) {
+        group = new THREE.Object3D();
+        group.add(createCube(pos, color, pause));
+        group.add(createPath(pos, color, pause));
+        return group;
+    }
+
     function createCube(pos, color, pause) {
-        var geometry = new THREE.CubeGeometry(15,15,15);
+        var geometry = new THREE.CubeGeometry(16, 16, 16);
         geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 21.5, -400 ) ) );
         geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12 + Math.PI/12*pos));
         var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
@@ -125,6 +134,38 @@ jQuery(function() {
         uniformsArr.push(uni);
         return new THREE.Mesh( geometry, material );
     }
+
+    function createPath(pos, color, pause) {
+        var geometry = new THREE.PlaneGeometry(16,200, 1, 20);
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 28.7, -400 + 100) ) );
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12 + Math.PI/12*pos));
+        var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
+        
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        var maxAnisotropy = renderer.getMaxAnisotropy();
+        map.anisotropy = maxAnisotropy;
+
+        var attributes = {};
+
+        var uni = {
+            color:      { type: "c", value: new THREE.Color(color) },
+            texture:    { type: "t", value: map },
+            globalTime: { type: "f", value: 0.0 },
+            pause:      { type: "f", value: pause },
+            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 12.0 ) }
+        };
+
+        var material = new THREE.ShaderMaterial( {
+            uniforms:       uni,
+            attributes:     attributes,
+            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
+            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+        });
+        uniformsArr.push(uni);
+        return new THREE.Mesh( geometry, material );
+    }
+
 
     function animate() {
 
