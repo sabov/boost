@@ -48,8 +48,7 @@ jQuery(function() {
         var lng = 600;
 
         var tube = new THREE.CylinderGeometry(5, 30, lng, 12, 50, true);
-        tube.applyMatrix( new THREE.Matrix4().makeRotationFromEuler( new
-                                                                    THREE.Euler(-Math.PI/2,0,0)) );
+        tube.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
         tube.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
 
         var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
@@ -61,16 +60,13 @@ jQuery(function() {
         var attributes = {};
 
         uniforms = {
-
             color:      { type: "c", value: new THREE.Color( 0xffffff ) },
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             uvScale:    { type: "v2", value: new THREE.Vector2( 12.0, 30.0 ) }
-
         };
 
         var material = new THREE.ShaderMaterial( {
-
             uniforms:       uniforms,
             attributes:     attributes,
             vertexShader:   document.getElementById( 'vertexshader' ).textContent,
@@ -80,49 +76,41 @@ jQuery(function() {
 
         mesh = new THREE.Mesh( tube, material );
         scene.add( mesh );
-
-       /* // tube 2*/
-        //var tube2 = new THREE.CylinderGeometry(20, 3, lng, 50, 50, true);
-        //tube2.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(
-            //new THREE.Euler( -Math.PI / 2, 0, 0 ) ) );
-        //tube2.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
-
-        //var map = THREE.ImageUtils.loadTexture( "textures/dstripe_flipped.jpg" );
-        
-        //map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        //var maxAnisotropy = renderer.getMaxAnisotropy();
-        //map.anisotropy = maxAnisotropy;
-        
-
-        //uniforms2 = {
-
-            //color:      { type: "c", value: new THREE.Color( 0xffffff ) },
-            //texture:    { type: "t", value: map },
-            //globalTime: { type: "f", value: 0.0 },
-            //uvScale:    { type: "v2", value: new THREE.Vector2( 2.0, 10.0 ) },
-            //light:      { type: "v3", value: new THREE.Vector3( 1.0, 1.0, 0.5 ) },
-            //shadow:     { type: "f", value: 0.0 }
-
-        //};
-
-
-        //var material = new THREE.ShaderMaterial( {
-
-            //uniforms:       uniforms2,
-            //attributes:     attributes,
-            //vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            //fragmentShader: document.getElementById( 'fragmentshader' ).textContent
-            
-        //});
-
-        //mesh2 = new THREE.Mesh( tube2, material );
-        //scene.add( mesh2 );
+        scene.add(createCube());
 
         THREEx.WindowResize(renderer, camera);
         window.addEventListener("deviceorientation", function(e) {
             shift = e.beta;
         }, true);
 
+    }
+
+    function createCube() {
+        var geometry = new THREE.CubeGeometry(14,14,14);
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 20, -70 ) ) );
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12));
+        var map = THREE.ImageUtils.loadTexture( "textures/sq.jpg" );
+        
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        var maxAnisotropy = renderer.getMaxAnisotropy();
+        map.anisotropy = maxAnisotropy;
+
+        var attributes = {};
+
+        uniforms2 = {
+            color:      { type: "c", value: new THREE.Color( 0xffffff ) },
+            texture:    { type: "t", value: map },
+            globalTime: { type: "f", value: 0.0 },
+            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 1.0 ) }
+        };
+
+        var material = new THREE.ShaderMaterial( {
+            uniforms:       uniforms2,
+            attributes:     attributes,
+            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
+            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+        });
+        return new THREE.Mesh( geometry, material );
     }
 
     function animate() {
@@ -154,7 +142,7 @@ jQuery(function() {
         radians = angle * Math.PI / 180;
 
         uniforms.globalTime.value += delta*0.0006;
-        //uniforms2.globalTime.value = uniforms.globalTime.value;
+        uniforms2.globalTime.value = uniforms.globalTime.value;
 
         //cameraTarget.x = -10 * Math.sin(time/3000);
         //cameraTarget.y = -10 * Math.cos(time/4000);

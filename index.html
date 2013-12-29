@@ -56,6 +56,38 @@
 
     </script>
 
+    <script type="x-shader/x-vertex" id="cube.vsh">
+
+        uniform float globalTime;
+        uniform vec2 uvScale;
+
+        varying vec2 vUv;
+        varying vec3 vNormal;
+
+        void main() {
+
+            vNormal = normal;
+            vUv = uvScale * uv;
+
+            //vUv.x += globalTime*1.5;
+            //vUv.y += globalTime*12.5;
+
+            vec3 animated = position; 
+
+            float force = position.z*0.10;
+
+            animated.x += cos(globalTime + (position.z/90.0))*force; 
+            animated.y += sin(globalTime + (position.z/60.0))*force; 
+
+            vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
+
+            gl_Position = projectionMatrix * mvPosition;
+
+        }
+
+    </script>
+
+
     <script type="x-shader/x-fragment" id="fragmentshader">
 
         uniform vec3 color;
