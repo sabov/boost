@@ -116,7 +116,11 @@
                 float p = (d0 - 0.82);
                 d0 = d0-min(p*12.0, 0.7);
             }
-            gl_FragColor = vec4((color * textureColor.xyz) * depthcolor, 1.0);
+            vec4 Ca = textureColor;
+            vec3 Cb = color;
+            vec3 c = Ca.rgb * Ca.a + Cb.rgb * (1.0 - Ca.a);
+            //gl_FragColor = vec4((color * textureColor.rgb) * depthcolor, 1.0);
+            gl_FragColor = vec4(c * depthcolor, 1.0);
             //gl_FragColor = vec4((color * textureColor.xyz * d0) * depthcolor, 1.0);
             
         }

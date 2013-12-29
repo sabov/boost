@@ -31,6 +31,9 @@ jQuery(function() {
 
             container.appendChild( renderer.domElement );
             has_gl = true;
+            var gl = renderer.context;
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            gl.enable(gl.BLEND);
         }
         catch (e) {
             // need webgl
@@ -87,9 +90,9 @@ jQuery(function() {
 
     function createCube() {
         var geometry = new THREE.CubeGeometry(14,14,14);
-        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 20, -70 ) ) );
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 19.5, -70 ) ) );
         geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12));
-        var map = THREE.ImageUtils.loadTexture( "textures/sq.jpg" );
+        var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
         
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         var maxAnisotropy = renderer.getMaxAnisotropy();
@@ -98,7 +101,7 @@ jQuery(function() {
         var attributes = {};
 
         uniforms2 = {
-            color:      { type: "c", value: new THREE.Color( 0xffffff ) },
+            color:      { type: "c", value: new THREE.Color( 0xd03ddd ) },
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 1.0 ) }
