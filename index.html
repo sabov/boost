@@ -132,6 +132,7 @@
         uniform sampler2D texture;
         uniform vec3 light;
         uniform float shadow;
+        uniform float highlight;
                     
         varying vec3 vNormal;
         varying vec2 vUv;
@@ -157,6 +158,7 @@
             vec4 Ca = textureColor;
             vec3 Cb = color;
             vec3 c = Ca.rgb * Ca.a + Cb.rgb * (1.0 - Ca.a);
+            c = c * highlight;
             //gl_FragColor = vec4((color * textureColor.rgb) * depthcolor, 1.0);
             gl_FragColor = vec4(c * depthcolor, 1.0);
             //gl_FragColor = vec4((color * textureColor.xyz * d0) * depthcolor, 1.0);
