@@ -48,7 +48,7 @@ jQuery(function() {
 
         var lng = 600;
 
-        var tube = new THREE.CylinderGeometry(30, 30, lng, 12, 50, true);
+        var tube = new THREE.CylinderGeometry(30, 30, lng, 12, 60, true);
         tube.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
         tube.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
 
@@ -80,15 +80,16 @@ jQuery(function() {
 
         scene.add(createObstacle(6, 0xcb3131, 200.0) );//add a mesh with geometry to it
 
+        scene.add(createArrows(16, 0x338eda, 280.0));
 
         //scene.add(createCube(6, 0xcb3131, 200.0));
         scene.add(createObstacle(12, 0x338eda, 290.0));
-        scene.add(createObstacle(0, 0xd03ddd, 490.0));
+        scene.add(createObstacle(-2, 0xd03ddd, 490.0));
         scene.add(createObstacle(0, 0xcb3131, 420.0) );//add a mesh with geometry to it
         scene.add(createObstacle(10, 0x43cb31, 360.0));
         scene.add(createObstacle(18, 0x338eda, 400.0));
         scene.add(createObstacle(16, 0x338eda, 500.0));
-        scene.add(createObstacle(0, 0x43cb31, 600.0));
+        scene.add(createObstacle(0, 0x43cb31, 690.0));
         scene.add(createObstacle(4, 0x43cb31, 650.0));
 
         THREEx.WindowResize(renderer, camera);
@@ -166,6 +167,38 @@ jQuery(function() {
         return new THREE.Mesh( geometry, material );
     }
 
+
+    function createArrows(pos, color, pause) {
+        var geometry = new THREE.PlaneGeometry(16,200, 1, 20);
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 28.7, -200 + 100) ) );
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12 + Math.PI/12*pos));
+        var map = THREE.ImageUtils.loadTexture( "textures/arrow.png" );
+        
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        var maxAnisotropy = renderer.getMaxAnisotropy();
+        map.anisotropy = maxAnisotropy;
+
+        var attributes = {};
+
+        var uni = {
+            color:      { type: "c", value: new THREE.Color(color) },
+            texture:    { type: "t", value: map },
+            globalTime: { type: "f", value: 0.0 },
+            pause:      { type: "f", value: pause },
+            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 10.0 ) }
+        };
+
+        var material = new THREE.ShaderMaterial( {
+            transparent:    true,
+            uniforms:       uni,
+            attributes:     attributes,
+            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
+            fragmentShader: document.getElementById( 'transparent.fsh' ).textContent
+        });
+        uniformsArr.push(uni);
+        return new THREE.Mesh( geometry, material );
+    }
 
     function animate() {
 
