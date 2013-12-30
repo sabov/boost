@@ -46,8 +46,33 @@ jQuery(function() {
         camera.lookAt( cameraTarget );
         scene.add( camera );
 
-        var lng = 600;
 
+        scene.add(createTube());
+        scene.add(createObstacle(4, 0xcb3131, 200.0) );//add a mesh with geometry to it
+
+        scene.add(createArrows(16, 0x338eda, 280.0));
+
+        //scene.add(createCube(6, 0xcb3131, 200.0));
+        //scene.add(createObstacle(12, 0x338eda, 290.0));
+        //scene.add(createObstacle(-2, 0xd03ddd, 490.0));
+        scene.add(createObstacle(0, 0xcb3131, 420.0) );//add a mesh with geometry to it
+        //scene.add(createObstacle(10, 0x43cb31, 360.0));
+        //scene.add(createObstacle(18, 0x338eda, 400.0));
+        //scene.add(createObstacle(16, 0x338eda, 500.0));
+        //scene.add(createObstacle(0, 0x43cb31, 690.0));
+        //scene.add(createObstacle(4, 0x43cb31, 650.0));
+
+        THREEx.WindowResize(renderer, camera);
+        window.addEventListener("deviceorientation", function(e) {
+            shift = e.beta;
+        }, true);
+
+    }
+
+
+    function createTube() {
+
+        var lng = 600;
         var tube = new THREE.CylinderGeometry(30, 30, lng, 12, 60, true);
         tube.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
         tube.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -lng/2 ) ) );
@@ -77,27 +102,7 @@ jQuery(function() {
         });
 
         mesh = new THREE.Mesh( tube, material );
-        scene.add(mesh);
-
-        scene.add(createObstacle(4, 0xcb3131, 200.0) );//add a mesh with geometry to it
-
-        scene.add(createArrows(16, 0x338eda, 280.0));
-
-        //scene.add(createCube(6, 0xcb3131, 200.0));
-        //scene.add(createObstacle(12, 0x338eda, 290.0));
-        //scene.add(createObstacle(-2, 0xd03ddd, 490.0));
-        scene.add(createObstacle(0, 0xcb3131, 420.0) );//add a mesh with geometry to it
-        //scene.add(createObstacle(10, 0x43cb31, 360.0));
-        //scene.add(createObstacle(18, 0x338eda, 400.0));
-        //scene.add(createObstacle(16, 0x338eda, 500.0));
-        //scene.add(createObstacle(0, 0x43cb31, 690.0));
-        //scene.add(createObstacle(4, 0x43cb31, 650.0));
-
-        THREEx.WindowResize(renderer, camera);
-        window.addEventListener("deviceorientation", function(e) {
-            shift = e.beta;
-        }, true);
-
+        return mesh;
     }
 
     function createObstacle(pos, color, pause) {
@@ -261,3 +266,60 @@ jQuery(function() {
 
     }
 });
+
+config = {
+    colors: [0xcb3131, 0x338eda, 0xd03ddd],
+    radius: 30,
+    length: 600,
+    numOfSegments: 12,
+    textureLength: 20,
+    speed: 100
+};
+
+G = function() {
+};
+
+G.prototype = {
+    init: function(){
+    },
+    createCamera: function() {
+    },
+    createTube: function() {
+    },
+    createObstacle: function() {
+    },
+    createCube: function() {
+    },
+    createPath: function() {
+    },
+    createArrows: function() {
+    },
+    getCollisions: function() {
+    },
+    rotateCamera: function() {
+    },
+    runBoostEffect: function() {
+    },
+    runCrashEffect: function() {
+    },
+    highlightObstacle: function() {
+    },
+    animate: function() {
+    },
+    render: function() {
+    }
+};
+
+Boost = function(config) {
+};
+
+Boost.prototype = {
+    setSpeed: function() {
+    },
+    bindKeyboard: function() {
+    },
+    bindOrientation: function() {
+    },
+    generateObstacles: function() {
+    }
+};
