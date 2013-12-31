@@ -1,4 +1,4 @@
-jQuery(function() {
+/*jQuery(function() {
     var container;
 
     var camera, scene, renderer, cameraTarget;
@@ -265,9 +265,9 @@ jQuery(function() {
         }
 
     }
-});
+});*/
 
-config = {
+conf = {
     colors: [0xcb3131, 0x338eda, 0xd03ddd],
     radius: 30,
     length: 600,
@@ -277,14 +277,72 @@ config = {
 };
 
 G = function() {
+
+    this.oldTime = 0;
+    var container = document.createElement( 'div' );
+    document.body.appendChild( container );
+
+    try {
+        console.log(this);
+        this.renderer = new THREE.WebGLRenderer({antialias: true});
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
+        container.appendChild( this.renderer.domElement );
+    }
+    catch (e) {
+        console.log('No WebGL!');
+        return;
+    }
+    this.init();
+    this.animate();
 };
 
 G.prototype = {
     init: function(){
+        this.scene = new THREE.Scene();
+        this.camera = this.createCamera();
+        this.scene.add(this.camera);
+        this.scene.add(this.createTube(conf.radius, conf.length, conf.numOfSegments, conf.textureLength, conf.speed));
+
+        THREEx.WindowResize(this.renderer, this.camera);
     },
     createCamera: function() {
+        cameraTarget = new THREE.Vector3(0,0,-70);
+        camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.lookAt( cameraTarget );
+        return camera;
     },
-    createTube: function() {
+    createTube: function(radius, length, numOfSegments, textureLength, speed) {
+        var geometry = new THREE.CylinderGeometry(radius, radius, length, numOfSegments, length/textureLength, true);
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -length/2 ) ) );
+
+        var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
+
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        var maxAnisotropy = this.renderer.getMaxAnisotropy();
+        map.anisotropy = maxAnisotropy;
+
+        var attributes = {};
+
+        var uniforms = {
+            color:      { type: "c", value: new THREE.Color( 0xffffff ) },
+            texture:    { type: "t", value: map },
+            globalTime: { type: "f", value: 0.0 },
+            speed:      { type: "f", value: speed },
+            highlight:  { type: "f", value: 1.0 },
+            uvScale:    { type: "v2", value: new THREE.Vector2( numOfSegments, length/textureLength ) }
+        };
+
+        var material = new THREE.ShaderMaterial( {
+            uniforms:       uniforms,
+            attributes:     attributes,
+            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+            fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+            side:           THREE.BackSide
+        });
+
+        mesh = new THREE.Mesh( geometry, material );
+        return mesh;
     },
     createObstacle: function() {
     },
@@ -305,8 +363,54 @@ G.prototype = {
     highlightObstacle: function() {
     },
     animate: function() {
+        requestAnimationFrame(this.animate.bind(this));
+        this.render();
     },
     render: function() {
+
+        var time = new Date().getTime();
+        var delta = time - this.oldTime;
+        this.oldTime = time;
+
+        if (isNaN(delta) || delta > 1000 || delta === 0 ) {
+            delta = 1000/60;
+        }
+
+        /*if(keyboard.pressed("left")) {*/
+            //angle += 2;
+        //} else if(keyboard.pressed("right")) {
+            //angle -= 2;
+        //}
+        //if(shift !== 0) {
+            //angle -= shift * 0.15;
+        /*}*/
+        var angle = 0;
+        var radians = angle * Math.PI / 180;
+
+        //uniforms.globalTime.value += delta*0.0006;
+        //uniformsArr.forEach(function(uniform) {
+            //uniform.globalTime.value = uniforms.globalTime.value;
+        //});
+
+
+        //cameraTarget.x = -10 * Math.sin(time/3000);
+        //cameraTarget.y = -10 * Math.cos(time/4000);
+
+        //mesh.rotation.z += Math.abs(Math.sin(time/4000))*0.01;
+        
+        //mesh2.rotation.z = mesh.rotation.z;
+
+        //camera.position.x = 13 * Math.sin(time/2000);
+        //camera.position.y = 13 * Math.cos(time/2000);
+        this.camera.position.x = 25 * Math.sin(radians);
+        this.camera.position.y = 25 * Math.cos(radians);
+        //camera.position.y = -23;
+        //camera.lookAt( cameraTarget );
+
+        this.camera.up.x = -Math.sin(radians);
+        this.camera.up.y = -Math.cos(radians);
+
+        this.renderer.render(this.scene, this.camera);
     }
 };
 
@@ -319,7 +423,14 @@ Boost.prototype = {
     bindKeyboard: function() {
     },
     bindOrientation: function() {
+        window.addEventListener("deviceorientation", function(e) {
+            //shift = e.beta;
+        }, true);
     },
     generateObstacles: function() {
     }
 };
+
+jQuery(function(){
+    new G();
+});
