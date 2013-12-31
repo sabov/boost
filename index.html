@@ -28,6 +28,7 @@
     <script type="x-shader/x-vertex" id="vertexshader">
 
         uniform float globalTime;
+        uniform float speed;
         uniform vec2 uvScale;
 
         varying vec2 vUv;
@@ -38,10 +39,9 @@
             vNormal = normal;
             vUv = uvScale * uv;
 
-            //vUv.x += globalTime*1.5;
-            //vUv.y += globalTime*12.5;
+            vUv.y += globalTime*speed;
 
-            vec3 animated = position; 
+            vec3 animated = position;
 
             float force = position.z*0.1;
 

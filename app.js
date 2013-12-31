@@ -273,12 +273,16 @@ conf = {
     length: 600,
     numOfSegments: 12,
     textureLength: 20,
-    speed: 100
+    speed: 10,
+    pathLength: 20
 };
 
 G = function() {
 
     this.oldTime = 0;
+    this.globalTime = 0;
+    this.uniformsArr = [];
+
     var container = document.createElement( 'div' );
     document.body.appendChild( container );
 
@@ -302,6 +306,7 @@ G.prototype = {
         this.camera = this.createCamera();
         this.scene.add(this.camera);
         this.scene.add(this.createTube(conf.radius, conf.length, conf.numOfSegments, conf.textureLength, conf.speed));
+        this.scene.add(this.createPath(10, conf.colors[0], 10, 20));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -332,6 +337,7 @@ G.prototype = {
             highlight:  { type: "f", value: 1.0 },
             uvScale:    { type: "v2", value: new THREE.Vector2( numOfSegments, length/textureLength ) }
         };
+        this.uniformsArr.push(uniforms);
 
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
@@ -348,7 +354,38 @@ G.prototype = {
     },
     createCube: function() {
     },
-    createPath: function() {
+    createPath: function(pos, color, distance, length) {
+
+        var geometry = new THREE.PlaneGeometry(15.4,200, 1, 20);
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 28.95, -199.93 + 100) ) );
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12 + Math.PI/12*pos));
+        var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
+
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        var maxAnisotropy = this.renderer.getMaxAnisotropy();
+        map.anisotropy = maxAnisotropy;
+
+        var attributes = {};
+
+        var uniforms = {
+            color:      { type: "c", value: new THREE.Color(color) },
+            texture:    { type: "t", value: map },
+            globalTime: { type: "f", value: 0.0 },
+            highlight:  { type: "f", value: pos === 0? 2.0 : 1.0 },
+            pause:      { type: "f", value: 100},
+            speed:      { type: "f", value: conf.speed},
+            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 10.0 ) }
+        };
+
+        var material = new THREE.ShaderMaterial( {
+            uniforms:       uniforms,
+            attributes:     attributes,
+            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
+            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+        });
+        this.uniformsArr.push(uniforms);
+        return new THREE.Mesh( geometry, material );
     },
     createArrows: function() {
     },
@@ -371,6 +408,7 @@ G.prototype = {
         var time = new Date().getTime();
         var delta = time - this.oldTime;
         this.oldTime = time;
+        console.log(delta);
 
         if (isNaN(delta) || delta > 1000 || delta === 0 ) {
             delta = 1000/60;
@@ -388,9 +426,12 @@ G.prototype = {
         var radians = angle * Math.PI / 180;
 
         //uniforms.globalTime.value += delta*0.0006;
-        //uniformsArr.forEach(function(uniform) {
-            //uniform.globalTime.value = uniforms.globalTime.value;
-        //});
+        this.globalTime += delta * 0.0006;
+        this.uniformsArr.forEach(function(uniform) {
+            console.log(uniform);
+            console.log(this);
+            uniform.globalTime.value = this.globalTime;
+        }.bind(this));
 
 
         //cameraTarget.x = -10 * Math.sin(time/3000);
@@ -404,7 +445,7 @@ G.prototype = {
         //camera.position.y = 13 * Math.cos(time/2000);
         this.camera.position.x = 25 * Math.sin(radians);
         this.camera.position.y = 25 * Math.cos(radians);
-        //camera.position.y = -23;
+        camera.position.y = -23;
         //camera.lookAt( cameraTarget );
 
         this.camera.up.x = -Math.sin(radians);
