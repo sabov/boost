@@ -272,7 +272,7 @@ conf = {
     radius: 30,
     length: 600,
     numOfSegments: 12,
-    textureLength: 20,
+    textureLength: 10,
     speed: 10,
     pathLength: 20
 };
@@ -281,13 +281,13 @@ G = function() {
 
     this.oldTime = 0;
     this.globalTime = 0;
+    this.angle = 0;
     this.uniformsArr = [];
 
     var container = document.createElement( 'div' );
     document.body.appendChild( container );
 
     try {
-        console.log(this);
         this.renderer = new THREE.WebGLRenderer({antialias: true});
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         container.appendChild( this.renderer.domElement );
@@ -391,7 +391,8 @@ G.prototype = {
     },
     getCollisions: function() {
     },
-    rotateCamera: function() {
+    rotateCamera: function(angle) {
+        this.angle += angle;
     },
     runBoostEffect: function() {
     },
@@ -408,28 +409,17 @@ G.prototype = {
         var time = new Date().getTime();
         var delta = time - this.oldTime;
         this.oldTime = time;
-        console.log(delta);
 
         if (isNaN(delta) || delta > 1000 || delta === 0 ) {
             delta = 1000/60;
         }
 
-        /*if(keyboard.pressed("left")) {*/
-            //angle += 2;
-        //} else if(keyboard.pressed("right")) {
-            //angle -= 2;
-        //}
-        //if(shift !== 0) {
-            //angle -= shift * 0.15;
-        /*}*/
-        var angle = 0;
-        var radians = angle * Math.PI / 180;
+
+        var radians = this.angle * Math.PI / 180;
 
         //uniforms.globalTime.value += delta*0.0006;
         this.globalTime += delta * 0.0006;
         this.uniformsArr.forEach(function(uniform) {
-            console.log(uniform);
-            console.log(this);
             uniform.globalTime.value = this.globalTime;
         }.bind(this));
 
@@ -445,7 +435,7 @@ G.prototype = {
         //camera.position.y = 13 * Math.cos(time/2000);
         this.camera.position.x = 25 * Math.sin(radians);
         this.camera.position.y = 25 * Math.cos(radians);
-        camera.position.y = -23;
+        //this.camera.position.y = -23;
         //camera.lookAt( cameraTarget );
 
         this.camera.up.x = -Math.sin(radians);
@@ -456,12 +446,22 @@ G.prototype = {
 };
 
 Boost = function(config) {
+    this.G = new G();
+    this.bindKeyboard();
+    this.keyboard = new THREEx.KeyboardState();
 };
 
 Boost.prototype = {
     setSpeed: function() {
     },
     bindKeyboard: function() {
+        jQuery(window).on('keypress', function() {
+            if(this.keyboard.pressed("left")) {
+                this.G.rotateCamera(2);
+            } else if(this.keyboard.pressed("right")) {
+                this.G.rotateCamera(-2);
+            }
+        }.bind(this));
     },
     bindOrientation: function() {
         window.addEventListener("deviceorientation", function(e) {
@@ -473,5 +473,5 @@ Boost.prototype = {
 };
 
 jQuery(function(){
-    new G();
+    new Boost();
 });

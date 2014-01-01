@@ -60,6 +60,7 @@
 
         uniform float globalTime;
         uniform float pause;
+        uniform float speed;
         uniform vec2 uvScale;
 
         varying vec2 vUv;
@@ -69,9 +70,6 @@
 
             vNormal = normal;
             vUv = uvScale * uv;
-
-            //vUv.x += globalTime*1.5;
-            //vUv.y += globalTime*12.5;
 
             vec3 animated = position; 
 
