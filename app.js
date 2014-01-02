@@ -267,22 +267,39 @@
     }
 });*/
 
+//helper functions
+function getSegmentWidth(numOfSegments, radius) {
+    var angle = angleToRadians(360 / numOfSegments);
+    return 2 * radius * Math.sin(angle/2);
+}
+
+function angleToRadians(angle) {
+    return angle * Math.PI / 180;
+}
+
+function getDistanceToSegment(numOfSegments, radius) {
+    var angle = angleToRadians(360 / numOfSegments);
+    return radius * Math.cos(angle/2);
+}
+
 conf = {
     colors: [0xcb3131, 0x338eda, 0xd03ddd],
     radius: 30,
-    length: 600,
+    tubeLength: 60,
     numOfSegments: 12,
-    textureLength: 10,
-    speed: 10,
+    textureLength: 18,
+    speed: 0.1,
     pathLength: 20
 };
 
-G = function() {
+G = function(conf) {
 
+    this.conf = conf;
     this.oldTime = 0;
     this.globalTime = 0;
-    this.angle = 0;
+    this.cameraAngle = 0;
     this.uniformsArr = [];
+    this.onRenderFunctions = [];
 
     var container = document.createElement( 'div' );
     document.body.appendChild( container );
@@ -305,19 +322,26 @@ G.prototype = {
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.scene.add(this.camera);
-        this.scene.add(this.createTube(conf.radius, conf.length, conf.numOfSegments, conf.textureLength, conf.speed));
-        this.scene.add(this.createPath(10, conf.colors[0], 10, 20));
+        this.scene.add(this.createTube());
+        this.scene.add(this.createPath(10, conf.colors[0]));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
     createCamera: function() {
-        cameraTarget = new THREE.Vector3(0,0,-70);
-        camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
+        var cameraTarget = new THREE.Vector3(0,0,-70);
+        var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
         camera.lookAt( cameraTarget );
         return camera;
     },
-    createTube: function(radius, length, numOfSegments, textureLength, speed) {
-        var geometry = new THREE.CylinderGeometry(radius, radius, length, numOfSegments, length/textureLength, true);
+    createTube: function() {
+        var length = this.conf.tubeLength * this.conf.textureLength;
+        var geometry = new THREE.CylinderGeometry(
+            this.conf.radius,
+            this.conf.radius,
+            length,
+            this.conf.numOfSegments,
+            this.conf.tubeLength * 10,
+            true);
         geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
         geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -length/2 ) ) );
 
@@ -333,9 +357,9 @@ G.prototype = {
             color:      { type: "c", value: new THREE.Color( 0xffffff ) },
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
-            speed:      { type: "f", value: speed },
+            speed:      { type: "f", value: this.conf.speed },
             highlight:  { type: "f", value: 1.0 },
-            uvScale:    { type: "v2", value: new THREE.Vector2( numOfSegments, length/textureLength ) }
+            uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
         };
         this.uniformsArr.push(uniforms);
 
@@ -354,11 +378,15 @@ G.prototype = {
     },
     createCube: function() {
     },
-    createPath: function(pos, color, distance, length) {
+    createPath: function(pos, color, distance) {
 
-        var geometry = new THREE.PlaneGeometry(15.4,200, 1, 20);
+        var length = this.conf.pathLength * this.conf.textureLength;
+        var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
+        var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.01;
+
+        var geometry = new THREE.PlaneGeometry(width, length, 1, this.conf.pathLength * 10);
         geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
-        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 28.95, -199.93 + 100) ) );
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, distanceToCenter, -length/2)));
         geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12 + Math.PI/12*pos));
         var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
 
@@ -374,8 +402,8 @@ G.prototype = {
             globalTime: { type: "f", value: 0.0 },
             highlight:  { type: "f", value: pos === 0? 2.0 : 1.0 },
             pause:      { type: "f", value: 100},
-            speed:      { type: "f", value: conf.speed},
-            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 10.0 ) }
+            speed:      { type: "f", value: this.conf.speed},
+            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, this.conf.pathLength ) }
         };
 
         var material = new THREE.ShaderMaterial( {
@@ -392,7 +420,7 @@ G.prototype = {
     getCollisions: function() {
     },
     rotateCamera: function(angle) {
-        this.angle += angle;
+        this.cameraAngle += angle;
     },
     runBoostEffect: function() {
     },
@@ -400,11 +428,19 @@ G.prototype = {
     },
     highlightObstacle: function() {
     },
+    onRender: function(func) {
+        this.onRenderFunctions.push(func);
+    },
+
     animate: function() {
         requestAnimationFrame(this.animate.bind(this));
         this.render();
     },
     render: function() {
+
+        this.onRenderFunctions.forEach(function(func) {
+            func();
+        });
 
         var time = new Date().getTime();
         var delta = time - this.oldTime;
@@ -415,7 +451,7 @@ G.prototype = {
         }
 
 
-        var radians = this.angle * Math.PI / 180;
+        var radians = this.cameraAngle * Math.PI / 180;
 
         //uniforms.globalTime.value += delta*0.0006;
         this.globalTime += delta * 0.0006;
@@ -435,8 +471,8 @@ G.prototype = {
         //camera.position.y = 13 * Math.cos(time/2000);
         this.camera.position.x = 25 * Math.sin(radians);
         this.camera.position.y = 25 * Math.cos(radians);
-        //this.camera.position.y = -23;
-        //camera.lookAt( cameraTarget );
+        var cameraTarget = new THREE.Vector3(0,0,-70);
+        this.camera.lookAt( cameraTarget );
 
         this.camera.up.x = -Math.sin(radians);
         this.camera.up.y = -Math.cos(radians);
@@ -446,22 +482,23 @@ G.prototype = {
 };
 
 Boost = function(config) {
-    this.G = new G();
+    this.G = new G(conf);
     this.bindKeyboard();
     this.keyboard = new THREEx.KeyboardState();
+    this.G.onRender(this.checkKeyboard.bind(this));
 };
 
 Boost.prototype = {
     setSpeed: function() {
     },
+    checkKeyboard: function() {
+        if(this.keyboard.pressed("left")) {
+            this.G.rotateCamera(2);
+        } else if(this.keyboard.pressed("right")) {
+            this.G.rotateCamera(-2);
+        }
+    },
     bindKeyboard: function() {
-        jQuery(window).on('keypress', function() {
-            if(this.keyboard.pressed("left")) {
-                this.G.rotateCamera(2);
-            } else if(this.keyboard.pressed("right")) {
-                this.G.rotateCamera(-2);
-            }
-        }.bind(this));
     },
     bindOrientation: function() {
         window.addEventListener("deviceorientation", function(e) {

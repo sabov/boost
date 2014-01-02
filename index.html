@@ -73,7 +73,7 @@
 
             vec3 animated = position; 
 
-            //animated.z += globalTime * 12.5 * 20.0 - pause;
+            animated.z += globalTime * 18.0 * speed;
             float force = animated.z*0.10;
 
             animated.x += cos(globalTime + (animated.z/90.0))*force; 
