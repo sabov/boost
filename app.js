@@ -299,6 +299,7 @@ G = function(conf) {
     this.oldTime = 0;
     this.globalTime = 0;
     this.cameraAngle = 0;
+    this.cameraPosition = 0;
     this.uniformsArr = [];
     this.onRenderFunctions = [];
 
@@ -324,9 +325,11 @@ G.prototype = {
         this.camera = this.createCamera();
         this.scene.add(this.camera);
         this.scene.add(this.createTube());
-        this.scene.add(this.createObstacle(1, conf.colors[0], 7));
-        this.scene.add(this.createObstacle(2, conf.colors[0], 0));
-        this.scene.add(this.createArrows(-1, 8));
+        this.scene.add(this.createObstacle(0, conf.colors[0], 7));
+        this.scene.add(this.createObstacle(3, conf.colors[1], 7));
+        this.scene.add(this.createObstacle(10, conf.colors[0], 20));
+        this.scene.add(this.createObstacle(8, conf.colors[2], 16));
+        //this.scene.add(this.createArrows(-1, 8));
         //this.scene.add(this.createPath(2, conf.colors[2], 12));
         //this.scene.add(this.createPath(3, conf.colors[0], 13));
         //this.scene.add(this.createPath(4, conf.colors[1], 14));
@@ -395,7 +398,7 @@ G.prototype = {
 
         var geometry = new THREE.CubeGeometry(width, width, this.conf.textureLength);
         geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, distanceToCenter - width/2, -this.conf.textureLength*3/2)));//prevent clipping
-        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12 + Math.PI/6*pos));
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
         var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
 
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
@@ -408,7 +411,8 @@ G.prototype = {
             color:      { type: "c", value: new THREE.Color(color) },
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
-            highlight:  { type: "f", value: pos === 0? 2.0 : 1.0 },
+            position:   { type: "f", value: pos },
+            highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: (distance - 1) * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
             uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 1.0) }
@@ -432,7 +436,7 @@ G.prototype = {
         var geometry = new THREE.PlaneGeometry(width, length, 1, this.conf.pathLength * 10);
         geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
         geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, distanceToCenter, -length/2)));
-        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12 + Math.PI/6*pos));
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
         var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
 
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
@@ -445,7 +449,8 @@ G.prototype = {
             color:      { type: "c", value: new THREE.Color(color) },
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
-            highlight:  { type: "f", value: pos === 0? 2.0 : 1.0 },
+            position:   { type: "f", value: pos },
+            highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: distance * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
             uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, this.conf.pathLength ) }
@@ -482,7 +487,8 @@ G.prototype = {
             color:      { type: "c", value: new THREE.Color(0xffffff) },
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
-            highlight:  { type: "f", value: pos === 0? 2.0 : 1.0 },
+            position:   { type: "f", value: pos },
+            highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: distance * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
             uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, this.conf.arrowLength ) }
@@ -500,14 +506,32 @@ G.prototype = {
     },
     getCollisions: function() {
     },
+    getCameraPosition: function() {
+        return this.camerPosition;
+    },
     rotateCamera: function(angle) {
         this.cameraAngle += angle;
+
+        var num = this.conf.numOfSegments;
+        var position = Math.floor(this.cameraAngle / (360 / num));
+        if(position >= num || position < 0) {
+            var divisor = Math.floor(position / num);
+            position = position - divisor * num;
+        }
+        this.camerPosition = position;
     },
     runBoostEffect: function() {
     },
     runCrashEffect: function() {
     },
-    highlightObstacle: function() {
+    highlightLine: function(position) {
+        this.uniformsArr.forEach(function(uniform) {
+            if(uniform.position && uniform.position.value == position) {
+                uniform.highlight.value = 2.0;
+            } else {
+                uniform.highlight.value = 1.0;
+            }
+        });
     },
     onRender: function(func) {
         this.onRenderFunctions.push(func);
@@ -566,6 +590,10 @@ Boost = function(config) {
     this.bindKeyboard();
     this.keyboard = new THREEx.KeyboardState();
     this.G.onRender(this.checkKeyboard.bind(this));
+    this.G.onRender(function() {
+        var p = this.G.getCameraPosition();
+        this.G.highlightLine(p);
+    }.bind(this));
 };
 
 Boost.prototype = {
