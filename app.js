@@ -19,7 +19,7 @@ conf = {
     tubeLength: 60,
     numOfSegments: 12,
     textureLength: 18,
-    speed: 5,
+    speed: 10,
     pathLength: 20,
     arrowLength: 8
 };
@@ -28,7 +28,9 @@ G = function(conf) {
 
     this.conf = conf;
     this.oldTime = 0;
+    this.runAnimation = true;
     this.globalTime = 0;
+    this.distance = 0;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.uniformsArr = [];
@@ -60,7 +62,7 @@ G.prototype = {
         this.scene.add(this.createObstacle(3, conf.colors[1], 7));
         this.scene.add(this.createObstacle(10, conf.colors[0], 20));
         this.scene.add(this.createObstacle(8, conf.colors[2], 16));
-        this.scene.add(this.createArrows(0, 8));
+        //this.scene.add(this.createArrows(0, 8));
         this.scene.add(this.createObstacle(2, conf.colors[2], 12));
         this.scene.add(this.createObstacle(7, conf.colors[1], 24));
 
@@ -232,6 +234,17 @@ G.prototype = {
         return new THREE.Mesh( geometry, material );
     },
     getCollisions: function() {
+        var p = this.camerPosition;
+        this.uniformsArr.forEach(function(uniform) {
+            if(uniform.position && uniform.position.value == p) {
+                if(uniform.distance &&
+                   this.distance > uniform.distance.value + 5 &&
+                   this.distance < uniform.distance.value + this.conf.textureLength) {
+                    this.runAnimation = false;
+                    jQuery('.popup').show();
+                }
+            }
+        }.bind(this));
     },
     getCameraPosition: function() {
         return this.camerPosition;
@@ -265,8 +278,10 @@ G.prototype = {
     },
 
     animate: function() {
-        requestAnimationFrame(this.animate.bind(this));
-        this.render();
+        if(this.runAnimation) {
+            requestAnimationFrame(this.animate.bind(this));
+            this.render();
+        }
     },
     render: function() {
 
@@ -286,6 +301,11 @@ G.prototype = {
 
         //uniforms.globalTime.value += delta*0.0006;
         this.globalTime += delta * 0.0006;
+        this.distance = this.globalTime * this.conf.speed * this.conf.textureLength;
+        if(Math.floor(this.distance) % this.conf.textureLength === 0) {
+            console.log(this.distance);
+        }
+
         this.uniformsArr.forEach(function(uniform) {
             uniform.globalTime.value = this.globalTime;
         }.bind(this));
@@ -320,6 +340,7 @@ Boost = function(config) {
     this.G.onRender(function() {
         var p = this.G.getCameraPosition();
         this.G.highlightLine(p);
+        this.G.getCollisions();
     }.bind(this));
 };
 
