@@ -21,9 +21,33 @@
             padding: 0;
             overflow: hidden;
         }
+        .popup {
+            position: absolute;
+            background: rgba(0,0,0,0.6);
+            width: 100%;
+            height: 100%;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: none;
+        }
+        h1 {
+            font-size: 45px;
+            text-shadow: 1px 1px rgba(0,0,0,0.5);
+            font-family: Arial;
+            margin-top: 400px;
+            text-transform: uppercase;
+            text-align: center;
+            color: #FFFFFF;
+        }
     </style>
 </head>
 <body>
+
+    <div class="popup">
+        <h1>End Game</h1>
+    </div>
 
     <script type="x-shader/x-vertex" id="vertexshader">
 
@@ -45,8 +69,8 @@
 
             float force = position.z*0.1;
 
-            animated.x += cos(globalTime + (position.z/90.0))*force; 
-            animated.y += sin(globalTime + (position.z/60.0))*force; 
+            //animated.x += cos(globalTime + (position.z/90.0))*force; 
+            //animated.y += sin(globalTime + (position.z/60.0))*force; 
 
             vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
 
@@ -59,7 +83,8 @@
     <script type="x-shader/x-vertex" id="cube.vsh">
 
         uniform float globalTime;
-        uniform float pause;
+        uniform float speed;
+        uniform float distance;
         uniform vec2 uvScale;
 
         varying vec2 vUv;
@@ -70,16 +95,13 @@
             vNormal = normal;
             vUv = uvScale * uv;
 
-            //vUv.x += globalTime*1.5;
-            //vUv.y += globalTime*12.5;
-
             vec3 animated = position; 
 
-            //animated.z += globalTime * 12.5 * 20.0 - pause;
+            animated.z += globalTime * speed - distance;
             float force = animated.z*0.10;
 
-            animated.x += cos(globalTime + (animated.z/90.0))*force; 
-            animated.y += sin(globalTime + (animated.z/60.0))*force; 
+            //animated.x += cos(globalTime + (animated.z/90.0))*force; 
+            //animated.y += sin(globalTime + (animated.z/60.0))*force; 
 
             vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
 
