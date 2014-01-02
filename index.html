@@ -59,8 +59,8 @@
     <script type="x-shader/x-vertex" id="cube.vsh">
 
         uniform float globalTime;
-        uniform float pause;
         uniform float speed;
+        uniform float distance;
         uniform vec2 uvScale;
 
         varying vec2 vUv;
@@ -73,7 +73,7 @@
 
             vec3 animated = position; 
 
-            animated.z += globalTime * 18.0 * speed;
+            animated.z += globalTime * speed - distance;
             float force = animated.z*0.10;
 
             animated.x += cos(globalTime + (animated.z/90.0))*force; 
