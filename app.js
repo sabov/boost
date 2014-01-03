@@ -18,8 +18,8 @@ conf = {
     radius: 30,
     tubeLength: 60,
     numOfSegments: 12,
-    textureLength: 18,
-    speed: 10,
+    textureLength: 25,
+    speed: 13,
     pathLength: 20,
     arrowLength: 8
 };
@@ -34,6 +34,7 @@ G = function(conf) {
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.uniformsArr = [];
+    this.cubeUniformsArr = [];
     this.onRenderFunctions = [];
 
     var container = document.createElement( 'div' );
@@ -62,7 +63,9 @@ G.prototype = {
         this.scene.add(this.createObstacle(3, conf.colors[1], 7));
         this.scene.add(this.createObstacle(10, conf.colors[0], 20));
         this.scene.add(this.createObstacle(8, conf.colors[2], 16));
-        //this.scene.add(this.createArrows(0, 8));
+        this.scene.add(this.createObstacle(12, conf.colors[2], 4));
+        this.scene.add(this.createObstacle(11, conf.colors[1], 15));
+        this.scene.add(this.createArrows(0, 8));
         this.scene.add(this.createObstacle(2, conf.colors[2], 12));
         this.scene.add(this.createObstacle(7, conf.colors[1], 24));
 
@@ -99,6 +102,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             speed:      { type: "f", value: this.conf.speed },
+            dynamic:    { type: "f", value: false },
             highlight:  { type: "f", value: 1.0 },
             uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
         };
@@ -141,6 +145,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             position:   { type: "f", value: pos },
+            dynamic:    { type: "f", value: true },
             highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: (distance - 1) * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
@@ -150,10 +155,11 @@ G.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
+            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
             fragmentShader: document.getElementById( 'fragmentshader' ).textContent
         });
         this.uniformsArr.push(uniforms);
+        this.cubeUniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
     },
     createPath: function(pos, color, distance) {
@@ -179,6 +185,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             position:   { type: "f", value: pos },
+            dynamic:    { type: "f", value: true },
             highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: distance * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
@@ -188,7 +195,7 @@ G.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
+            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
             fragmentShader: document.getElementById( 'fragmentshader' ).textContent
         });
         this.uniformsArr.push(uniforms);
@@ -217,6 +224,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             position:   { type: "f", value: pos },
+            dynamic:    { type: "f", value: true },
             highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: distance * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
@@ -227,24 +235,26 @@ G.prototype = {
             uniforms:       uniforms,
             attributes:     attributes,
             transparent:    true,
-            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
-            fragmentShader: document.getElementById( 'transparent.fsh' ).textContent
+            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
         });
         this.uniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
     },
-    getCollisions: function() {
+    onCollisions: function(callback) {
         var p = this.camerPosition;
-        this.uniformsArr.forEach(function(uniform) {
+        this.cubeUniformsArr.forEach(function(uniform) {
             if(uniform.position && uniform.position.value == p) {
                 if(uniform.distance &&
                    this.distance > uniform.distance.value + 5 &&
-                   this.distance < uniform.distance.value + this.conf.textureLength) {
-                    this.runAnimation = false;
-                    jQuery('.popup').show();
+                   this.distance < uniform.distance.value + this.conf.textureLength + 5) {
+                    if(callback) callback();
                 }
             }
         }.bind(this));
+    },
+    stopAnimation: function() {
+        this.runAnimation = false;
     },
     getCameraPosition: function() {
         return this.camerPosition;
@@ -302,9 +312,6 @@ G.prototype = {
         //uniforms.globalTime.value += delta*0.0006;
         this.globalTime += delta * 0.0006;
         this.distance = this.globalTime * this.conf.speed * this.conf.textureLength;
-        if(Math.floor(this.distance) % this.conf.textureLength === 0) {
-            console.log(this.distance);
-        }
 
         this.uniformsArr.forEach(function(uniform) {
             uniform.globalTime.value = this.globalTime;
@@ -323,10 +330,10 @@ G.prototype = {
         this.camera.position.x = 25 * Math.sin(radians);
         this.camera.position.y = 25 * Math.cos(radians);
         var cameraTarget = new THREE.Vector3(0,0,-70);
-        this.camera.lookAt( cameraTarget );
 
         this.camera.up.x = -Math.sin(radians);
         this.camera.up.y = -Math.cos(radians);
+        this.camera.lookAt( cameraTarget );
 
         this.renderer.render(this.scene, this.camera);
     }
@@ -336,11 +343,14 @@ Boost = function(config) {
     this.G = new G(conf);
     this.bindKeyboard();
     this.keyboard = new THREEx.KeyboardState();
-    this.G.onRender(this.checkKeyboard.bind(this));
     this.G.onRender(function() {
         var p = this.G.getCameraPosition();
         this.G.highlightLine(p);
-        this.G.getCollisions();
+        this.checkKeyboard();
+        this.G.onCollisions(function(){
+            this.G.stopAnimation();
+            jQuery('.popup').show();
+        }.bind(this));
     }.bind(this));
 };
 
