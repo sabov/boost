@@ -69,8 +69,8 @@
 
             float force = position.z*0.1;
 
-            //animated.x += cos(globalTime + (position.z/90.0))*force; 
-            //animated.y += sin(globalTime + (position.z/60.0))*force; 
+            animated.x += cos(globalTime + (position.z/90.0))*force; 
+            animated.y += sin(globalTime + (position.z/60.0))*force; 
 
             vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
 
@@ -100,8 +100,8 @@
             animated.z += globalTime * speed - distance;
             float force = animated.z*0.10;
 
-            //animated.x += cos(globalTime + (animated.z/90.0))*force; 
-            //animated.y += sin(globalTime + (animated.z/60.0))*force; 
+            animated.x += cos(globalTime + (animated.z/90.0))*force; 
+            animated.y += sin(globalTime + (animated.z/60.0))*force; 
 
             vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
 
