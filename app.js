@@ -65,7 +65,7 @@ G.prototype = {
         this.scene.add(this.createObstacle(8, conf.colors[2], 16));
         this.scene.add(this.createObstacle(12, conf.colors[2], 4));
         this.scene.add(this.createObstacle(11, conf.colors[1], 15));
-        //this.scene.add(this.createArrows(0, 8));
+        this.scene.add(this.createArrows(0, 8));
         this.scene.add(this.createObstacle(2, conf.colors[2], 12));
         this.scene.add(this.createObstacle(7, conf.colors[1], 24));
 
@@ -102,6 +102,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             speed:      { type: "f", value: this.conf.speed },
+            dynamic:    { type: "f", value: false },
             highlight:  { type: "f", value: 1.0 },
             uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
         };
@@ -144,6 +145,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             position:   { type: "f", value: pos },
+            dynamic:    { type: "f", value: true },
             highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: (distance - 1) * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
@@ -153,7 +155,7 @@ G.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
+            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
             fragmentShader: document.getElementById( 'fragmentshader' ).textContent
         });
         this.uniformsArr.push(uniforms);
@@ -183,6 +185,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             position:   { type: "f", value: pos },
+            dynamic:    { type: "f", value: true },
             highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: distance * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
@@ -192,7 +195,7 @@ G.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
+            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
             fragmentShader: document.getElementById( 'fragmentshader' ).textContent
         });
         this.uniformsArr.push(uniforms);
@@ -221,6 +224,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             position:   { type: "f", value: pos },
+            dynamic:    { type: "f", value: true },
             highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: distance * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
@@ -231,8 +235,8 @@ G.prototype = {
             uniforms:       uniforms,
             attributes:     attributes,
             transparent:    true,
-            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
-            fragmentShader: document.getElementById( 'transparent.fsh' ).textContent
+            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
         });
         this.uniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );

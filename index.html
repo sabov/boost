@@ -53,6 +53,8 @@
 
         uniform float globalTime;
         uniform float speed;
+        uniform float distance;
+        uniform bool dynamic;
         uniform vec2 uvScale;
 
         varying vec2 vUv;
@@ -62,43 +64,16 @@
 
             vNormal = normal;
             vUv = uvScale * uv;
-
-            vUv.y += globalTime*speed;
 
             vec3 animated = position;
 
-            float force = position.z*0.1;
+            if(dynamic) {
+                animated.z += globalTime * speed - distance;
+            } else {
+                vUv.y += globalTime*speed;
+            }
 
-            animated.x += cos(globalTime + (position.z/90.0))*force; 
-            animated.y += sin(globalTime + (position.z/60.0))*force; 
-
-            vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
-
-            gl_Position = projectionMatrix * mvPosition;
-
-        }
-
-    </script>
-
-    <script type="x-shader/x-vertex" id="cube.vsh">
-
-        uniform float globalTime;
-        uniform float speed;
-        uniform float distance;
-        uniform vec2 uvScale;
-
-        varying vec2 vUv;
-        varying vec3 vNormal;
-
-        void main() {
-
-            vNormal = normal;
-            vUv = uvScale * uv;
-
-            vec3 animated = position; 
-
-            animated.z += globalTime * speed - distance;
-            float force = animated.z*0.10;
+            float force = animated.z*0.1;
 
             animated.x += cos(globalTime + (animated.z/90.0))*force; 
             animated.y += sin(globalTime + (animated.z/60.0))*force; 
@@ -110,43 +85,6 @@
         }
 
     </script>
-
-    <script type="x-shader/x-fragment" id="transparent.fsh">
-
-        uniform vec3 color;
-        uniform sampler2D texture;
-        uniform vec3 light;
-        uniform float shadow;
-                    
-        varying vec3 vNormal;
-        varying vec2 vUv;
-
-        void main() {
-
-            vec4 textureColor = texture2D(texture, vec2(vUv.s, vUv.t));
-
-            float depth = gl_FragCoord.z / gl_FragCoord.w;
-            float near = 0.0;
-            float far = 300.0;
-            float depthcolor = 1.0 - smoothstep( near, far, depth );
-            
-            vec3 l = light;
-            l = normalize(l);
-            float d0 = max(0.2,dot(vNormal, l));
-            
-            // faking shadow
-            if (shadow == 1.0 && d0 > 0.82) {
-                float p = (d0 - 0.82);
-                d0 = d0-min(p*12.0, 0.7);
-            }
-            gl_FragColor = vec4((textureColor.rgb) * depthcolor, textureColor.a);
-            //gl_FragColor = vec4((color * textureColor.xyz * d0) * depthcolor, 1.0);
-            
-        }
-
-    </script>
-
-
 
     <script type="x-shader/x-fragment" id="fragmentshader">
 
@@ -181,9 +119,8 @@
             vec3 Cb = color;
             vec3 c = Ca.rgb * Ca.a + Cb.rgb * (1.0 - Ca.a);
             c = c * highlight;
-            //gl_FragColor = vec4((color * textureColor.rgb) * depthcolor, 1.0);
-            gl_FragColor = vec4(c * depthcolor, 1.0);
-            //gl_FragColor = vec4((color * textureColor.xyz * d0) * depthcolor, 1.0);
+
+            gl_FragColor = vec4(c * depthcolor, textureColor.a);
             
         }
 
