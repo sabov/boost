@@ -36,6 +36,7 @@ G = function(conf) {
     this.uniformsArr = [];
     this.cubeUniformsArr = [];
     this.onRenderFunctions = [];
+    this.flashEffect = false;
 
     var container = document.createElement( 'div' );
     document.body.appendChild( container );
@@ -51,6 +52,7 @@ G = function(conf) {
     }
     this.init();
     this.animate();
+    this.runFlashEffect();
 };
 
 G.prototype = {
@@ -65,7 +67,7 @@ G.prototype = {
         this.scene.add(this.createObstacle(8, conf.colors[2], 16));
         this.scene.add(this.createObstacle(12, conf.colors[2], 4));
         this.scene.add(this.createObstacle(11, conf.colors[1], 15));
-        this.scene.add(this.createArrows(0, 8));
+        //this.scene.add(this.createArrows(0, 8));
         this.scene.add(this.createObstacle(2, conf.colors[2], 12));
         this.scene.add(this.createObstacle(7, conf.colors[1], 24));
 
@@ -274,6 +276,12 @@ G.prototype = {
     },
     runCrashEffect: function() {
     },
+    runFlashEffect: function() {
+        this.uniformsArr.forEach(function(uniform) {
+            uniform.highlight.value = 2.5;
+        });
+        this.flashEffect = true;
+    },
     highlightLine: function(position) {
         this.uniformsArr.forEach(function(uniform) {
             if(uniform.position && uniform.position.value == position) {
@@ -314,6 +322,14 @@ G.prototype = {
 
         this.uniformsArr.forEach(function(uniform) {
             uniform.globalTime.value = this.globalTime;
+            if(this.flashEffect) {
+                if(uniform.highlight.value < 1.2) {
+                    uniform.highlight.value = 1;
+                    this.flashEffect = false;
+                } else {
+                    uniform.highlight.value -= 0.05;
+                }
+            }
         }.bind(this));
 
 
@@ -340,7 +356,7 @@ Boost = function(config) {
     this.bindOrientation();
     this.G.onRender(function() {
         var p = this.G.getCameraPosition();
-        this.G.highlightLine(p);
+        //this.G.highlightLine(p);
         this.setCameraRotation();
         this.G.onCollisions(function(){
             this.G.stopAnimation();

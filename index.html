@@ -82,8 +82,8 @@
 
             float force = animated.z*0.1;
 
-            //animated.x += cos(globalTime + (animated.z/90.0))*force; 
-            //animated.y += sin(globalTime + (animated.z/60.0))*force; 
+            animated.x += cos(globalTime + (animated.z/90.0))*force; 
+            animated.y += sin(globalTime + (animated.z/60.0))*force; 
 
             vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
 
@@ -110,7 +110,7 @@
 
             float depth = gl_FragCoord.z / gl_FragCoord.w;
             float near = 0.0;
-            float far = 300.0;
+            float far = 300.0 * highlight;
             float depthcolor = 1.0 - smoothstep( near, far, depth );
             
             vec3 l = light;
