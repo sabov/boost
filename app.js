@@ -166,7 +166,7 @@ G.prototype = {
 
         var length = this.conf.pathLength * this.conf.textureLength;
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
-        var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.01;
+        var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.02;
 
         var geometry = new THREE.PlaneGeometry(width, length, 1, this.conf.pathLength * 10);
         geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
@@ -340,13 +340,14 @@ G.prototype = {
 };
 
 Boost = function(config) {
+    this.shift = 0;
     this.G = new G(conf);
-    this.bindKeyboard();
     this.keyboard = new THREEx.KeyboardState();
+    this.bindOrientation();
     this.G.onRender(function() {
         var p = this.G.getCameraPosition();
         this.G.highlightLine(p);
-        this.checkKeyboard();
+        this.setCameraRotation();
         this.G.onCollisions(function(){
             this.G.stopAnimation();
             jQuery('.popup').show();
@@ -357,19 +358,20 @@ Boost = function(config) {
 Boost.prototype = {
     setSpeed: function() {
     },
-    checkKeyboard: function() {
+    setCameraRotation: function() {
         if(this.keyboard.pressed("left")) {
             this.G.rotateCamera(2);
         } else if(this.keyboard.pressed("right")) {
             this.G.rotateCamera(-2);
         }
-    },
-    bindKeyboard: function() {
+        if(this.shift !== 0) {
+            this.G.rotateCamera(-0.15 * this.shift);
+        }
     },
     bindOrientation: function() {
         window.addEventListener("deviceorientation", function(e) {
-            //shift = e.beta;
-        }, true);
+            this.shift = e.beta;
+        }.bind(this), true);
     },
     generateObstacles: function() {
     }
