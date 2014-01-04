@@ -32,11 +32,16 @@
             right: 0;
             display: none;
         }
+        .popup-inner {
+            position: absolute;
+            width: 100%;
+            top: 50%;
+        }
         h1 {
             font-size: 45px;
             text-shadow: 1px 1px rgba(0,0,0,0.5);
             font-family: Arial;
-            margin-top: 400px;
+            margin-top: -25px;
             text-transform: uppercase;
             text-align: center;
             color: #FFFFFF;
@@ -46,7 +51,9 @@
 <body>
 
     <div class="popup">
-        <h1>End Game</h1>
+        <div class="popup-inner">
+            <h1>End Game</h1>
+        </div>
     </div>
 
     <script type="x-shader/x-vertex" id="vertexshader">
