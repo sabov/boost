@@ -65,7 +65,7 @@ G.prototype = {
         this.scene.add(this.createObstacle(8, conf.colors[2], 16));
         this.scene.add(this.createObstacle(12, conf.colors[2], 4));
         this.scene.add(this.createObstacle(11, conf.colors[1], 15));
-        //this.scene.add(this.createArrows(0, 8));
+        this.scene.add(this.createArrows(0, 8));
         this.scene.add(this.createObstacle(2, conf.colors[2], 12));
         this.scene.add(this.createObstacle(7, conf.colors[1], 24));
 
@@ -102,6 +102,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             speed:      { type: "f", value: this.conf.speed },
+            dynamic:    { type: "f", value: false },
             highlight:  { type: "f", value: 1.0 },
             uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
         };
@@ -144,6 +145,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             position:   { type: "f", value: pos },
+            dynamic:    { type: "f", value: true },
             highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: (distance - 1) * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
@@ -153,7 +155,7 @@ G.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
+            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
             fragmentShader: document.getElementById( 'fragmentshader' ).textContent
         });
         this.uniformsArr.push(uniforms);
@@ -164,7 +166,7 @@ G.prototype = {
 
         var length = this.conf.pathLength * this.conf.textureLength;
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
-        var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.01;
+        var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.02;
 
         var geometry = new THREE.PlaneGeometry(width, length, 1, this.conf.pathLength * 10);
         geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
@@ -183,6 +185,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             position:   { type: "f", value: pos },
+            dynamic:    { type: "f", value: true },
             highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: distance * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
@@ -192,7 +195,7 @@ G.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
+            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
             fragmentShader: document.getElementById( 'fragmentshader' ).textContent
         });
         this.uniformsArr.push(uniforms);
@@ -221,6 +224,7 @@ G.prototype = {
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
             position:   { type: "f", value: pos },
+            dynamic:    { type: "f", value: true },
             highlight:  { type: "f", value: 1.0 },
             distance:   { type: "f", value: distance * this.conf.textureLength},
             speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
@@ -231,8 +235,8 @@ G.prototype = {
             uniforms:       uniforms,
             attributes:     attributes,
             transparent:    true,
-            vertexShader:   document.getElementById( 'cube.vsh' ).textContent,
-            fragmentShader: document.getElementById( 'transparent.fsh' ).textContent
+            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
         });
         this.uniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
@@ -336,13 +340,14 @@ G.prototype = {
 };
 
 Boost = function(config) {
+    this.shift = 0;
     this.G = new G(conf);
-    this.bindKeyboard();
     this.keyboard = new THREEx.KeyboardState();
+    this.bindOrientation();
     this.G.onRender(function() {
         var p = this.G.getCameraPosition();
         this.G.highlightLine(p);
-        this.checkKeyboard();
+        this.setCameraRotation();
         this.G.onCollisions(function(){
             this.G.stopAnimation();
             jQuery('.popup').show();
@@ -353,19 +358,20 @@ Boost = function(config) {
 Boost.prototype = {
     setSpeed: function() {
     },
-    checkKeyboard: function() {
+    setCameraRotation: function() {
         if(this.keyboard.pressed("left")) {
             this.G.rotateCamera(2);
         } else if(this.keyboard.pressed("right")) {
             this.G.rotateCamera(-2);
         }
-    },
-    bindKeyboard: function() {
+        if(this.shift !== 0) {
+            this.G.rotateCamera(-0.15 * this.shift);
+        }
     },
     bindOrientation: function() {
         window.addEventListener("deviceorientation", function(e) {
-            //shift = e.beta;
-        }, true);
+            this.shift = e.beta;
+        }.bind(this), true);
     },
     generateObstacles: function() {
     }
