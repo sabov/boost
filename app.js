@@ -309,7 +309,6 @@ G.prototype = {
 
         var radians = this.cameraAngle * Math.PI / 180;
 
-        //uniforms.globalTime.value += delta*0.0006;
         this.globalTime += delta * 0.0006;
         this.distance = this.globalTime * this.conf.speed * this.conf.textureLength;
 
@@ -318,22 +317,17 @@ G.prototype = {
         }.bind(this));
 
 
-        //cameraTarget.x = -10 * Math.sin(time/3000);
-        //cameraTarget.y = -10 * Math.cos(time/4000);
 
-        //mesh.rotation.z += Math.abs(Math.sin(time/4000))*0.01;
-        
-        //mesh2.rotation.z = mesh.rotation.z;
 
-        //camera.position.x = 13 * Math.sin(time/2000);
-        //camera.position.y = 13 * Math.cos(time/2000);
-        this.camera.position.x = 25 * Math.sin(radians);
-        this.camera.position.y = 25 * Math.cos(radians);
+        this.camera.position.x = 25 * Math.sin(radians);// - Math.sin(this.globalTime*40)*2;
+        this.camera.position.y = 25 * Math.cos(radians);// -  Math.cos(this.globalTime*40)*2;
         var cameraTarget = new THREE.Vector3(0,0,-70);
+        cameraTarget.y += Math.sin(this.globalTime* 40) * 5 * Math.exp(-this.globalTime * 3);
 
-        this.camera.up.x = -Math.sin(radians);
+        this.camera.up.x = -Math.sin(radians) ;
         this.camera.up.y = -Math.cos(radians);
         this.camera.lookAt( cameraTarget );
+
 
         this.renderer.render(this.scene, this.camera);
     }
