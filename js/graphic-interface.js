@@ -24,9 +24,15 @@ var GraphicInterface = function(conf) {
         console.log('No WebGL!');
         return;
     }
-    this.init();
-    this.animate();
-    this.runFlashEffect();
+    SHADER_LOADER.load(function(data) {
+
+        this.fragmentShader = data.commonShader.fragment;
+        this.vertexShader = data.commonShader.vertex;
+
+        this.init();
+        this.animate();
+        this.runFlashEffect();
+    }.bind(this));
 };
 
 GraphicInterface.prototype = {
@@ -42,7 +48,7 @@ GraphicInterface.prototype = {
         this.scene.add(this.createObstacle(8, conf.colors[2], 16));
         this.scene.add(this.createObstacle(12, conf.colors[2], 4));
         this.scene.add(this.createObstacle(11, conf.colors[1], 15));
-        //this.scene.add(this.createArrows(0, 8));
+        this.scene.add(this.createArrows(0, 8));
         this.scene.add(this.createObstacle(2, conf.colors[2], 12));
         this.scene.add(this.createObstacle(7, conf.colors[1], 24));
 
@@ -88,8 +94,8 @@ GraphicInterface.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader,
             side:           THREE.BackSide
         });
 
@@ -132,8 +138,8 @@ GraphicInterface.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader
         });
         this.uniformsArr.push(uniforms);
         this.cubeUniformsArr.push(uniforms);
@@ -172,8 +178,8 @@ GraphicInterface.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader
         });
         this.uniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
@@ -212,8 +218,8 @@ GraphicInterface.prototype = {
             uniforms:       uniforms,
             attributes:     attributes,
             transparent:    true,
-            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader
         });
         this.uniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );

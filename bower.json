@@ -19,6 +19,7 @@
     "three.js": "*",
     "jquery": "~2.0.3",
     "threex.windowresize": "*",
-    "threex.keyboardstate": "*"
+    "threex.keyboardstate": "*",
+    "ShaderLoader.js": "*"
   }
 }
