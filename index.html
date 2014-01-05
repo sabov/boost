@@ -9,44 +9,20 @@
     minimum-scale=1.0, maximum-scale=1.0">
 
     <script type="text/javascript" src="bower_components/jquery/jquery.js"></script>
+    <script type="text/javascript" src="bower_components/ShaderLoader.js/ShaderLoader.js"></script>
     <script type="text/javascript" src="bower_components/three.js/three.min.js"></script>
     <script type="text/javascript" src="bower_components/threex.windowresize/threex.windowresize.js"></script>
     <script type="text/javascript" src="bower_components/threex.keyboardstate/threex.keyboardstate.js"></script>
 
-    <script type="text/javascript" src="app.js "></script>
+    <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript" src="js/helpers.js"></script>
+    <script type="text/javascript" src="js/graphic-interface.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
 
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        .popup {
-            position: absolute;
-            background: rgba(0,0,0,0.6);
-            width: 100%;
-            height: 100%;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            display: none;
-        }
-        .popup-inner {
-            position: absolute;
-            width: 100%;
-            top: 50%;
-        }
-        h1 {
-            font-size: 45px;
-            text-shadow: 1px 1px rgba(0,0,0,0.5);
-            font-family: Arial;
-            margin-top: -25px;
-            text-transform: uppercase;
-            text-align: center;
-            color: #FFFFFF;
-        }
-    </style>
+    <script type="x-shader/x-vertex" data-name="commonShader" data-src="shaders/common.vsh.js"></script>
+    <script type="x-shader/x-fragment" data-name="commonShader" data-src="shaders/common.fsh.js" ></script>
+
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -55,83 +31,6 @@
             <h1>End Game</h1>
         </div>
     </div>
-
-    <script type="x-shader/x-vertex" id="vertexshader">
-
-        uniform float globalTime;
-        uniform float speed;
-        uniform float distance;
-        uniform bool dynamic;
-        uniform vec2 uvScale;
-
-        varying vec2 vUv;
-        varying vec3 vNormal;
-
-        void main() {
-
-            vNormal = normal;
-            vUv = uvScale * uv;
-
-            vec3 animated = position;
-
-            if(dynamic) {
-                animated.z += globalTime * speed - distance;
-            } else {
-                vUv.y += globalTime*speed;
-            }
-
-            float force = animated.z*0.1;
-
-            animated.x += cos(globalTime + (animated.z/90.0))*force; 
-            animated.y += sin(globalTime + (animated.z/60.0))*force; 
-
-            vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
-
-            gl_Position = projectionMatrix * mvPosition;
-
-        }
-
-    </script>
-
-    <script type="x-shader/x-fragment" id="fragmentshader">
-
-        uniform vec3 color;
-        uniform sampler2D texture;
-        uniform vec3 light;
-        uniform float shadow;
-        uniform float highlight;
-                    
-        varying vec3 vNormal;
-        varying vec2 vUv;
-
-        void main() {
-
-            vec4 textureColor = texture2D(texture, vec2(vUv.s, vUv.t));
-
-            float depth = gl_FragCoord.z / gl_FragCoord.w;
-            float near = 0.0;
-            float far = 300.0;
-            float depthcolor = 1.0 - smoothstep( near, far, depth );
-            
-            vec3 l = light;
-            l = normalize(l);
-            float d0 = max(0.2,dot(vNormal, l));
-            
-            // faking shadow
-            if (shadow == 1.0 && d0 > 0.82) {
-                float p = (d0 - 0.82);
-                d0 = d0-min(p*12.0, 0.7);
-            }
-            vec4 Ca = textureColor;
-            vec3 Cb = color;
-            vec3 c = Ca.rgb * Ca.a + Cb.rgb * (1.0 - Ca.a);
-            c = c * highlight;
-
-            gl_FragColor = vec4(c * depthcolor, textureColor.a);
-            
-        }
-
-    </script>
 
 </body>
 </html>
