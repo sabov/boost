@@ -12,4 +12,3 @@ function getDistanceToSegment(numOfSegments, radius) {
     var angle = angleToRadians(360 / numOfSegments);
     return radius * Math.cos(angle/2);
 }
-
