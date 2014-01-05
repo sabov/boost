@@ -32,6 +32,7 @@ var GraphicInterface = function(conf) {
         this.init();
         this.animate();
         this.runFlashEffect();
+
     }.bind(this));
 };
 
