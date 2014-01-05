@@ -1,30 +1,4 @@
-//helper functions
-function getSegmentWidth(numOfSegments, radius) {
-    var angle = angleToRadians(360 / numOfSegments);
-    return 2 * radius * Math.sin(angle/2);
-}
-
-function angleToRadians(angle) {
-    return angle * Math.PI / 180;
-}
-
-function getDistanceToSegment(numOfSegments, radius) {
-    var angle = angleToRadians(360 / numOfSegments);
-    return radius * Math.cos(angle/2);
-}
-
-conf = {
-    colors: [0xcb3131, 0x338eda, 0xd03ddd],
-    radius: 30,
-    tubeLength: 60,
-    numOfSegments: 12,
-    textureLength: 25,
-    speed: 13,
-    pathLength: 20,
-    arrowLength: 8
-};
-
-G = function(conf) {
+var GraphicInterface = function(conf) {
 
     this.conf = conf;
     this.oldTime = 0;
@@ -55,8 +29,9 @@ G = function(conf) {
     this.runFlashEffect();
 };
 
-G.prototype = {
+GraphicInterface.prototype = {
     init: function(){
+        var conf = this.conf;
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.scene.add(this.camera);
@@ -348,45 +323,3 @@ G.prototype = {
         this.renderer.render(this.scene, this.camera);
     }
 };
-
-Boost = function(config) {
-    this.shift = 0;
-    this.G = new G(conf);
-    this.keyboard = new THREEx.KeyboardState();
-    this.bindOrientation();
-    this.G.onRender(function() {
-        var p = this.G.getCameraPosition();
-        //this.G.highlightLine(p);
-        this.setCameraRotation();
-        this.G.onCollisions(function(){
-            this.G.stopAnimation();
-            jQuery('.popup').show();
-        }.bind(this));
-    }.bind(this));
-};
-
-Boost.prototype = {
-    setSpeed: function() {
-    },
-    setCameraRotation: function() {
-        if(this.keyboard.pressed("left")) {
-            this.G.rotateCamera(2);
-        } else if(this.keyboard.pressed("right")) {
-            this.G.rotateCamera(-2);
-        }
-        if(this.shift !== 0) {
-            this.G.rotateCamera(-0.15 * this.shift);
-        }
-    },
-    bindOrientation: function() {
-        window.addEventListener("deviceorientation", function(e) {
-            this.shift = e.beta;
-        }.bind(this), true);
-    },
-    generateObstacles: function() {
-    }
-};
-
-jQuery(function(){
-    new Boost();
-});
