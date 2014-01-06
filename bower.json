@@ -20,6 +20,9 @@
     "three.js": "*",
     "jquery": "~2.0.3",
     "threex.windowresize": "*",
-    "threex.keyboardstate": "*"
+    "threex.keyboardstate": "*",
+    "ShaderLoader.js": "*",
+    "threex.rendererstats": "https://github.com/jeromeetienne/threex.rendererstats/archive/master.zip",
+    "threejs-stats": "*"
   }
 }

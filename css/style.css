@@ -1,0 +1,31 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.popup {
+    position: absolute;
+    background: #333333;
+    background: rgba(0,0,0,0.6);
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: none;
+}
+.popup-inner {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+}
+h1 {
+    font-size: 45px;
+    text-shadow: 1px 1px rgba(0,0,0,0.5);
+    font-family: Arial;
+    margin-top: -25px;
+    text-transform: uppercase;
+    text-align: center;
+    color: #FFFFFF;
+}

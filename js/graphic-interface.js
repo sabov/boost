@@ -1,30 +1,4 @@
-//helper functions
-function getSegmentWidth(numOfSegments, radius) {
-    var angle = angleToRadians(360 / numOfSegments);
-    return 2 * radius * Math.sin(angle/2);
-}
-
-function angleToRadians(angle) {
-    return angle * Math.PI / 180;
-}
-
-function getDistanceToSegment(numOfSegments, radius) {
-    var angle = angleToRadians(360 / numOfSegments);
-    return radius * Math.cos(angle/2);
-}
-
-conf = {
-    colors: [0xcb3131, 0x338eda, 0xd03ddd],
-    radius: 30,
-    tubeLength: 60,
-    numOfSegments: 12,
-    textureLength: 25,
-    speed: 13,
-    pathLength: 20,
-    arrowLength: 8
-};
-
-G = function(conf) {
+var GraphicInterface = function(conf) {
 
     this.conf = conf;
     this.oldTime = 0;
@@ -36,6 +10,7 @@ G = function(conf) {
     this.uniformsArr = [];
     this.cubeUniformsArr = [];
     this.onRenderFunctions = [];
+    this.flashEffect = false;
 
     var container = document.createElement( 'div' );
     document.body.appendChild( container );
@@ -49,12 +24,22 @@ G = function(conf) {
         console.log('No WebGL!');
         return;
     }
-    this.init();
-    this.animate();
+    SHADER_LOADER.load(function(data) {
+
+        this.fragmentShader = data.commonShader.fragment;
+        this.vertexShader = data.commonShader.vertex;
+
+        this.setupStats();
+        this.init();
+        this.animate();
+        this.runFlashEffect();
+
+    }.bind(this));
 };
 
-G.prototype = {
+GraphicInterface.prototype = {
     init: function(){
+        var conf = this.conf;
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.scene.add(this.camera);
@@ -111,8 +96,8 @@ G.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader,
             side:           THREE.BackSide
         });
 
@@ -155,8 +140,8 @@ G.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader
         });
         this.uniformsArr.push(uniforms);
         this.cubeUniformsArr.push(uniforms);
@@ -195,8 +180,8 @@ G.prototype = {
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
-            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader
         });
         this.uniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
@@ -235,8 +220,8 @@ G.prototype = {
             uniforms:       uniforms,
             attributes:     attributes,
             transparent:    true,
-            vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-            fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader
         });
         this.uniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
@@ -274,6 +259,12 @@ G.prototype = {
     },
     runCrashEffect: function() {
     },
+    runFlashEffect: function() {
+        this.uniformsArr.forEach(function(uniform) {
+            uniform.highlight.value = 2.5;
+        });
+        this.flashEffect = true;
+    },
     highlightLine: function(position) {
         this.uniformsArr.forEach(function(uniform) {
             if(uniform.position && uniform.position.value == position) {
@@ -282,6 +273,23 @@ G.prototype = {
                 uniform.highlight.value = 1.0;
             }
         });
+    },
+    setupStats: function() {
+        this.rendererStats = new THREEx.RendererStats();
+        $(this.rendererStats.domElement).css({
+            position: 'absolute',
+            left: '0px',
+            bottom: '0px'
+        }).appendTo($('body'));
+
+        this.stats = new Stats();
+        this.stats.setMode(0); // 0: fps, 1: ms
+
+        $(this.stats.domElement).css({
+            position: 'absolute',
+            right: '0px',
+            bottom: '0px'
+        }).appendTo($('body'));
     },
     onRender: function(func) {
         this.onRenderFunctions.push(func);
@@ -295,9 +303,12 @@ G.prototype = {
     },
     render: function() {
 
+        this.stats.begin();
+        this.rendererStats.update(this.renderer);
+
         this.onRenderFunctions.forEach(function(func) {
-            func();
-        });
+            func(this.renderer);
+        }.bind(this));
 
         var time = new Date().getTime();
         var delta = time - this.oldTime;
@@ -309,74 +320,36 @@ G.prototype = {
 
         var radians = this.cameraAngle * Math.PI / 180;
 
-        //uniforms.globalTime.value += delta*0.0006;
         this.globalTime += delta * 0.0006;
         this.distance = this.globalTime * this.conf.speed * this.conf.textureLength;
 
         this.uniformsArr.forEach(function(uniform) {
             uniform.globalTime.value = this.globalTime;
+            if(this.flashEffect) {
+                if(uniform.highlight.value < 1.2) {
+                    uniform.highlight.value = 1;
+                    this.flashEffect = false;
+                } else {
+                    uniform.highlight.value -= 0.05;
+                }
+            }
         }.bind(this));
 
 
-        //cameraTarget.x = -10 * Math.sin(time/3000);
-        //cameraTarget.y = -10 * Math.cos(time/4000);
 
-        //mesh.rotation.z += Math.abs(Math.sin(time/4000))*0.01;
-        
-        //mesh2.rotation.z = mesh.rotation.z;
 
-        //camera.position.x = 13 * Math.sin(time/2000);
-        //camera.position.y = 13 * Math.cos(time/2000);
-        this.camera.position.x = 25 * Math.sin(radians);
-        this.camera.position.y = 25 * Math.cos(radians);
+        this.camera.position.x = 25 * Math.sin(radians);// - Math.sin(this.globalTime*40)*2;
+        this.camera.position.y = 25 * Math.cos(radians);// -  Math.cos(this.globalTime*40)*2;
         var cameraTarget = new THREE.Vector3(0,0,-70);
+        cameraTarget.y += Math.sin(this.globalTime* 40) * 5 * Math.exp(-this.globalTime * 3);
 
-        this.camera.up.x = -Math.sin(radians);
+        this.camera.up.x = -Math.sin(radians) ;
         this.camera.up.y = -Math.cos(radians);
         this.camera.lookAt( cameraTarget );
 
+
         this.renderer.render(this.scene, this.camera);
+
+        this.stats.end();
     }
 };
-
-Boost = function(config) {
-    this.shift = 0;
-    this.G = new G(conf);
-    this.keyboard = new THREEx.KeyboardState();
-    this.bindOrientation();
-    this.G.onRender(function() {
-        var p = this.G.getCameraPosition();
-        this.G.highlightLine(p);
-        this.setCameraRotation();
-        this.G.onCollisions(function(){
-            this.G.stopAnimation();
-            jQuery('.popup').show();
-        }.bind(this));
-    }.bind(this));
-};
-
-Boost.prototype = {
-    setSpeed: function() {
-    },
-    setCameraRotation: function() {
-        if(this.keyboard.pressed("left")) {
-            this.G.rotateCamera(2);
-        } else if(this.keyboard.pressed("right")) {
-            this.G.rotateCamera(-2);
-        }
-        if(this.shift !== 0) {
-            this.G.rotateCamera(-0.15 * this.shift);
-        }
-    },
-    bindOrientation: function() {
-        window.addEventListener("deviceorientation", function(e) {
-            this.shift = e.beta;
-        }.bind(this), true);
-    },
-    generateObstacles: function() {
-    }
-};
-
-jQuery(function(){
-    new Boost();
-});
