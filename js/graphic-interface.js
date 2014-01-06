@@ -286,8 +286,8 @@ GraphicInterface.prototype = {
     render: function() {
 
         this.onRenderFunctions.forEach(function(func) {
-            func();
-        });
+            func(this.renderer);
+        }.bind(this));
 
         var time = new Date().getTime();
         var delta = time - this.oldTime;

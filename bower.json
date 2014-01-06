@@ -20,6 +20,7 @@
     "jquery": "~2.0.3",
     "threex.windowresize": "*",
     "threex.keyboardstate": "*",
-    "ShaderLoader.js": "*"
+    "ShaderLoader.js": "*",
+    "threex.rendererstats": "https://github.com/jeromeetienne/threex.rendererstats/archive/master.zip"
   }
 }
