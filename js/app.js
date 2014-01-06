@@ -3,9 +3,7 @@ var Boost = function(conf) {
     this.G = new GraphicInterface(conf);
     this.keyboard = new THREEx.KeyboardState();
     this.bindOrientation();
-    this.setupStats();
     this.G.onRender(function(renderer) {
-        this.rendererStats.update(renderer);
         var p = this.G.getCameraPosition();
         //this.G.highlightLine(p);
         this.setCameraRotation();
@@ -18,14 +16,6 @@ var Boost = function(conf) {
 
 Boost.prototype = {
     setSpeed: function() {
-    },
-    setupStats: function() {
-        this.rendererStats = new THREEx.RendererStats();
-        $(this.rendererStats.domElement).css({
-            position: 'absolute',
-            left: '0px',
-            bottom: '0px'
-        }).appendTo($('body'));
     },
     setCameraRotation: function() {
         if(this.keyboard.pressed("left")) {
