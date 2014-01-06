@@ -1,0 +1,22 @@
+{
+  "name": "threejs-stats",
+  "version": "0.0.11",
+  "homepage": "https://github.com/mrdoob/stats.js",
+  "authors": [
+    "https://github.com/mrdoob"
+  ],
+  "description": "JavaScript Performance Monitor",
+  "main": "Stats.js",
+  "keywords": [
+    "three.js",
+    "webgl"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

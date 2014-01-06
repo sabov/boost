@@ -1,0 +1,11 @@
+{
+  "name": "threex.rendererstats",
+  "_cacheHeaders": {
+    "Content-Type": "application/zip",
+    "Content-Disposition": "attachment; filename=threex.rendererstats-master.zip"
+  },
+  "_source": "https://github.com/jeromeetienne/threex.rendererstats/archive/master.zip",
+  "_target": "*",
+  "_originalSource": "https://github.com/jeromeetienne/threex.rendererstats/archive/master.zip",
+  "_direct": true
+}

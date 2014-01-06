@@ -1,0 +1,31 @@
+{
+  "name": "threejs-stats",
+  "homepage": "https://github.com/mrdoob/stats.js",
+  "authors": [
+    "https://github.com/mrdoob"
+  ],
+  "description": "JavaScript Performance Monitor",
+  "main": "Stats.js",
+  "keywords": [
+    "three.js",
+    "webgl"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "b7d72158f7",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "b7d72158f758d543a9eaee7a8215d1b263ecd618"
+  },
+  "_source": "git://github.com/jiyinyiyong/threejs-stats.git",
+  "_target": "*",
+  "_originalSource": "threejs-stats",
+  "_direct": true
+}
