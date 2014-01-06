@@ -44,8 +44,8 @@ GraphicInterface.prototype = {
         this.camera = this.createCamera();
         this.scene.add(this.camera);
         this.scene.add(this.createTube());
-        this.scene.add(this.createObstacle(1, conf.colors[0], 7));
-        this.scene.add(this.createObstacle(3, conf.colors[1], 7));
+        this.scene.add(this.createObstacle(1, conf.colors[0], 7, 'pillar'));
+        this.scene.add(this.createObstacle(3, conf.colors[1], 8, 'pillar'));
         this.scene.add(this.createObstacle(10, conf.colors[0], 20));
         this.scene.add(this.createObstacle(8, conf.colors[2], 16));
         this.scene.add(this.createObstacle(12, conf.colors[2], 4));
@@ -104,11 +104,23 @@ GraphicInterface.prototype = {
         mesh = new THREE.Mesh( geometry, material );
         return mesh;
     },
-    createObstacle: function(pos, color, distance) {
+    createObstacle: function(pos, color, distance, type) {
+        type = type || 'cube';
         group = new THREE.Object3D();
-        group.add(this.createCube(pos, color, distance + this.conf.pathLength));
-        group.add(this.createPath(pos, color, distance));
-        return group;
+        var types = {
+            cube: function() {
+                group.add(this.createCube(pos, color, distance + this.conf.pathLength));
+                group.add(this.createPath(pos, color, distance));
+                return group;
+            },
+            pillar: function() {
+                group.add(this.createPillar(pos, color, distance + this.conf.pathLength));
+                group.add(this.createPath(pos, color, distance));
+                group.add(this.createPath(pos + 6, color, distance));
+                return group;
+            }
+        };
+        return types[type].bind(this)();
     },
     createCube: function(pos, color, distance) {
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
@@ -116,6 +128,44 @@ GraphicInterface.prototype = {
 
         var geometry = new THREE.CubeGeometry(width, width, this.conf.textureLength);
         geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, distanceToCenter - width/2, -this.conf.textureLength*3/2)));//prevent clipping
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
+        var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
+
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        var maxAnisotropy = this.renderer.getMaxAnisotropy();
+        map.anisotropy = maxAnisotropy;
+
+        var attributes = {};
+
+        var uniforms = {
+            color:      { type: "c", value: new THREE.Color(color) },
+            texture:    { type: "t", value: map },
+            globalTime: { type: "f", value: 0.0 },
+            position:   { type: "f", value: pos },
+            dynamic:    { type: "f", value: true },
+            highlight:  { type: "f", value: 1.0 },
+            distance:   { type: "f", value: (distance - 1) * this.conf.textureLength},
+            speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
+            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 1.0) }
+        };
+
+        var material = new THREE.ShaderMaterial( {
+            uniforms:       uniforms,
+            attributes:     attributes,
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader
+        });
+        this.uniformsArr.push(uniforms);
+        this.cubeUniformsArr.push(uniforms);
+        return new THREE.Mesh( geometry, material );
+    },
+    createPillar: function(pos, color, distance) {
+        var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
+        var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.01;
+        var height = distanceToCenter * 2;
+
+        var geometry = new THREE.CubeGeometry(width, height, this.conf.textureLength);
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -this.conf.textureLength*3/2)));//prevent clipping
         geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
         var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
 
