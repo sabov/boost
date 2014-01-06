@@ -29,6 +29,7 @@ var GraphicInterface = function(conf) {
         this.fragmentShader = data.commonShader.fragment;
         this.vertexShader = data.commonShader.vertex;
 
+        this.setupStats();
         this.init();
         this.animate();
         this.runFlashEffect();
@@ -273,6 +274,23 @@ GraphicInterface.prototype = {
             }
         });
     },
+    setupStats: function() {
+        this.rendererStats = new THREEx.RendererStats();
+        $(this.rendererStats.domElement).css({
+            position: 'absolute',
+            left: '0px',
+            bottom: '0px'
+        }).appendTo($('body'));
+
+        this.stats = new Stats();
+        this.stats.setMode(0); // 0: fps, 1: ms
+
+        $(this.stats.domElement).css({
+            position: 'absolute',
+            right: '0px',
+            bottom: '0px'
+        }).appendTo($('body'));
+    },
     onRender: function(func) {
         this.onRenderFunctions.push(func);
     },
@@ -285,9 +303,12 @@ GraphicInterface.prototype = {
     },
     render: function() {
 
+        this.stats.begin();
+        this.rendererStats.update(this.renderer);
+
         this.onRenderFunctions.forEach(function(func) {
-            func();
-        });
+            func(this.renderer);
+        }.bind(this));
 
         var time = new Date().getTime();
         var delta = time - this.oldTime;
@@ -328,5 +349,7 @@ GraphicInterface.prototype = {
 
 
         this.renderer.render(this.scene, this.camera);
+
+        this.stats.end();
     }
 };

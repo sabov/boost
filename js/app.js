@@ -3,7 +3,7 @@ var Boost = function(conf) {
     this.G = new GraphicInterface(conf);
     this.keyboard = new THREEx.KeyboardState();
     this.bindOrientation();
-    this.G.onRender(function() {
+    this.G.onRender(function(renderer) {
         var p = this.G.getCameraPosition();
         //this.G.highlightLine(p);
         this.setCameraRotation();
