@@ -44,15 +44,16 @@ GraphicInterface.prototype = {
         this.camera = this.createCamera();
         this.scene.add(this.camera);
         this.scene.add(this.createTube());
-        this.scene.add(this.createObstacle(1, conf.colors[0], 7, 'pillar'));
-        this.scene.add(this.createObstacle(3, conf.colors[1], 8, 'pillar'));
-        this.scene.add(this.createObstacle(10, conf.colors[0], 20));
-        this.scene.add(this.createObstacle(8, conf.colors[2], 16));
-        this.scene.add(this.createObstacle(12, conf.colors[2], 4));
-        this.scene.add(this.createObstacle(11, conf.colors[1], 15));
-        this.scene.add(this.createArrows(0, 8));
-        this.scene.add(this.createObstacle(2, conf.colors[2], 12));
-        this.scene.add(this.createObstacle(7, conf.colors[1], 24));
+        this.scene.add(this.createTube2());
+        //this.scene.add(this.createObstacle(1, conf.colors[0], 7, 'pillar'));
+        //this.scene.add(this.createObstacle(3, conf.colors[1], 8, 'pillar'));
+        //this.scene.add(this.createObstacle(10, conf.colors[0], 20));
+        //this.scene.add(this.createObstacle(8, conf.colors[2], 16));
+        //this.scene.add(this.createObstacle(12, conf.colors[2], 4));
+        //this.scene.add(this.createObstacle(11, conf.colors[1], 15));
+        //this.scene.add(this.createArrows(0, 8));
+        //this.scene.add(this.createObstacle(2, conf.colors[2], 12));
+        //this.scene.add(this.createObstacle(7, conf.colors[1], 24));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -86,8 +87,52 @@ GraphicInterface.prototype = {
             color:      { type: "c", value: new THREE.Color( 0xffffff ) },
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
-            speed:      { type: "f", value: this.conf.speed },
-            dynamic:    { type: "f", value: false },
+            speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
+            distance:   { type: "f", value: 0 },
+            dynamic:    { type: "f", value: true },
+            highlight:  { type: "f", value: 1.0 },
+            uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
+        };
+        this.uniformsArr.push(uniforms);
+
+        var material = new THREE.ShaderMaterial( {
+            uniforms:       uniforms,
+            attributes:     attributes,
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader,
+            side:           THREE.BackSide
+        });
+
+        mesh = new THREE.Mesh( geometry, material );
+        return mesh;
+    },
+    createTube2: function() {
+        var length = this.conf.tubeLength * this.conf.textureLength;
+        var geometry = new THREE.CylinderGeometry(
+            this.conf.radius,
+            this.conf.radius,
+            length,
+            this.conf.numOfSegments,
+            this.conf.tubeLength * 10,
+            true);
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -length/2 ) ) );
+
+        var map = THREE.ImageUtils.loadTexture( "textures/sq.jpg" );
+
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        var maxAnisotropy = this.renderer.getMaxAnisotropy();
+        map.anisotropy = maxAnisotropy;
+
+        var attributes = {};
+
+        var uniforms = {
+            color:      { type: "c", value: new THREE.Color( 0xffffff ) },
+            texture:    { type: "t", value: map },
+            globalTime: { type: "f", value: 0.0 },
+            speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
+            dynamic:    { type: "f", value: true },
+            distance:   { type: "f", value: 60 * this.conf.textureLength },
             highlight:  { type: "f", value: 1.0 },
             uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
         };
