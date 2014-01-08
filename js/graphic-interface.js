@@ -5,7 +5,7 @@ var GraphicInterface = function(conf) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.cameraAngle = 90;
+    this.cameraAngle = 45;
     this.cameraPosition = 0;
     this.cameraTarget = new THREE.Vector3(0,0,-70);
     this.uniformsArr = [];
@@ -56,8 +56,8 @@ GraphicInterface.prototype = {
         this.scene.add(this.createObstacle(7, conf.colors[1], 24));
 
         setTimeout(function() {
-            this.shakeCamera();
-            this.runFlashEffect();
+            //this.shakeCamera();
+            //this.runFlashEffect();
         }.bind(this), 1000);
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -316,7 +316,7 @@ GraphicInterface.prototype = {
     },
     runFlashEffect: function() {
         this.uniformsArr.forEach(function(uniform) {
-            uniform.highlight.value = 5.5;
+            uniform.highlight.value = 12.5;
         });
         this.flashEffect = true;
     },
@@ -330,8 +330,8 @@ GraphicInterface.prototype = {
         var cameraTarget = this.cameraTarget.clone();
         var radians = angleToRadians(this.cameraAngle);
 
-        cameraTarget.x = Math.sin(radians) * Math.sin(this.shakeAnimationI * 5) * 10 * Math.exp(-this.shakeAnimationI);
-        cameraTarget.y = Math.cos(radians) * Math.sin(this.shakeAnimationI * 5) * 10 * Math.exp(-this.shakeAnimationI);
+        cameraTarget.x = Math.sin(radians) * Math.sin(this.shakeAnimationI * 5) * 15 * Math.exp(-this.shakeAnimationI * 0.7);
+        cameraTarget.y = Math.cos(radians) * Math.sin(this.shakeAnimationI * 5) * 15 * Math.exp(-this.shakeAnimationI * 0.7);
 
         return cameraTarget;
     },
@@ -400,13 +400,13 @@ GraphicInterface.prototype = {
                     uniform.highlight.value = 1;
                     this.flashEffect = false;
                 } else {
-                    uniform.highlight.value -= 0.2;
+                    uniform.highlight.value -= 0.5;
                 }
             }
         }.bind(this));
 
-        this.camera.position.x = 25 * Math.sin(radians);// - Math.sin(this.globalTime*40)*2;
-        this.camera.position.y = 25 * Math.cos(radians);// -  Math.cos(this.globalTime*40)*2;
+        this.camera.position.x = 25 * Math.sin(radians);
+        this.camera.position.y = 25 * Math.cos(radians);
 
         if(this.shakeAnimation) {
             var E = 0.01;
