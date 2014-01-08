@@ -7,10 +7,12 @@ var GraphicInterface = function(conf) {
     this.distance = 0;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
+    this.cameraTarget = new THREE.Vector3(0,0,-70);
     this.uniformsArr = [];
     this.cubeUniformsArr = [];
     this.onRenderFunctions = [];
     this.flashEffect = false;
+    this.shakeAnimation = false;
 
     var container = document.createElement( 'div' );
     document.body.appendChild( container );
@@ -54,6 +56,9 @@ GraphicInterface.prototype = {
         this.scene.add(this.createObstacle(2, conf.colors[2], 12));
         this.scene.add(this.createObstacle(7, conf.colors[1], 24));
 
+        setTimeout(function() {
+            this.shakeCamera();
+        }.bind(this), 1000);
         THREEx.WindowResize(this.renderer, this.camera);
     },
     createCamera: function() {
@@ -315,6 +320,16 @@ GraphicInterface.prototype = {
         });
         this.flashEffect = true;
     },
+    shakeCamera: function() {
+        this.shakeAnimation = true;
+        this.shakeAnimationI = 0;
+    },
+    computeCameraTargetVector: function() {
+        this.shakeAnimationI += 0.1;
+        var cameraTarget = this.cameraTarget.clone();
+        cameraTarget.y += Math.sin(this.shakeAnimationI * 5) * 10 * Math.exp(-this.shakeAnimationI);
+        return cameraTarget;
+    },
     highlightLine: function(position) {
         this.uniformsArr.forEach(function(uniform) {
             if(uniform.position && uniform.position.value == position) {
@@ -385,17 +400,24 @@ GraphicInterface.prototype = {
             }
         }.bind(this));
 
-
-
-
         this.camera.position.x = 25 * Math.sin(radians);// - Math.sin(this.globalTime*40)*2;
         this.camera.position.y = 25 * Math.cos(radians);// -  Math.cos(this.globalTime*40)*2;
-        var cameraTarget = new THREE.Vector3(0,0,-70);
-        cameraTarget.y += Math.sin(this.globalTime* 40) * 5 * Math.exp(-this.globalTime * 3);
+
+        if(this.shakeAnimation) {
+            var E = 0.01;
+            var CT = this.cameraTarget;
+            var newCT = this.computeCameraTargetVector();
+            if(Math.abs(CT.x - newCT.x) < E && Math.abs(CT.y - newCT.y) < E) {
+                this.shakeAnimation = false;
+                this.cameraTarget = new THREE.Vector3(0, 0, -70);
+            } else {
+                this.cameraTarget = newCT;
+            }
+        }
 
         this.camera.up.x = -Math.sin(radians) ;
         this.camera.up.y = -Math.cos(radians);
-        this.camera.lookAt( cameraTarget );
+        this.camera.lookAt(this.cameraTarget);
 
 
         this.renderer.render(this.scene, this.camera);
