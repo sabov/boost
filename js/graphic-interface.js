@@ -5,7 +5,7 @@ var GraphicInterface = function(conf) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.cameraAngle = 0;
+    this.cameraAngle = 90;
     this.cameraPosition = 0;
     this.cameraTarget = new THREE.Vector3(0,0,-70);
     this.uniformsArr = [];
@@ -34,7 +34,6 @@ var GraphicInterface = function(conf) {
         this.setupStats();
         this.init();
         this.animate();
-        this.runFlashEffect();
 
     }.bind(this));
 };
@@ -58,6 +57,7 @@ GraphicInterface.prototype = {
 
         setTimeout(function() {
             this.shakeCamera();
+            this.runFlashEffect();
         }.bind(this), 1000);
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -316,7 +316,7 @@ GraphicInterface.prototype = {
     },
     runFlashEffect: function() {
         this.uniformsArr.forEach(function(uniform) {
-            uniform.highlight.value = 2.5;
+            uniform.highlight.value = 5.5;
         });
         this.flashEffect = true;
     },
@@ -326,8 +326,13 @@ GraphicInterface.prototype = {
     },
     computeCameraTargetVector: function() {
         this.shakeAnimationI += 0.1;
+
         var cameraTarget = this.cameraTarget.clone();
-        cameraTarget.y += Math.sin(this.shakeAnimationI * 5) * 10 * Math.exp(-this.shakeAnimationI);
+        var radians = angleToRadians(this.cameraAngle);
+
+        cameraTarget.x = Math.sin(radians) * Math.sin(this.shakeAnimationI * 5) * 10 * Math.exp(-this.shakeAnimationI);
+        cameraTarget.y = Math.cos(radians) * Math.sin(this.shakeAnimationI * 5) * 10 * Math.exp(-this.shakeAnimationI);
+
         return cameraTarget;
     },
     highlightLine: function(position) {
@@ -383,7 +388,7 @@ GraphicInterface.prototype = {
             delta = 1000/60;
         }
 
-        var radians = this.cameraAngle * Math.PI / 180;
+        var radians = angleToRadians(this.cameraAngle);
 
         this.globalTime += delta * 0.0006;
         this.distance = this.globalTime * this.conf.speed * this.conf.textureLength;
@@ -395,7 +400,7 @@ GraphicInterface.prototype = {
                     uniform.highlight.value = 1;
                     this.flashEffect = false;
                 } else {
-                    uniform.highlight.value -= 0.05;
+                    uniform.highlight.value -= 0.2;
                 }
             }
         }.bind(this));
@@ -415,8 +420,9 @@ GraphicInterface.prototype = {
             }
         }
 
-        this.camera.up.x = -Math.sin(radians) ;
+        this.camera.up.x = -Math.sin(radians);
         this.camera.up.y = -Math.cos(radians);
+
         this.camera.lookAt(this.cameraTarget);
 
 
