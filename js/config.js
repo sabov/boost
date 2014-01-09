@@ -5,7 +5,7 @@ var config = {
     tubeLength: 60,
     numOfSegments: 12,
     textureLength: 25,
-    speed: 13,
+    speed: 12,
     pathLength: 20,
     arrowLength: 8
 

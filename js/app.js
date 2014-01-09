@@ -5,18 +5,18 @@ var Boost = function(conf) {
     this.bindOrientation();
     this.G.onRender(function(renderer) {
         var p = this.G.getCameraPosition();
-        //this.G.highlightLine(p);
+        this.G.highlightLine(p);
         this.setCameraRotation();
         this.G.onCollisions(function(){
-            this.G.stopAnimation();
-            jQuery('.popup').show();
+            this.G.setSpeed(1);
+            this.G.runFlashEffect();
+            this.G.shakeCamera();
+            jQuery('.popup').delay(500).animate({'opacity':  '1'}, 1000);
         }.bind(this));
     }.bind(this));
 };
 
 Boost.prototype = {
-    setSpeed: function() {
-    },
     setCameraRotation: function() {
         if(this.keyboard.pressed("left")) {
             this.G.rotateCamera(2);
