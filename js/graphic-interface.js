@@ -10,6 +10,7 @@ var GraphicInterface = function(conf) {
     this.cameraTarget = new THREE.Vector3(0,0,-70);
     this.uniformsArr = [];
     this.cubeUniformsArr = [];
+    this.arrowUniformsArr = [];
     this.onRenderFunctions = [];
     this.flashEffect = false;
     this.shakeAnimation = false;
@@ -46,11 +47,17 @@ GraphicInterface.prototype = {
         this.scene.add(this.camera);
         this.scene.add(this.createTube());
         this.obstacle = this.createObstacle(3, conf.colors[1], 8, 'pillar');
+        this.scene.add(this.createObstacle(6, conf.colors[0], 18, 'pillar'));
+        this.scene.add(this.createObstacle(10, conf.colors[2], 27, 'pillar'));
+        this.scene.add(this.createObstacle(8, conf.colors[1], 21));
+        this.scene.add(this.createObstacle(7, conf.colors[0], 22));
+        this.scene.add(this.createObstacle(11, conf.colors[1], 31));
         this.scene.add(this.obstacle);
+        this.scene.add(this.createArrows(0, 8));
+        this.scene.add(this.createArrows(6, 8));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
-
     createCamera: function() {
         var cameraTarget = new THREE.Vector3(0,0,-70);
         var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -241,7 +248,7 @@ GraphicInterface.prototype = {
         var geometry = new THREE.PlaneGeometry(width, length, 1, this.conf.arrowLength * 10);
         geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
         geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, distanceToCenter, -length/2)));
-        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(Math.PI/12 + Math.PI/6*pos));
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
         var map = THREE.ImageUtils.loadTexture( "textures/arrow.png" );
 
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
@@ -270,6 +277,8 @@ GraphicInterface.prototype = {
             fragmentShader: this.fragmentShader
         });
         this.uniformsArr.push(uniforms);
+        this.arrowUniformsArr.push(uniforms);
+
         return new THREE.Mesh( geometry, material );
     },
     removeObstacle: function(obstacle) {
@@ -283,15 +292,32 @@ GraphicInterface.prototype = {
     },
     onCollisions: function(callback) {
         var p = this.camerPosition;
-        this.cubeUniformsArr.forEach(function(uniform) {
+        this.cubeUniformsArr.forEach(function(uniform, i) {
             if(uniform.position && uniform.position.value == p) {
                 if(uniform.distance &&
-                   this.distance - this.conf.textureLength > uniform.distance.value &&
-                   this.distance < uniform.distance.value + this.conf.textureLength + 5) {
+                    this.distance - this.conf.textureLength > uniform.distance.value &&
+                    this.distance - 2 * this.conf.textureLength < uniform.distance.value ) {
                     if(callback) callback();
                 }
             }
         }.bind(this));
+    },
+    onArrowCollisions: function(callback) {
+        var index = -1;
+        var p = this.camerPosition;
+        this.arrowUniformsArr.forEach(function(uniform, i) {
+            if(uniform.position && uniform.position.value == p) {
+                if(uniform.distance &&
+                    this.distance - this.conf.textureLength > uniform.distance.value &&
+                    this.distance - 10 * this.conf.textureLength < uniform.distance.value ) {
+                    index = i;
+                    if(callback) callback();
+                }
+            }
+        }.bind(this));
+        if(index !== -1) {
+            this.arrowUniformsArr.splice(index, 1);
+        }
     },
     stopAnimation: function() {
         this.runAnimation = false;
@@ -330,8 +356,8 @@ GraphicInterface.prototype = {
         var cameraTarget = this.cameraTarget.clone();
         var radians = angleToRadians(this.cameraAngle);
 
-        cameraTarget.x = Math.sin(radians) * Math.sin(this.shakeAnimationI * 5) * 15 * Math.exp(-this.shakeAnimationI * 0.7);
-        cameraTarget.y = Math.cos(radians) * Math.sin(this.shakeAnimationI * 5) * 15 * Math.exp(-this.shakeAnimationI * 0.7);
+        cameraTarget.x = Math.sin(radians) * Math.sin(this.shakeAnimationI * 7) * 15 * Math.exp(-this.shakeAnimationI * 0.7);
+        cameraTarget.y = Math.cos(radians) * Math.sin(this.shakeAnimationI * 7) * 15 * Math.exp(-this.shakeAnimationI * 0.7);
 
         return cameraTarget;
     },

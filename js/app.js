@@ -7,6 +7,11 @@ var Boost = function(conf) {
         var p = this.G.getCameraPosition();
         this.G.highlightLine(p);
         this.setCameraRotation();
+        this.G.onArrowCollisions(function() {
+            this.G.setSpeed(30);
+            this.G.runFlashEffect();
+            this.G.shakeCamera();
+        }.bind(this));
         this.G.onCollisions(function(){
             this.G.setSpeed(1);
             this.G.runFlashEffect();
