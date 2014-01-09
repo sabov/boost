@@ -45,22 +45,12 @@ GraphicInterface.prototype = {
         this.camera = this.createCamera();
         this.scene.add(this.camera);
         this.scene.add(this.createTube());
-        this.scene.add(this.createObstacle(1, conf.colors[0], 7, 'pillar'));
-        this.scene.add(this.createObstacle(3, conf.colors[1], 8, 'pillar'));
-        this.scene.add(this.createObstacle(10, conf.colors[0], 20));
-        this.scene.add(this.createObstacle(8, conf.colors[2], 16));
-        this.scene.add(this.createObstacle(12, conf.colors[2], 4));
-        this.scene.add(this.createObstacle(11, conf.colors[1], 15));
-        this.scene.add(this.createArrows(0, 8));
-        this.scene.add(this.createObstacle(2, conf.colors[2], 12));
-        this.scene.add(this.createObstacle(7, conf.colors[1], 24));
+        this.obstacle = this.createObstacle(3, conf.colors[1], 8, 'pillar');
+        this.scene.add(this.obstacle);
 
-        setTimeout(function() {
-            //this.shakeCamera();
-            //this.runFlashEffect();
-        }.bind(this), 1000);
         THREEx.WindowResize(this.renderer, this.camera);
     },
+
     createCamera: function() {
         var cameraTarget = new THREE.Vector3(0,0,-70);
         var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -96,6 +86,7 @@ GraphicInterface.prototype = {
             highlight:  { type: "f", value: 1.0 },
             uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
         };
+        this.tubeUniform = uniforms;
         this.uniformsArr.push(uniforms);
 
         var material = new THREE.ShaderMaterial( {
@@ -281,12 +272,21 @@ GraphicInterface.prototype = {
         this.uniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
     },
+    removeObstacle: function(obstacle) {
+    },
+    setSpeed: function(speed) {
+        this.globalTime = this.globalTime * this.tubeUniform.speed.value/speed;
+        this.uniformsArr.forEach(function(uniform) {
+            uniform.speed.value = speed * this.conf.textureLength;
+        }.bind(this));
+        this.tubeUniform.speed.value = speed;
+    },
     onCollisions: function(callback) {
         var p = this.camerPosition;
         this.cubeUniformsArr.forEach(function(uniform) {
             if(uniform.position && uniform.position.value == p) {
                 if(uniform.distance &&
-                   this.distance > uniform.distance.value + 5 &&
+                   this.distance - this.conf.textureLength > uniform.distance.value &&
                    this.distance < uniform.distance.value + this.conf.textureLength + 5) {
                     if(callback) callback();
                 }
@@ -336,13 +336,15 @@ GraphicInterface.prototype = {
         return cameraTarget;
     },
     highlightLine: function(position) {
-        this.uniformsArr.forEach(function(uniform) {
-            if(uniform.position && uniform.position.value == position) {
-                uniform.highlight.value = 2.0;
-            } else {
-                uniform.highlight.value = 1.0;
-            }
-        });
+        if(!this.flashEffect) {
+            this.uniformsArr.forEach(function(uniform) {
+                if(uniform.position && uniform.position.value == position) {
+                    uniform.highlight.value = 2.0;
+                } else {
+                    uniform.highlight.value = 1.0;
+                }
+            });
+        }
     },
     setupStats: function() {
         this.rendererStats = new THREEx.RendererStats();
