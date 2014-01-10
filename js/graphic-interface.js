@@ -283,6 +283,9 @@ GraphicInterface.prototype = {
     },
     removeObstacle: function(obstacle) {
     },
+    getSpeed: function() {
+        return this.tubeUniform.speed.value;
+    },
     setSpeed: function(speed) {
         this.globalTime = this.globalTime * this.tubeUniform.speed.value/speed;
         this.uniformsArr.forEach(function(uniform) {
