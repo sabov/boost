@@ -24,6 +24,7 @@ var Boost = function(conf) {
             this.dropSpeed();
         }
     }.bind(this));
+
 };
 
 Boost.prototype = {
