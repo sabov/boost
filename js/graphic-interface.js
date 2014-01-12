@@ -5,9 +5,9 @@ var GraphicInterface = function(conf) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.cameraAngle = 45;
+    this.cameraAngle = 0;
     this.cameraPosition = 0;
-    this.cameraTarget = new THREE.Vector3(0,0,-70);
+    this.cameraTarget = new THREE.Vector3(0,0,0);
     this.uniformsArr = [];
     this.cubeUniformsArr = [];
     this.arrowUniformsArr = [];
@@ -45,26 +45,30 @@ GraphicInterface.prototype = {
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.scene.add(this.camera);
-        this.scene.add(this.createTube());
+
+        var spline1 = new THREE.SplineCurve3([
+           new THREE.Vector3(0, 0, 0),
+           new THREE.Vector3(0, 100, 0),
+           new THREE.Vector3(10, 200, 0)
+        ]);
+        var spline2 = new THREE.SplineCurve3([
+           new THREE.Vector3(10, 100, 0),
+           new THREE.Vector3(40, 200, 0)
+        ]);
+        this.scene.add(this.createTube(spline1));
+        //this.scene.add(this.createTube(spline2));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
     createCamera: function() {
-        var cameraTarget = new THREE.Vector3(0,0,-70);
         var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
-        camera.lookAt( cameraTarget );
         return camera;
     },
-    createTube: function() {
+    createTube: function(spline) {
         var length = this.conf.tubeLength * this.conf.textureLength;
         var path = new THREE.Curves.Custom();
-        var spline = new THREE.SplineCurve3([
-           new THREE.Vector3(0, 0, 0),
-           new THREE.Vector3(0, 1000, 0),
-           new THREE.Vector3(100, 2000, 0),
-           new THREE.Vector3(500, 3000, 0),
-        ]);
-        var geometry = new THREE.TubeGeometry(spline, 100, 30, 12, false, false);
+        //var geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
+        var geometry = new THREE.TubeTileGeometry(spline, 20, 30, 12, 0, 0, false);
         //var geometry = new THREE.CylinderGeometry(
             //this.conf.radius,
             //this.conf.radius,
@@ -73,9 +77,9 @@ GraphicInterface.prototype = {
             //this.conf.tubeLength * 10,
             //true);
         geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
-        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -70) ) );
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -50) ) );
 
-        var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
+        var map = THREE.ImageUtils.loadTexture( "textures/sq.jpg" );
 
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         var maxAnisotropy = this.renderer.getMaxAnisotropy();
@@ -91,21 +95,29 @@ GraphicInterface.prototype = {
             dynamic:    { type: "f", value: false },
             highlight:  { type: "f", value: 1.0 },
             //uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
-            uvScale:    { type: "v2", value: new THREE.Vector2(40, 12) }
+            uvScale:    { type: "v2", value: new THREE.Vector2(1, 1) }
         };
         this.tubeUniform = uniforms;
         this.uniformsArr.push(uniforms);
 
-        var material = new THREE.ShaderMaterial( {
-            uniforms:       uniforms,
-            attributes:     attributes,
-            vertexShader:   this.vertexShader,
-            fragmentShader: this.fragmentShader,
-            side:           THREE.BackSide
+        //var material = new THREE.ShaderMaterial( {
+            //uniforms:       uniforms,
+            //attributes:     attributes,
+            //vertexShader:   this.vertexShader,
+            //fragmentShader: this.fragmentShader,
+            //side:           THREE.BackSide
+        /*});*/
+        var material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            wireframe: true,
+            side: THREE.BackSide
         });
 
         mesh = new THREE.Mesh( geometry, material );
         return mesh;
+    },
+    createTubeSegment: function(path) {
+
     },
     createObstacle: function(pos, color, distance, type) {
         type = type || 'cube';
@@ -436,8 +448,8 @@ GraphicInterface.prototype = {
             }
         }.bind(this));
 
-        this.camera.position.x = 25 * Math.sin(radians);
-        this.camera.position.y = 25 * Math.cos(radians);
+        //this.camera.position.x = 25 * Math.sin(radians);
+        //this.camera.position.y = 25 * Math.cos(radians);
 
         if(this.shakeAnimation) {
             var E = 0.01;
@@ -451,8 +463,8 @@ GraphicInterface.prototype = {
             }
         }
 
-        this.camera.up.x = -Math.sin(radians);
-        this.camera.up.y = -Math.cos(radians);
+        //this.camera.up.x = -Math.sin(radians);
+        //this.camera.up.y = -Math.cos(radians);
 
         this.camera.lookAt(this.cameraTarget);
 
