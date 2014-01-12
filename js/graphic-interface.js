@@ -46,15 +46,6 @@ GraphicInterface.prototype = {
         this.camera = this.createCamera();
         this.scene.add(this.camera);
         this.scene.add(this.createTube());
-        this.obstacle = this.createObstacle(3, conf.colors[1], 8, 'pillar');
-        this.scene.add(this.createObstacle(6, conf.colors[0], 18, 'pillar'));
-        this.scene.add(this.createObstacle(10, conf.colors[2], 27, 'pillar'));
-        this.scene.add(this.createObstacle(8, conf.colors[1], 21));
-        this.scene.add(this.createObstacle(7, conf.colors[0], 22));
-        this.scene.add(this.createObstacle(11, conf.colors[1], 31));
-        this.scene.add(this.obstacle);
-        this.scene.add(this.createArrows(0, 8));
-        this.scene.add(this.createArrows(6, 8));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -66,15 +57,23 @@ GraphicInterface.prototype = {
     },
     createTube: function() {
         var length = this.conf.tubeLength * this.conf.textureLength;
-        var geometry = new THREE.CylinderGeometry(
-            this.conf.radius,
-            this.conf.radius,
-            length,
-            this.conf.numOfSegments,
-            this.conf.tubeLength * 10,
-            true);
+        var path = new THREE.Curves.Custom();
+        var spline = new THREE.SplineCurve3([
+           new THREE.Vector3(0, 0, 0),
+           new THREE.Vector3(0, 1000, 0),
+           new THREE.Vector3(100, 2000, 0),
+           new THREE.Vector3(500, 3000, 0),
+        ]);
+        var geometry = new THREE.TubeGeometry(spline, 100, 30, 12, false, false);
+        //var geometry = new THREE.CylinderGeometry(
+            //this.conf.radius,
+            //this.conf.radius,
+            //length,
+            //this.conf.numOfSegments,
+            //this.conf.tubeLength * 10,
+            //true);
         geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
-        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -length/2 ) ) );
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -70) ) );
 
         var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
 
@@ -91,7 +90,8 @@ GraphicInterface.prototype = {
             speed:      { type: "f", value: this.conf.speed },
             dynamic:    { type: "f", value: false },
             highlight:  { type: "f", value: 1.0 },
-            uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
+            //uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
+            uvScale:    { type: "v2", value: new THREE.Vector2(40, 12) }
         };
         this.tubeUniform = uniforms;
         this.uniformsArr.push(uniforms);
@@ -456,9 +456,60 @@ GraphicInterface.prototype = {
 
         this.camera.lookAt(this.cameraTarget);
 
-
         this.renderer.render(this.scene, this.camera);
 
         this.stats.end();
     }
 };
+
+THREE.Curves = {};
+THREE.Curves.GrannyKnot = THREE.Curve.create(function(){},
+     function(t) {
+         var cos = Math.cos;
+         var sin = Math.sin;
+        t = 2 * Math.PI * t;
+
+        var x = -0.22 * cos(t) - 1.28 * sin(t) - 0.44 * cos(3 * t) - 0.78 * sin(3 * t);
+        var y = -0.1 * cos(2 * t) - 0.27 * sin(2 * t) + 0.38 * cos(4 * t) + 0.46 * sin(4 * t);
+        var z = 0.7 * cos(3 * t) - 0.4 * sin(3 * t);
+        return new THREE.Vector3(x, y, z).multiplyScalar(20);
+    }
+);
+THREE.Curves.HeartCurve = THREE.Curve.create(
+
+function(s) {
+
+    this.scale = (s === undefined) ? 5 : s;
+
+},
+
+function(t) {
+
+    t *= 2 * Math.PI;
+
+    var tx = 16 * Math.pow(Math.sin(t), 3);
+    ty = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t), tz = 0;
+
+    return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+
+}
+
+);
+
+THREE.Curves.Custom = THREE.Curve.create(
+
+function() {},
+
+function(t) {
+
+    t *= 2 * Math.PI;
+
+    var tx = t,
+    ty = t, 
+    tz = 0;
+
+    return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+
+}
+
+);
