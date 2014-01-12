@@ -46,7 +46,6 @@ THREE.TubeTileGeometry = function(path, segments, radius, radialSegments, segmen
         tangents = frames.tangents,
         normals = frames.normals,
         binormals = frames.binormals;
-        console.log(frames);
 
     // proxy internals
     this.tangents = tangents;
@@ -105,10 +104,10 @@ THREE.TubeTileGeometry = function(path, segments, radius, radialSegments, segmen
     c = this.grid[ ip ][ jp ];
     d = this.grid[ i ][ jp ];
 
-    uva = new THREE.Vector2( i / this.segments, j / this.radialSegments );
-    uvb = new THREE.Vector2( ( i + 1 ) / this.segments, j / this.radialSegments );
-    uvc = new THREE.Vector2( ( i + 1 ) / this.segments, ( j + 1 ) / this.radialSegments );
-    uvd = new THREE.Vector2( i / this.segments, ( j + 1 ) / this.radialSegments );
+    uva = new THREE.Vector2( 1, 1);
+    uvb = new THREE.Vector2( i + 1, j);
+    uvc = new THREE.Vector2( i + 1, j + 1 );
+    uvd = new THREE.Vector2( i, j + 1 );
 
     this.faces.push( new THREE.Face3( a, b, d ) );
     this.faceVertexUvs[ 0 ].push( [ uva, uvb, uvd ] );

@@ -55,7 +55,7 @@ GraphicInterface.prototype = {
            new THREE.Vector3(10, 100, 0),
            new THREE.Vector3(40, 200, 0)
         ]);
-        this.scene.add(this.createTube(spline1));
+        this.scene.add(this.createTubeSegment(spline1));
         //this.scene.add(this.createTube(spline2));
 
         THREEx.WindowResize(this.renderer, this.camera);
@@ -117,7 +117,22 @@ GraphicInterface.prototype = {
         return mesh;
     },
     createTubeSegment: function(path) {
+        var length = this.conf.tubeLength * this.conf.textureLength;
+        var geometry = new THREE.TubeTileGeometry(path, 20, 20, 12, 0, 0, false);
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
+        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -70) ) );
 
+        var map = THREE.ImageUtils.loadTexture( "textures/sq.jpg" );
+
+        var material = new THREE.MeshBasicMaterial({
+            //wireframe: true,
+            map: map,
+            side: THREE.BackSide
+        });
+
+        mesh = new THREE.Mesh( geometry, material );
+        console.log(mesh);
+        return mesh;
     },
     createObstacle: function(pos, color, distance, type) {
         type = type || 'cube';
