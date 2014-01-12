@@ -117,22 +117,23 @@ GraphicInterface.prototype = {
         return mesh;
     },
     createTubeSegment: function(path) {
-        var length = this.conf.tubeLength * this.conf.textureLength;
-        var geometry = new THREE.TubeTileGeometry(path, 20, 20, 12, 0, 0, false);
-        geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
-        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -70) ) );
+        var group = new THREE.Object3D();
+        for(var i = 0; i < 12; i++) {
+            var geometry = new THREE.TubeTileGeometry(path, 20, 20, 12, 0, i, false);
+            geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
+            geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -40) ) );
 
-        var map = THREE.ImageUtils.loadTexture( "textures/sq.jpg" );
+            var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
 
-        var material = new THREE.MeshBasicMaterial({
-            //wireframe: true,
-            map: map,
-            side: THREE.BackSide
-        });
+            var material = new THREE.MeshBasicMaterial({
+                map: map,
+                side: THREE.BackSide
+            });
 
-        mesh = new THREE.Mesh( geometry, material );
-        console.log(mesh);
-        return mesh;
+            var mesh = new THREE.Mesh( geometry, material );
+            group.add(mesh);
+        }
+        return group;
     },
     createObstacle: function(pos, color, distance, type) {
         type = type || 'cube';
