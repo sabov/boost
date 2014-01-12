@@ -14,7 +14,7 @@ void main() {
 
     vec3 animated = position;
 
-    animated.z += globalTime * speed - distance;
+    //animated.z += globalTime * speed - distance;
     if(dynamic) {
         //animated.z += globalTime * speed - distance;
     } else {
