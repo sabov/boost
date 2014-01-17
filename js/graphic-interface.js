@@ -7,7 +7,7 @@ var GraphicInterface = function(conf) {
     this.distance = 0;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
-    this.cameraTarget = new THREE.Vector3(0,0,0);
+    this.cameraTarget = new THREE.Vector3(0,0,-1000);
     this.uniformsArr = [];
     this.cubeUniformsArr = [];
     this.arrowUniformsArr = [];
@@ -48,14 +48,16 @@ GraphicInterface.prototype = {
 
         var spline1 = new THREE.SplineCurve3([
            new THREE.Vector3(0, 0, 0),
-           new THREE.Vector3(0, 100, 0),
-           new THREE.Vector3(10, 200, 0)
+           new THREE.Vector3(0, 200, 0),
+           new THREE.Vector3(10, 400, 0)
         ]);
         var spline2 = new THREE.SplineCurve3([
            new THREE.Vector3(10, 100, 0),
            new THREE.Vector3(40, 200, 0)
         ]);
-        this.scene.add(this.createTubeSegment(spline1));
+        for(var i = 1; i < 60; i++) {
+            this.scene.add(this.createTubeSegment(spline1, i));
+        }
         //this.scene.add(this.createTube(spline2));
 
         THREEx.WindowResize(this.renderer, this.camera);
@@ -116,12 +118,12 @@ GraphicInterface.prototype = {
         mesh = new THREE.Mesh( geometry, material );
         return mesh;
     },
-    createTubeSegment: function(path) {
+    createTubeSegment: function(path, segmentNum) {
         var group = new THREE.Object3D();
         for(var i = 0; i < 12; i++) {
-            var geometry = new THREE.TubeTileGeometry(path, 20, 20, 12, 0, i, false);
+            var geometry = new THREE.TubeTileGeometry(path, 60, 20, 12, segmentNum, i, false);
             geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
-            geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -40) ) );
+            geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -20) ) );
 
             var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
 
@@ -467,6 +469,7 @@ GraphicInterface.prototype = {
         //this.camera.position.x = 25 * Math.sin(radians);
         //this.camera.position.y = 25 * Math.cos(radians);
 
+        this.camera.position.z -= 5;
         if(this.shakeAnimation) {
             var E = 0.01;
             var CT = this.cameraTarget;
