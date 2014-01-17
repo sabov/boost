@@ -11,7 +11,7 @@
  * http://www.cs.indiana.edu/pub/techreports/TR425.pdf
  */
 
-THREE.TubeTileGeometry = function(path, segments, radius, radialSegments, segmentNum, radialSegmentNum, closed) {
+THREE.TubeTileGeometry = function(path, segments, radius, radialSegments, segmentNum, closed) {
 
     THREE.Geometry.call( this );
 
@@ -61,7 +61,8 @@ THREE.TubeTileGeometry = function(path, segments, radius, radialSegments, segmen
 
     // consruct the grid
 
-    for ( i = 0; i < numpoints; i++ ) {
+
+    for ( i = segmentNum; i < segmentNum + 2; i++ ) {
 
         this.grid[ i ] = [];
 
@@ -115,9 +116,9 @@ THREE.TubeTileGeometry = function(path, segments, radius, radialSegments, segmen
     this.faces.push( new THREE.Face3( b, c, d ) );
     this.faceVertexUvs[ 0 ].push( [ uvb.clone(), uvc, uvd.clone() ] );
 
-    this.computeCentroids();
-    this.computeFaceNormals();
-    this.computeVertexNormals();
+    //this.computeCentroids();
+    //this.computeFaceNormals();
+    //this.computeVertexNormals();
 
 };
 
