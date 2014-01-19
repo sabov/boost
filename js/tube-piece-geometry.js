@@ -129,29 +129,6 @@ THREE.TubePieceGeometry = function(path, shift, length, segments, radius, radial
         }
     }
 
-
-
-    //i = segmentNum;
-
-    //ip = ( this.closed ) ? (i + 1) % this.segments : i + 1;
-    //jp = (j + 1) % this.radialSegments;
-
-    //a = this.grid[ i ][ j ];		// *** NOT NECESSARILY PLANAR ! ***
-    //b = this.grid[ ip ][ j ];
-    //c = this.grid[ ip ][ jp ];
-    //d = this.grid[ i ][ jp ];
-
-    //uva = new THREE.Vector2(0, 0);
-    //uvb = new THREE.Vector2(0, 1);
-    //uvc = new THREE.Vector2(1, 1);
-    //uvd = new THREE.Vector2(1, 0);
-
-    //this.faces.push( new THREE.Face3( a, b, d ) );
-    //this.faceVertexUvs[ 0 ].push( [ uva, uvb, uvd ] );
-
-    //this.faces.push( new THREE.Face3( b, c, d ) );
-    /*this.faceVertexUvs[ 0 ].push( [ uvb.clone(), uvc, uvd.clone() ] );*/
-
     this.computeCentroids();
     this.computeFaceNormals();
     this.computeVertexNormals();
