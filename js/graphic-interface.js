@@ -55,9 +55,10 @@ GraphicInterface.prototype = {
            new THREE.Vector3(10, 100, 0),
            new THREE.Vector3(40, 200, 0)
         ]);
-        for(var i = 1; i < 60; i++) {
-            this.scene.add(this.createTubeSegment(spline1, i));
-        }
+        var a =spline1.getLength();
+        //for(var i = 1; i < 3; i++) {
+            this.scene.add(this.createTubeSegment(spline1, 3));
+        //}
         //this.scene.add(this.createTube(spline2));
 
         THREEx.WindowResize(this.renderer, this.camera);
@@ -120,16 +121,17 @@ GraphicInterface.prototype = {
     },
     createTubeSegment: function(path, segmentNum) {
         var group = new THREE.Object3D();
-        for(var i = 0; i < 12; i++) {
-            var geometry = new THREE.TubeTileGeometry(path, 60, 20, 12, segmentNum, i, false);
+        for(var i = 0; i < segmentNum; i++) {
+            var geometry = new THREE.TubePieceGeometry(path, 10 * i, 10, 1, 20, 12);
             geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
-            geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -20) ) );
+            geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -40) ) );
 
             var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
 
             var material = new THREE.MeshBasicMaterial({
-                map: map,
-                side: THREE.BackSide
+                //map: map,
+                side: THREE.BackSide,
+                wireframe: true
             });
 
             var mesh = new THREE.Mesh( geometry, material );
@@ -469,7 +471,7 @@ GraphicInterface.prototype = {
         //this.camera.position.x = 25 * Math.sin(radians);
         //this.camera.position.y = 25 * Math.cos(radians);
 
-        this.camera.position.z -= 5;
+        //this.camera.position.z -= 5;
         if(this.shakeAnimation) {
             var E = 0.01;
             var CT = this.cameraTarget;
