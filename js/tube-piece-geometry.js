@@ -11,18 +11,26 @@
  * http://www.cs.indiana.edu/pub/techreports/TR425.pdf
  */
 
-THREE.TubeTileGeometry = function(path, segments, radius, radialSegments, segmentNum, closed) {
+THREE.TubePieceGeometry = function(path, shift, length, segments, radius, radialSegments) {
 
     THREE.Geometry.call( this );
 
     this.path = path;
+    this.shift = shift || 0;
+    this.length = length || 100;
     this.segments = segments || 64;
     this.radius = radius || 1;
     this.radialSegments = radialSegments || 8;
-    this.closed = closed || false;
+
+    this.getPoint = function(index) {
+        var ratio = this.length / this.path.getLength();
+        var shift = this.shift / this.path.getLength();
+        return ratio * (index / this.segments) + shift;
+    };
 
     this.grid = [];
 
+    this.getPoint();
     var scope = this,
 
         tangent,
@@ -42,7 +50,7 @@ THREE.TubeTileGeometry = function(path, segments, radius, radialSegments, segmen
         a, b, c, d,
         uva, uvb, uvc, uvd;
 
-    var frames = new THREE.TubeTileGeometry.FrenetFrames( this.path, this.segments, this.closed ),
+    var frames = new THREE.TubePieceGeometry.FrenetFrames( this.path, this.segments, this),
         tangents = frames.tangents,
         normals = frames.normals,
         binormals = frames.binormals;
@@ -62,11 +70,12 @@ THREE.TubeTileGeometry = function(path, segments, radius, radialSegments, segmen
     // consruct the grid
 
 
-    for ( i = segmentNum; i < segmentNum + 2; i++ ) {
+    for ( i = 0; i < numpoints; i++ ) {
 
         this.grid[ i ] = [];
 
-        u = i / ( numpoints - 1 );
+        //u = (i * this.length) / (( numpoints - 1 ) * path.getLength());
+        u = this.getPoint(i);
 
         pos = path.getPointAt( u );
 
@@ -94,41 +103,68 @@ THREE.TubeTileGeometry = function(path, segments, radius, radialSegments, segmen
 
     // construct the mesh
 
-    i = segmentNum;
-    j = radialSegmentNum;
+    for ( i = 0; i < this.segments; i++ ) {
 
-    ip = ( this.closed ) ? (i + 1) % this.segments : i + 1;
-    jp = (j + 1) % this.radialSegments;
+        for ( j = 0; j < this.radialSegments; j++ ) {
 
-    a = this.grid[ i ][ j ];		// *** NOT NECESSARILY PLANAR ! ***
-    b = this.grid[ ip ][ j ];
-    c = this.grid[ ip ][ jp ];
-    d = this.grid[ i ][ jp ];
+            ip = i + 1;
+            jp = (j + 1) % this.radialSegments;
 
-    uva = new THREE.Vector2(0, 0);
-    uvb = new THREE.Vector2(0, 1);
-    uvc = new THREE.Vector2(1, 1);
-    uvd = new THREE.Vector2(1, 0);
+            a = this.grid[ i ][ j ];		// *** NOT NECESSARILY PLANAR ! ***
+            b = this.grid[ ip ][ j ];
+            c = this.grid[ ip ][ jp ];
+            d = this.grid[ i ][ jp ];
 
-    this.faces.push( new THREE.Face3( a, b, d ) );
-    this.faceVertexUvs[ 0 ].push( [ uva, uvb, uvd ] );
+            uva = new THREE.Vector2( i / this.segments, j / this.radialSegments );
+            uvb = new THREE.Vector2( ( i + 1 ) / this.segments, j / this.radialSegments );
+            uvc = new THREE.Vector2( ( i + 1 ) / this.segments, ( j + 1 ) / this.radialSegments );
+            uvd = new THREE.Vector2( i / this.segments, ( j + 1 ) / this.radialSegments );
 
-    this.faces.push( new THREE.Face3( b, c, d ) );
-    this.faceVertexUvs[ 0 ].push( [ uvb.clone(), uvc, uvd.clone() ] );
+            this.faces.push( new THREE.Face3( a, b, d ) );
+            this.faceVertexUvs[ 0 ].push( [ uva, uvb, uvd ] );
 
-    //this.computeCentroids();
-    //this.computeFaceNormals();
-    //this.computeVertexNormals();
+            this.faces.push( new THREE.Face3( b, c, d ) );
+            this.faceVertexUvs[ 0 ].push( [ uvb.clone(), uvc, uvd.clone() ] );
+
+        }
+    }
+
+
+
+    //i = segmentNum;
+
+    //ip = ( this.closed ) ? (i + 1) % this.segments : i + 1;
+    //jp = (j + 1) % this.radialSegments;
+
+    //a = this.grid[ i ][ j ];		// *** NOT NECESSARILY PLANAR ! ***
+    //b = this.grid[ ip ][ j ];
+    //c = this.grid[ ip ][ jp ];
+    //d = this.grid[ i ][ jp ];
+
+    //uva = new THREE.Vector2(0, 0);
+    //uvb = new THREE.Vector2(0, 1);
+    //uvc = new THREE.Vector2(1, 1);
+    //uvd = new THREE.Vector2(1, 0);
+
+    //this.faces.push( new THREE.Face3( a, b, d ) );
+    //this.faceVertexUvs[ 0 ].push( [ uva, uvb, uvd ] );
+
+    //this.faces.push( new THREE.Face3( b, c, d ) );
+    /*this.faceVertexUvs[ 0 ].push( [ uvb.clone(), uvc, uvd.clone() ] );*/
+
+    this.computeCentroids();
+    this.computeFaceNormals();
+    this.computeVertexNormals();
 
 };
 
-THREE.TubeTileGeometry.prototype = Object.create( THREE.Geometry.prototype );
+THREE.TubePieceGeometry.prototype = Object.create( THREE.Geometry.prototype );
 
 
 // For computing of Frenet frames, exposing the tangents, normals and binormals the spline
-THREE.TubeTileGeometry.FrenetFrames = function(path, segments, closed) {
+THREE.TubePieceGeometry.FrenetFrames = function(path, segments, tubeGeometry) {
 
-    var	tangent = new THREE.Vector3(),
+    var tangent = new THREE.Vector3(),
         normal = new THREE.Vector3(),
         binormal = new THREE.Vector3(),
 
@@ -157,7 +193,7 @@ THREE.TubeTileGeometry.FrenetFrames = function(path, segments, closed) {
 
     for ( i = 0; i < numpoints; i++ ) {
 
-        u = i / ( numpoints - 1 );
+        u = tubeGeometry.getPoint(i);
 
         tangents[ i ] = path.getTangentAt( u );
         tangents[ i ].normalize();
@@ -244,27 +280,6 @@ THREE.TubeTileGeometry.FrenetFrames = function(path, segments, closed) {
 
     }
 
-
-    // if the curve is closed, postprocess the vectors so the first and last normal vectors are the same
-
-    if ( closed ) {
-
-        theta = Math.acos( THREE.Math.clamp( normals[ 0 ].dot( normals[ numpoints-1 ] ), -1, 1 ) );
-        theta /= ( numpoints - 1 );
-
-        if ( tangents[ 0 ].dot( vec.crossVectors( normals[ 0 ], normals[ numpoints-1 ] ) ) > 0 ) {
-
-            theta = -theta;
-
-        }
-
-        for ( i = 1; i < numpoints; i++ ) {
-
-            // twist a little...
-            normals[ i ].applyMatrix4( mat.makeRotationAxis( tangents[ i ], theta * i ) );
-            binormals[ i ].crossVectors( tangents[ i ], normals[ i ] );
-
-        }
-
-    }
 };
+
+
