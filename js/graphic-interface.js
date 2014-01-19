@@ -7,7 +7,7 @@ var GraphicInterface = function(conf) {
     this.distance = 0;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
-    this.cameraTarget = new THREE.Vector3(0,0,-1000);
+    this.cameraTarget = new THREE.Vector3(0,10000,0);
     this.uniformsArr = [];
     this.cubeUniformsArr = [];
     this.arrowUniformsArr = [];
@@ -46,20 +46,17 @@ GraphicInterface.prototype = {
         this.camera = this.createCamera();
         this.scene.add(this.camera);
 
-        var spline1 = new THREE.SplineCurve3([
-           new THREE.Vector3(0, 0, 0),
-           new THREE.Vector3(0, 200, 0),
-           new THREE.Vector3(10, 400, 0)
+        var path = new THREE.SplineCurve3([
+           new THREE.Vector3(100, 0, 0),
+           new THREE.Vector3(100, 200, 0),
+           new THREE.Vector3(200, 400, 110),
+           new THREE.Vector3(220, 800, 0),
+           new THREE.Vector3(0, 1800, 0)
         ]);
-        var spline2 = new THREE.SplineCurve3([
-           new THREE.Vector3(10, 100, 0),
-           new THREE.Vector3(40, 200, 0)
-        ]);
-        var a =spline1.getLength();
-        //for(var i = 1; i < 3; i++) {
-            this.scene.add(this.createTubeSegment(spline1, 3));
-        //}
-        //this.scene.add(this.createTube(spline2));
+        this.path = path;
+        for(var i = 0; i < 12; i++) {
+            this.scene.add(this.createTubeSegment(path, i));
+        }
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -119,25 +116,24 @@ GraphicInterface.prototype = {
         mesh = new THREE.Mesh( geometry, material );
         return mesh;
     },
-    createTubeSegment: function(path, segmentNum) {
-        var group = new THREE.Object3D();
-        for(var i = 0; i < segmentNum; i++) {
-            var geometry = new THREE.TubePieceGeometry(path, 10 * i, 10, 1, 20, 12);
-            geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
-            geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -40) ) );
+    createTubeSegment: function(path, num) {
 
-            var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
+        var geometry = new THREE.TubePieceGeometry(path, 100 * num, 100, 10, 20, 12);
+        //geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
+        //geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -40) ) );
 
-            var material = new THREE.MeshBasicMaterial({
-                //map: map,
-                side: THREE.BackSide,
-                wireframe: true
-            });
+        var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        map.repeat.set( 10, 12 );
 
-            var mesh = new THREE.Mesh( geometry, material );
-            group.add(mesh);
-        }
-        return group;
+        var material = new THREE.MeshBasicMaterial({
+            map: map,
+            side: THREE.BackSide
+            //wireframe: true
+        });
+
+        var mesh = new THREE.Mesh( geometry, material );
+        return mesh;
     },
     createObstacle: function(pos, color, distance, type) {
         type = type || 'cube';
@@ -471,7 +467,6 @@ GraphicInterface.prototype = {
         //this.camera.position.x = 25 * Math.sin(radians);
         //this.camera.position.y = 25 * Math.cos(radians);
 
-        //this.camera.position.z -= 5;
         if(this.shakeAnimation) {
             var E = 0.01;
             var CT = this.cameraTarget;
@@ -484,6 +479,10 @@ GraphicInterface.prototype = {
             }
         }
 
+        var point = this.path.getPointAt(this.globalTime / 100);
+        var point2 = this.path.getPointAt(this.globalTime / 100 + 0.01);
+        this.camera.position = point;
+        //console.log(point);
         //this.camera.up.x = -Math.sin(radians);
         //this.camera.up.y = -Math.cos(radians);
 
