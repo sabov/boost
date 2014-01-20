@@ -70,11 +70,11 @@ THREE.TubePieceGeometry = function(path, shift, length, segments, radius, radial
     // consruct the grid
 
 
+    console.log('=======');
     for ( i = 0; i < numpoints; i++ ) {
 
         this.grid[ i ] = [];
 
-        //u = (i * this.length) / (( numpoints - 1 ) * path.getLength());
         u = this.getPoint(i);
 
         pos = path.getPointAt( u );
@@ -95,11 +95,22 @@ THREE.TubePieceGeometry = function(path, shift, length, segments, radius, radial
             pos2.y += cx * normal.y + cy * binormal.y;
             pos2.z += cx * normal.z + cy * binormal.z;
 
+            if(j === 0) {
+                //console.log('point ' + i);
+                //console.log(pos2);
+                //console.log('normal');
+                //console.log(normal);
+            }
             this.grid[ i ][ j ] = vert( pos2.x, pos2.y, pos2.z );
 
         }
     }
+    //console.log('-----');
+    //console.log(scope.vertices[0]);
+    //console.log(scope.vertices[scope.vertices.length - 12]);
+    //console.log('-----');
 
+    console.log('=======');
 
     // construct the mesh
 
@@ -178,6 +189,7 @@ THREE.TubePieceGeometry.FrenetFrames = function(path, segments, tubeGeometry) {
     }
 
     initialNormal3();
+    initialNormal4();
 
     function initialNormal1(lastBinormal) {
         // fixed start binormal. Has dangers of 0 vectors
@@ -232,30 +244,69 @@ THREE.TubePieceGeometry.FrenetFrames = function(path, segments, tubeGeometry) {
         binormals[ 0 ].crossVectors( tangents[ 0 ], normals[ 0 ] );
     }
 
+    function initialNormal4() {
+        // select an initial normal vector perpenicular to the first tangent vector,
+        // and in the direction of the smallest tangent xyz component
+
+        normals[ 1 ] = new THREE.Vector3();
+        binormals[ 1 ] = new THREE.Vector3();
+        smallest = Number.MAX_VALUE;
+        tx = Math.abs( tangents[ 1 ].x );
+        ty = Math.abs( tangents[ 1 ].y );
+        tz = Math.abs( tangents[ 1 ].z );
+
+        if ( tx <= smallest ) {
+            smallest = tx;
+            normal.set( 1, 0, 0 );
+        }
+
+        if ( ty <= smallest ) {
+            smallest = ty;
+            normal.set( 0, 1, 0 );
+        }
+
+        if ( tz <= smallest ) {
+            normal.set( 0, 0, 1 );
+        }
+
+        vec.crossVectors( tangents[ 1 ], normal ).normalize();
+
+        normals[ 1 ].crossVectors( tangents[ 1 ], vec );
+        binormals[ 1 ].crossVectors( tangents[ 1 ], normals[ 1 ] );
+    }
 
     // compute the slowly-varying normal and binormal vectors for each segment on the path
 
-    for ( i = 1; i < numpoints; i++ ) {
+    //for ( i = 1; i < numpoints; i++ ) {
 
-        normals[ i ] = normals[ i-1 ].clone();
+        //normals[ i ] = normals[ i-1 ].clone();
 
-        binormals[ i ] = binormals[ i-1 ].clone();
+        //binormals[ i ] = binormals[ i-1 ].clone();
 
-        vec.crossVectors( tangents[ i-1 ], tangents[ i ] );
+        //console.log(normals[i]);
 
-        if ( vec.length() > epsilon ) {
+        //vec.crossVectors( tangents[ i-1 ], tangents[ i ] );
 
-            vec.normalize();
+        //if ( vec.length() > epsilon ) {
 
-            theta = Math.acos( THREE.Math.clamp( tangents[ i-1 ].dot( tangents[ i ] ), -1, 1 ) ); // clamp for floating pt errors
+            //vec.normalize();
 
-            normals[ i ].applyMatrix4( mat.makeRotationAxis( vec, theta ) );
+            //theta = Math.acos( THREE.Math.clamp( tangents[ i-1 ].dot( tangents[ i ] ), -1, 1 ) ); // clamp for floating pt errors
 
-        }
+            //normals[ i ].applyMatrix4( mat.makeRotationAxis( vec, theta ) );
 
-        binormals[ i ].crossVectors( tangents[ i ], normals[ i ] );
+        //}
+        //console.log(normals[i]);
 
-    }
+        //binormals[ i ].crossVectors( tangents[ i ], normals[ i ] );
+
+    /*}*/
+    //console.log(binormals[0]);
+    //console.log(binormals[1]);
+    //console.log(normals[0]);
+    //console.log(normals[1]);
+    //console.log(tangents[0]);
+    //console.log(tangents[1]);
 
 };
 
