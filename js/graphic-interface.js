@@ -48,13 +48,13 @@ GraphicInterface.prototype = {
 
         var path = new THREE.SplineCurve3([
            new THREE.Vector3(0, 0, 0),
-           new THREE.Vector3(10, 40, 0),
-           new THREE.Vector3(20, 80, 11),
-           new THREE.Vector3(22, 160, 0),
-           new THREE.Vector3(0, 180, 0)
+           new THREE.Vector3(0, 240, 0),
+           new THREE.Vector3(0, 380, 10),
+           new THREE.Vector3(100, 580, -100),
+           new THREE.Vector3(0, 1580, 100)
         ]);
         this.path = path;
-        for(var i = 3; i < 6; i++) {
+        for(var i = 0; i < 16; i++) {
             this.scene.add(this.createTubeSegment(path, i));
         }
 
@@ -118,17 +118,17 @@ GraphicInterface.prototype = {
     },
     createTubeSegment: function(path, num) {
 
-        var geometry = new THREE.TubePieceGeometry(path, 10 * num, 10, 1, 20, 12);
+        var geometry = new THREE.TubePieceGeometry(path, 40 * num, 40, 10, 20, 12);
         //geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
         //geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -40) ) );
 
         var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        map.repeat.set( 1, 12 );
+        map.repeat.set( 3, 12 );
 
         var material = new THREE.MeshBasicMaterial({
             map: map,
-            side: THREE.BackSide
+            side: THREE.BackSide,
             //wireframe: true
         });
 
@@ -479,7 +479,7 @@ GraphicInterface.prototype = {
             }
         }
 
-        var point = this.path.getPointAt(this.globalTime / 100);
+        var point = this.path.getPointAt(this.globalTime / 50);
         var point2 = this.path.getPointAt(this.globalTime / 100 + 0.01);
         this.camera.position = point;
         //console.log(point);
