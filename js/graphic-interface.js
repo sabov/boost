@@ -48,13 +48,15 @@ GraphicInterface.prototype = {
 
         var path = new THREE.SplineCurve3([
            new THREE.Vector3(0, 0, 0),
-           new THREE.Vector3(0, 240, 0),
-           new THREE.Vector3(0, 380, 10),
-           new THREE.Vector3(100, 580, -100),
-           new THREE.Vector3(0, 1580, 100)
+           new THREE.Vector3(10, 100, 10),
+           new THREE.Vector3(100, 200, 100),
+           new THREE.Vector3(300, 300, 300),
+           new THREE.Vector3(100, 580, 100),
+           new THREE.Vector3(100, 1580, 100)
         ]);
         this.path = path;
-        for(var i = 0; i < 16; i++) {
+        this.p = new Path(path, 40);
+        for(var i = 0; i < 26; i++) {
             this.scene.add(this.createTubeSegment(path, i));
         }
 
@@ -119,8 +121,6 @@ GraphicInterface.prototype = {
     createTubeSegment: function(path, num) {
 
         var geometry = new THREE.TubePieceGeometry(path, 40 * num, 40, 10, 20, 12);
-        //geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
-        //geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -40) ) );
 
         var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
@@ -128,7 +128,7 @@ GraphicInterface.prototype = {
 
         var material = new THREE.MeshBasicMaterial({
             map: map,
-            side: THREE.BackSide,
+            side: THREE.BackSide
             //wireframe: true
         });
 
@@ -464,8 +464,8 @@ GraphicInterface.prototype = {
             }
         }.bind(this));
 
-        //this.camera.position.x = 25 * Math.sin(radians);
-        //this.camera.position.y = 25 * Math.cos(radians);
+        this.camera.position.x = 25 * Math.sin(radians);
+        this.camera.position.y = 25 * Math.cos(radians);
 
         if(this.shakeAnimation) {
             var E = 0.01;
@@ -479,18 +479,135 @@ GraphicInterface.prototype = {
             }
         }
 
-        var point = this.path.getPointAt(this.globalTime / 50);
-        var point2 = this.path.getPointAt(this.globalTime / 100 + 0.01);
-        this.camera.position = point;
-        //console.log(point);
-        //this.camera.up.x = -Math.sin(radians);
-        //this.camera.up.y = -Math.cos(radians);
+        var point = this.p.getPointAt(0);
+        var point2 = this.p.getPointAt(0.001);
+        var pos2 = new THREE.Vector3();
+
+        var normal = this.p.getNormal(0);
+        var binormal = this.p.getBinormal(0);
+
+        var cx = -10 * Math.cos(radians); // TODO: Hack: Negating it so it faces outside.
+        var cy = 10 * Math.sin(radians);
+
+
+        pos2.copy( point );
+        pos2.x += cx * normal.x + cy * binormal.x;
+        pos2.y += cx * normal.y + cy * binormal.y;
+        pos2.z += cx * normal.z + cy * binormal.z;
+
+
+        //point2.x += 10 * Math.sin(radians);
+        //point2.z += 10 * Math.cos(radians);
+
+        this.camera.position = pos2;
+
+        //this.camera.position.x += 10 * Math.sin(radians);
+        //this.camera.position.z += 10 * Math.cos(radians);
+
+        this.camera.up.x = Math.sin(radians);
+        this.camera.up.z = -Math.cos(radians);
 
         this.camera.lookAt(this.cameraTarget);
 
         this.renderer.render(this.scene, this.camera);
-
         this.stats.end();
+    }
+};
+
+var Path = function(curve, segments) {
+    this.curve = curve;
+    this.segments = segments;
+
+    this.tangents  = [];
+    this.normals   = [];
+    this.binormals = [];
+
+    this.calcTangets();
+    this.calcNormalsAndBinormals();
+};
+
+Path.prototype = {
+    getPointAt: function(u) {
+        return this.curve.getPointAt(u);
+    },
+    getTangent: function(index) {
+        return this.tangents[index];
+    },
+    getNormal: function(index) {
+        return this.normals[index];
+    },
+    getBinormal: function(index) {
+        return this.binormals[index];
+    },
+    calcTangets: function() {
+        for(var i = 0; i < this.segments; i++) {
+
+            var u = i / (this.segments - 1);
+
+            this.tangents[i] = this.curve.getTangentAt(u);
+            this.tangents[i].normalize();
+
+        }
+    },
+    calcNormalsAndBinormals: function() {
+
+        var theta;
+        var epsilon = 0.0001;
+        var normal = new THREE.Vector3();
+        var vec = new THREE.Vector3();
+        var mat = new THREE.Matrix4();
+
+        this.normals[ 0 ] = new THREE.Vector3();
+        this.binormals[ 0 ] = new THREE.Vector3();
+        var smallest = Number.MAX_VALUE;
+
+        var tx = Math.abs( this.tangents[ 0 ].x );
+        var ty = Math.abs( this.tangents[ 0 ].y );
+        var tz = Math.abs( this.tangents[ 0 ].z );
+
+        if ( tx <= smallest ) {
+            smallest = tx;
+            normal.set( 1, 0, 0 );
+        }
+
+        if ( ty <= smallest ) {
+            smallest = ty;
+            normal.set( 0, 1, 0 );
+        }
+
+        if ( tz <= smallest ) {
+            normal.set( 0, 0, 1 );
+        }
+
+        vec.crossVectors( this.tangents[ 0 ], normal ).normalize();
+
+        this.normals[ 0 ].crossVectors( this.tangents[ 0 ], vec );
+        this.binormals[ 0 ].crossVectors( this.tangents[ 0 ], this.normals[ 0 ] );
+
+        for (var i = 1; i < this.segments; i++ ) {
+
+            this.normals[i] = this.normals[i - 1].clone();
+
+            this.binormals[i] = this.binormals[i - 1].clone();
+
+            vec.crossVectors(this.tangents[i - 1], this.tangents[i]);
+
+            if(vec.length() > epsilon) {
+
+                vec.normalize();
+
+                theta = Math.acos(THREE.Math.clamp(this.tangents[i - 1].dot(this.tangents[i]), -1, 1)); // clamp for floating pt errors
+
+                this.normals[i].applyMatrix4(mat.makeRotationAxis(vec, theta));
+
+            }
+
+            this.binormals[i].crossVectors(this.tangents[i], this.normals[i]);
+
+        }
+
+
+
     }
 };
 
