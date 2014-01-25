@@ -10,14 +10,14 @@ html, body {
 
 @keyframes rows-animation
 {
-from {box-shadow: 14px -14px 15px -15px #d87c21;}
-to {box-shadow: 14px -14px 15px -15px black;}
+    from {box-shadow: 14px -14px 15px -15px #d87c21;}
+    to {box-shadow: 14px -14px 15px -15px black;}
 }
 
 @-webkit-keyframes rows-animation /* Safari and Chrome */
 {
-from {box-shadow: 14px -14px 15px -15px #d87c21;}
-to {box-shadow: 14px -14px 15px -15px black;}
+    from {box-shadow: 14px -14px 15px -15px #d87c21;}
+    to {box-shadow: 14px -14px 15px -15px black;}
 }
 
 .row
@@ -49,7 +49,7 @@ to {box-shadow: 14px -14px 15px -15px black;}
 }
 .start-menu
 {
-    position: absolute;
+   position: absolute;
    left: 50%;
    width: 200px;
    height: 200px;
@@ -76,7 +76,6 @@ to {box-shadow: 14px -14px 15px -15px black;}
     font-size: 100pt;
     color: #1a82f7; 
 }
-
 .title{
     position: absolute;
     left: 50%;
@@ -92,6 +91,30 @@ to {box-shadow: 14px -14px 15px -15px black;}
     -webkit-background-clip: text;    
     -webkit-text-fill-color: transparent;    
     color:transparent;
+}
+
+.info-holder{
+ position: absolute;
+ bottom: 0px;
+ height: 50px;
+ width: 100%;
+} 
+.info{
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 30pt;
+    color: white;
+    position: absolute;
+    bottom: 20px; 
+    text-shadow: -10px 10px 5px rgba(0, 0, 0, 1);   
+}
+
+.left-info{
+    left: 100px;
+} 
+
+.right-info{
+    right: 100px;      
 }
 
 .header{
@@ -130,4 +153,13 @@ h1 {
     text-transform: uppercase;
     text-align: center;
     color: #FFFFFF;
+}
+
+a {
+    color: white;
+    text-decoration: none;        
+}
+
+a:hover {
+    color: #1a82f7;
 }
