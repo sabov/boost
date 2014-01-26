@@ -13,7 +13,7 @@ void main() {
 
     float depth = gl_FragCoord.z / gl_FragCoord.w;
     float near = 0.0;
-    float far = 300.0 * highlight;
+    float far = 1000.0 * highlight;
     float depthcolor = 1.0 - smoothstep( near, far, depth );
     
     vec3 l = light;
