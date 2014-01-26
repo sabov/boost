@@ -68,7 +68,7 @@ GraphicInterface.prototype = {
         var y = new THREE.Vector3(0, 1, 0);
         var z = new THREE.Vector3(0, 0, 1);
 
-        var u = 1/10;
+        var u = 1/200;
         var p = this.path.getPointAt(u);
 
         var t = this.path.getTangentAt(u).normalize();
@@ -103,7 +103,7 @@ GraphicInterface.prototype = {
         this.cube.geometry.verticesNeedUpdate = true;
 
         //p = this.getCubePositionAt(u);
-        this.cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(14.2, 0, 0));
+        this.cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 8, 0, 0));
 
         this.cube.rotateZ(Math.PI / 12);
         //var an = Math.acos(n.clone().dot(x));
@@ -179,12 +179,19 @@ GraphicInterface.prototype = {
     },
     createTubePiece: function(path, num) {
 
-        var geometry = new THREE.TubePieceGeometry(path, 100 * num, 100, 10, 20, 12);
+        var geometry = new THREE.TubePieceGeometry(
+            path,
+            this.conf.tubePieceLength * num,
+            this.conf.tubePieceLength,
+            this.conf.tubePieceLength / this.conf.textureLength,
+            this.conf.radius,
+            this.conf.numOfSegments
+        );
 
         var texturePath = num % 2 === 0? 'textures/sq2.jpg' : 'textures/sq.jpg';
         var map = THREE.ImageUtils.loadTexture(texturePath);
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        map.repeat.set( 6, 12 );
+        map.repeat.set( this.conf.tubePieceLength / this.conf.textureLength, this.conf.numOfSegments );
 
         var material = new THREE.MeshBasicMaterial({
             map: map,
@@ -217,9 +224,7 @@ GraphicInterface.prototype = {
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
         var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.01;
 
-        var p = this.path.getPointAt(1/400);
-        var n = this.path.getNormalAt(1/400).normalize();
-        var geometry = new THREE.CubeGeometry(10, 10, 10);
+        var geometry = new THREE.CubeGeometry(16, width, this.conf.textureLength);
         //geometry.applyMatrix(new THREE.Matrix4().makeTranslation(p.x, p.y, p.z));
         //geometry.applyMatrix(new THREE.Matrix4().makeRotationAxis(n, 0.4));
         //geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
@@ -566,9 +571,6 @@ GraphicInterface.prototype = {
             }
         }.bind(this));
 
-        //this.camera.position.x = 25 * Math.sin(radians);
-        //this.camera.position.y = 25 * Math.cos(radians);
-
         if(this.shakeAnimation) {
             var E = 0.01;
             var CT = this.cameraTarget;
@@ -581,35 +583,18 @@ GraphicInterface.prototype = {
             }
         }
 
-        //var point2 = this.p.getPointAt(0.1);
-        //var pos2 = new THREE.Vector3();
+        var u = this.globalTime / 100;
+        u = 0;
 
-
-        var u = this.globalTime / 40;
-        u = 1/10.2;
         var point = this.path.getPointAt(u);
-        var pos2 = this.getCameraPositionAt(u);
-        var pos4 = this.getCameraPositionAt(u + 0.001);
-        var pos3 = new THREE.Vector3();
+        var cameraPosition = this.getCameraPositionAt(u);
+        var cameraTarget = this.getCameraPositionAt(u + 0.001);
+        var up = new THREE.Vector3();
+        up.subVectors(point, cameraPosition);
 
-        //this.cube.rotation.x += 0.01;
-        //this.cube.rotation.y += 0.01;
-        //this.cube.rotateOnAxis(this.a, this.globalTime / 100);
-        pos3.subVectors(point, pos2);
-        //point2.x += 10 * Math.sin(radians);
-        //point2.z += 10 * Math.cos(radians);
-
-        this.camera.position = pos2;
-
-        //this.camera.position.x += 10 * Math.sin(radians);
-        //this.camera.position.z += 10 * Math.cos(radians);
-
-        //this.camera.up.x = Math.sin(radians);
-        //this.camera.up.z = -Math.cos(radians);
-
-        this.camera.up = pos3;
-
-        this.camera.lookAt(pos4);
+        this.camera.position = cameraPosition;
+        this.camera.up = up;
+        this.camera.lookAt(cameraTarget);
 
         this.renderer.render(this.scene, this.camera);
         this.stats.end();
