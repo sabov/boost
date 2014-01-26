@@ -50,31 +50,6 @@ THREE.TubePieceGeometry = function(path, shift, length, segments, radius, radial
         uva, uvb, uvc, uvd;
 
 
-    var pathLength = this.path.getLength();
-    var segmentLength = this.length / this.segments;
-    var segmentsNum = Math.round(pathLength / segmentLength);
-    var shiftSegmentsNum = Math.round(this.shift / segmentLength);
-
-    var frames = new THREE.TubePieceGeometry.FrenetFrames( this.path, segmentsNum, this);
-    var tangents = [];
-    var normals = [];
-    var binormals = [];
-
-    for(i = shiftSegmentsNum, j = 0; i < shiftSegmentsNum + this.segments + 1; i++, j++) {
-        tangents[j]  = frames.tangents[i];
-        normals[j]   = frames.normals[i];
-        binormals[j] = frames.binormals[i];
-    }
-
-        //tangents = frames.tangents,
-        //normals = frames.normals,
-        //binormals = frames.binormals;
-
-    // proxy internals
-    this.tangents = tangents;
-    this.normals = normals;
-    this.binormals = binormals;
-
     function vert( x, y, z ) {
 
         return scope.vertices.push( new THREE.Vector3( x, y, z ) ) - 1;
@@ -93,9 +68,9 @@ THREE.TubePieceGeometry = function(path, shift, length, segments, radius, radial
 
         pos = path.getPointAt( u );
 
-        tangent = tangents[ i ];
-        normal = normals[ i ];
-        binormal = binormals[ i ];
+        tangent = this.path.getTangentAt(u);
+        normal = this.path.getNormalAt(u);
+        binormal = this.path.getBinormalAt(u);
 
         for ( j = 0; j < this.radialSegments; j++ ) {
 
@@ -149,169 +124,6 @@ THREE.TubePieceGeometry = function(path, shift, length, segments, radius, radial
 };
 
 THREE.TubePieceGeometry.prototype = Object.create( THREE.Geometry.prototype );
-
-
-// For computing of Frenet frames, exposing the tangents, normals and binormals the spline
-/*THREE.TubePieceGeometry.FrenetFrames = function(path, segments, tubeGeometry) {
-
-    var tangent = new THREE.Vector3(),
-        normal = new THREE.Vector3(),
-        binormal = new THREE.Vector3(),
-
-        tangents = [],
-        normals = [],
-        binormals = [],
-
-        vec = new THREE.Vector3(),
-        mat = new THREE.Matrix4(),
-
-        numpoints = segments + 1,
-        theta,
-        epsilon = 0.0001,
-        smallest,
-
-        tx, ty, tz,
-        i, u, v;
-
-
-    // expose internals
-    this.tangents = tangents;
-    this.normals = normals;
-    this.binormals = binormals;
-
-    // compute the tangent vectors for each segment on the path
-
-    //for ( i = 0; i < numpoints; i++ ) {
-
-        u = tubeGeometry.getPoint(i);
-
-        tangents[ i ] = path.getTangentAt( u );
-        tangents[ i ].normalize();
-
-    }
-
-    initialNormal3();
-    initialNormal4();
-
-    function initialNormal1(lastBinormal) {
-        // fixed start binormal. Has dangers of 0 vectors
-        normals[ 0 ] = new THREE.Vector3();
-        binormals[ 0 ] = new THREE.Vector3();
-        if (lastBinormal===undefined) lastBinormal = new THREE.Vector3( 0, 0, 1 );
-        normals[ 0 ].crossVectors( lastBinormal, tangents[ 0 ] ).normalize();
-        binormals[ 0 ].crossVectors( tangents[ 0 ], normals[ 0 ] ).normalize();
-    }
-
-    function initialNormal2() {
-
-        // This uses the Frenet-Serret formula for deriving binormal
-        var t2 = path.getTangentAt( epsilon );
-
-        normals[ 0 ] = new THREE.Vector3().subVectors( t2, tangents[ 0 ] ).normalize();
-        binormals[ 0 ] = new THREE.Vector3().crossVectors( tangents[ 0 ], normals[ 0 ] );
-
-        normals[ 0 ].crossVectors( binormals[ 0 ], tangents[ 0 ] ).normalize(); // last binormal x tangent
-        binormals[ 0 ].crossVectors( tangents[ 0 ], normals[ 0 ] ).normalize();
-
-    }
-
-    function initialNormal3() {
-        // select an initial normal vector perpenicular to the first tangent vector,
-        // and in the direction of the smallest tangent xyz component
-
-        normals[ 0 ] = new THREE.Vector3();
-        binormals[ 0 ] = new THREE.Vector3();
-        smallest = Number.MAX_VALUE;
-        tx = Math.abs( tangents[ 0 ].x );
-        ty = Math.abs( tangents[ 0 ].y );
-        tz = Math.abs( tangents[ 0 ].z );
-
-        if ( tx <= smallest ) {
-            smallest = tx;
-            normal.set( 1, 0, 0 );
-        }
-
-        if ( ty <= smallest ) {
-            smallest = ty;
-            normal.set( 0, 1, 0 );
-        }
-
-        if ( tz <= smallest ) {
-            normal.set( 0, 0, 1 );
-        }
-
-        vec.crossVectors( tangents[ 0 ], normal ).normalize();
-
-        normals[ 0 ].crossVectors( tangents[ 0 ], vec );
-        binormals[ 0 ].crossVectors( tangents[ 0 ], normals[ 0 ] );
-    }
-
-    function initialNormal4() {
-        // select an initial normal vector perpenicular to the first tangent vector,
-        // and in the direction of the smallest tangent xyz component
-
-        normals[ 1 ] = new THREE.Vector3();
-        binormals[ 1 ] = new THREE.Vector3();
-        smallest = Number.MAX_VALUE;
-        tx = Math.abs( tangents[ 1 ].x );
-        ty = Math.abs( tangents[ 1 ].y );
-        tz = Math.abs( tangents[ 1 ].z );
-
-        if ( tx <= smallest ) {
-            smallest = tx;
-            normal.set( 1, 0, 0 );
-        }
-
-        if ( ty <= smallest ) {
-            smallest = ty;
-            normal.set( 0, 1, 0 );
-        }
-
-        if ( tz <= smallest ) {
-            normal.set( 0, 0, 1 );
-        }
-
-        vec.crossVectors( tangents[ 1 ], normal ).normalize();
-
-        normals[ 1 ].crossVectors( tangents[ 1 ], vec );
-        binormals[ 1 ].crossVectors( tangents[ 1 ], normals[ 1 ] );
-    }
-
-    // compute the slowly-varying normal and binormal vectors for each segment on the path
-
-    //for ( i = 1; i < numpoints; i++ ) {
-
-        //normals[ i ] = normals[ i-1 ].clone();
-
-        //binormals[ i ] = binormals[ i-1 ].clone();
-
-        //console.log(normals[i]);
-
-        //vec.crossVectors( tangents[ i-1 ], tangents[ i ] );
-
-        //if ( vec.length() > epsilon ) {
-
-            //vec.normalize();
-
-            //theta = Math.acos( THREE.Math.clamp( tangents[ i-1 ].dot( tangents[ i ] ), -1, 1 ) ); // clamp for floating pt errors
-
-            //normals[ i ].applyMatrix4( mat.makeRotationAxis( vec, theta ) );
-
-        //}
-        //console.log(normals[i]);
-
-        //binormals[ i ].crossVectors( tangents[ i ], normals[ i ] );
-
-    }
-    //console.log(binormals[0]);
-    //console.log(binormals[1]);
-    //console.log(normals[0]);
-    //console.log(normals[1]);
-    //console.log(tangents[0]);
-    //console.log(tangents[1]);
-
-};
-*/
 
 // For computing of Frenet frames, exposing the tangents, normals and binormals the spline
 THREE.TubePieceGeometry.FrenetFrames = function(path, segments, tubeGeometry) {
