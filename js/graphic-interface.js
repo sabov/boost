@@ -55,10 +55,11 @@ GraphicInterface.prototype = {
            new THREE.Vector3(300, 2500, -300),
            new THREE.Vector3(0, 3580, -10000)
         ]);
-        //this.path = path;
+
         this.path = new Path(path, 4000);
+
         for(var i = 0; i < 46; i++) {
-            this.scene.add(this.createTubeSegment(this.path, i));
+            this.scene.add(this.createTubePiece(this.path, i));
         }
 
         THREEx.WindowResize(this.renderer, this.camera);
@@ -119,7 +120,7 @@ GraphicInterface.prototype = {
         mesh = new THREE.Mesh( geometry, material );
         return mesh;
     },
-    createTubeSegment: function(path, num) {
+    createTubePiece: function(path, num) {
 
         var geometry = new THREE.TubePieceGeometry(path, 100 * num, 100, 10, 20, 12);
 
@@ -500,7 +501,7 @@ GraphicInterface.prototype = {
         //var pos2 = new THREE.Vector3();
 
 
-        var u = this.globalTime / 20;
+        var u = this.globalTime / 40;
         //u = 0;
         var point = this.path.getPointAt(u);
         var pos2 = this.getCameraPositionAt(u);
