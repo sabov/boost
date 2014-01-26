@@ -58,7 +58,7 @@ GraphicInterface.prototype = {
 
         this.path = new Path(path, 4000);
 
-        for(var i = 0; i < 46; i++) {
+        for(var i = 0; i < 1; i++) {
             this.scene.add(this.createTubePiece(this.path, i));
         }
 
@@ -68,7 +68,7 @@ GraphicInterface.prototype = {
         var y = new THREE.Vector3(0, 1, 0);
         var z = new THREE.Vector3(0, 0, 1);
 
-        var u = 1/200;
+        var u = this.conf.textureLength/this.path.getLength() * 1.5;
         var p = this.path.getPointAt(u);
 
         var t = this.path.getTangentAt(u).normalize();
@@ -105,7 +105,7 @@ GraphicInterface.prototype = {
         //p = this.getCubePositionAt(u);
         this.cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 8, 0, 0));
 
-        this.cube.rotateZ(Math.PI / 12);
+        this.cube.rotateZ(Math.PI / 12 * 3);
         //var an = Math.acos(n.clone().dot(x));
         //var l = n.clone().cross(x).normalize();
 
@@ -408,9 +408,10 @@ GraphicInterface.prototype = {
         var normal = this.path.getNormalAt(u);
         var binormal = this.path.getBinormalAt(u);
 
+        var radius = this.conf.cameraRadius;
         var radians = angleToRadians(this.cameraAngle);
-        var cx = -10 * Math.cos(radians);
-        var cy = 10 * Math.sin(radians);
+        var cx = -radius * Math.cos(radians);
+        var cy = radius * Math.sin(radians);
 
         point.x += cx * normal.x + cy * binormal.x;
         point.y += cx * normal.y + cy * binormal.y;
