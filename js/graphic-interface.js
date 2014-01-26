@@ -62,6 +62,63 @@ GraphicInterface.prototype = {
             this.scene.add(this.createTubePiece(this.path, i));
         }
 
+        this.cube = this.createCube(1, this.conf.colors[0], 10);
+
+        var x = new THREE.Vector3(1, 0, 0);
+        var y = new THREE.Vector3(0, 1, 0);
+        var z = new THREE.Vector3(0, 0, 1);
+
+        var u = 1/10;
+        var p = this.path.getPointAt(u);
+
+        var t = this.path.getTangentAt(u).normalize();
+        var n = this.path.getNormalAt(u).normalize();
+        var b = this.path.getBinormalAt(u).normalize();
+
+        //n = n.clone().multiplyScalar(-1);
+
+        n = n.clone();
+        var nz = n.clone();
+        nz.y = 0;
+        nz = nz.normalize();
+
+        var ny = n.clone();
+        ny.z = 0;
+        ny = ny.normalize();
+
+        var nx = t.clone();
+
+        this.cube.position = p;
+
+
+        var angZ = Math.acos(ny.dot(x));
+        var angY = Math.acos(nz.dot(x));
+        var angX = Math.acos(nx.dot(z));
+        this.a = z;
+
+
+        this.cube.rotateZ(angZ);
+        this.cube.rotateY(angY);
+        this.cube.rotateX(-angX);
+        this.cube.geometry.verticesNeedUpdate = true;
+
+        //p = this.getCubePositionAt(u);
+        this.cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(14.2, 0, 0));
+
+        this.cube.rotateZ(Math.PI / 12);
+        //var an = Math.acos(n.clone().dot(x));
+        //var l = n.clone().cross(x).normalize();
+
+        //var ang = Math.acos(c.dot(e));
+        //var d = a.cross(c).normalize();
+        //this.a = c.cross(e).normalize();
+        //this.a = x;
+
+        //this.cube.rotateOnAxis(l, an);
+        
+
+        this.scene.add(this.cube);
+
         THREEx.WindowResize(this.renderer, this.camera);
     },
     createCamera: function() {
@@ -160,16 +217,26 @@ GraphicInterface.prototype = {
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
         var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.01;
 
-        var geometry = new THREE.CubeGeometry(width, width, this.conf.textureLength);
-        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, distanceToCenter - width/2, -this.conf.textureLength*3/2)));//prevent clipping
-        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
-        var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
+        var p = this.path.getPointAt(1/400);
+        var n = this.path.getNormalAt(1/400).normalize();
+        var geometry = new THREE.CubeGeometry(10, 10, 10);
+        //geometry.applyMatrix(new THREE.Matrix4().makeTranslation(p.x, p.y, p.z));
+        //geometry.applyMatrix(new THREE.Matrix4().makeRotationAxis(n, 0.4));
+        //geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
+        var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
 
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         var maxAnisotropy = this.renderer.getMaxAnisotropy();
         map.anisotropy = maxAnisotropy;
 
-        var attributes = {};
+
+        var material = new THREE.MeshBasicMaterial({
+            map: map
+            //wireframe: true
+        });
+
+
+        /*var attributes = {};
 
         var uniforms = {
             color:      { type: "c", value: new THREE.Color(color) },
@@ -188,9 +255,9 @@ GraphicInterface.prototype = {
             attributes:     attributes,
             vertexShader:   this.vertexShader,
             fragmentShader: this.fragmentShader
-        });
-        this.uniformsArr.push(uniforms);
-        this.cubeUniformsArr.push(uniforms);
+        });*/
+        //this.uniformsArr.push(uniforms);
+        //this.cubeUniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
     },
     createPillar: function(pos, color, distance) {
@@ -313,6 +380,23 @@ GraphicInterface.prototype = {
         return new THREE.Mesh( geometry, material );
     },
     removeObstacle: function(obstacle) {
+    },
+    getCubePositionAt: function(u) {
+        var point = this.path.getPointAt(u);
+        var normal = this.path.getNormalAt(u);
+        var binormal = this.path.getBinormalAt(u);
+
+        var radius = 14;
+        //var radians = Math.Pi/12;
+        var radians = 0;
+        var cx = -radius * Math.cos(radians);
+        var cy = radius * Math.sin(radians);
+
+        point.x += cx * normal.x + cy * binormal.x;
+        point.y += cx * normal.y + cy * binormal.y;
+        point.z += cx * normal.z + cy * binormal.z;
+
+        return point;
     },
     getCameraPositionAt: function(u) {
         var point = this.path.getPointAt(u);
@@ -502,12 +586,15 @@ GraphicInterface.prototype = {
 
 
         var u = this.globalTime / 40;
-        //u = 0;
+        u = 1/10.2;
         var point = this.path.getPointAt(u);
         var pos2 = this.getCameraPositionAt(u);
         var pos4 = this.getCameraPositionAt(u + 0.001);
         var pos3 = new THREE.Vector3();
 
+        //this.cube.rotation.x += 0.01;
+        //this.cube.rotation.y += 0.01;
+        //this.cube.rotateOnAxis(this.a, this.globalTime / 100);
         pos3.subVectors(point, pos2);
         //point2.x += 10 * Math.sin(radians);
         //point2.z += 10 * Math.cos(radians);
