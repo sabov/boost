@@ -46,22 +46,19 @@ GraphicInterface.prototype = {
         this.camera = this.createCamera();
         this.scene.add(this.camera);
 
-        var areaLight1 = new THREE.PointLight( 0xffffff, 1 );
-        areaLight1.position.set( 0, 0, 0);
-
-        this.scene.add( areaLight1 );
 
         var path = new THREE.SplineCurve3([
            new THREE.Vector3(0, 0, 0),
-           new THREE.Vector3(0, 300, 0),
-           new THREE.Vector3(0, 610, 0),
-           new THREE.Vector3(0, 1880, 100),
-           new THREE.Vector3(0, 2580, 100)
+           new THREE.Vector3(10, 300, 200),
+           new THREE.Vector3(100, 750, 100),
+           new THREE.Vector3(201, 1610, 0),
+           new THREE.Vector3(300, 2500, -300),
+           new THREE.Vector3(0, 3580, -10000)
         ]);
         //this.path = path;
         this.path = new Path(path, 4000);
         for(var i = 0; i < 46; i++) {
-            this.scene.add(this.createTubeSegment(path, i));
+            this.scene.add(this.createTubeSegment(this.path, i));
         }
 
         THREEx.WindowResize(this.renderer, this.camera);
@@ -124,13 +121,14 @@ GraphicInterface.prototype = {
     },
     createTubeSegment: function(path, num) {
 
-        var geometry = new THREE.TubePieceGeometry(path, 40 * num, 40, 10, 20, 12);
+        var geometry = new THREE.TubePieceGeometry(path, 100 * num, 100, 10, 20, 12);
 
-        var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
+        var texturePath = num % 2 === 0? 'textures/sq2.jpg' : 'textures/sq.jpg';
+        var map = THREE.ImageUtils.loadTexture(texturePath);
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        map.repeat.set( 3, 12 );
+        map.repeat.set( 6, 12 );
 
-        var material = new THREE.MeshPhongMaterial({
+        var material = new THREE.MeshBasicMaterial({
             map: map,
             side: THREE.BackSide
             //wireframe: true
@@ -503,7 +501,7 @@ GraphicInterface.prototype = {
 
 
         var u = this.globalTime / 20;
-        u = 0;
+        //u = 0;
         var point = this.path.getPointAt(u);
         var pos2 = this.getCameraPositionAt(u);
         var pos4 = this.getCameraPositionAt(u + 0.001);
@@ -569,6 +567,9 @@ Path.prototype = {
     },
     getIndexAt: function(u) {
         return Math.round(this.segments * u);
+    },
+    getLength: function() {
+        return this.curve.getLength();
     },
     calcTangets: function() {
         for(var i = 0; i < this.segments; i++) {
