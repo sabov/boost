@@ -66,7 +66,6 @@ THREE.TubePieceGeometry = function(path, shift, length, segments, radius, radial
 
         u = this.getPoint(i);
 
-        console.log(u);
         pos = path.getPointAt( u );
 
         tangent = this.path.getTangentAt(u);

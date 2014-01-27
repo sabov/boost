@@ -58,7 +58,9 @@ GraphicInterface.prototype = {
 
         this.path = new Path(path, 4000);
 
-        for(var i = 0; i < 1; i++) {
+        this.tube = this.createTubePiece(this.path, 0);
+        this.scene.add(this.tube);
+        for(var i = 1; i < 20; i++) {
             this.scene.add(this.createTubePiece(this.path, i));
         }
 
@@ -106,6 +108,12 @@ GraphicInterface.prototype = {
         this.cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 8, 0, 0));
 
         this.cube.rotateZ(Math.PI / 12 * 3);
+        console.log(this.cube);
+        for ( i = 0; i < this.tube.geometry.faces.length / 24 * 10; i ++ ) {
+            if(i % 24 === 0 || (i - 1) % 24 === 0) {
+                this.tube.geometry.faces[ i ].color.setHex( this.conf.colors[0]);
+            }
+        }
         //var an = Math.acos(n.clone().dot(x));
         //var l = n.clone().cross(x).normalize();
 
@@ -188,17 +196,42 @@ GraphicInterface.prototype = {
             this.conf.numOfSegments
         );
 
-        var texturePath = num % 2 === 0? 'textures/sq2.jpg' : 'textures/sq.jpg';
+        var texturePath = num % 2 === 0? 'textures/mask.png' : 'textures/sq.jpg';
         var map = THREE.ImageUtils.loadTexture(texturePath);
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        map.repeat.set( this.conf.tubePieceLength / this.conf.textureLength, this.conf.numOfSegments );
+        var maxAnisotropy = this.renderer.getMaxAnisotropy();
+        map.anisotropy = maxAnisotropy;
+        //map.repeat.set( this.conf.tubePieceLength / this.conf.textureLength, this.conf.numOfSegments );
 
-        var material = new THREE.MeshBasicMaterial({
-            map: map,
-            side: THREE.BackSide
-            //wireframe: true
+
+        var attributes = {};
+
+        var uniforms = {
+            //color:      { type: "c", value: new THREE.Color( 0xffffff ) },
+            texture:    { type: "t", value: map },
+            uvScale:    { type: "v2", value: new THREE.Vector2(10, 12) }
+        };
+
+        var material = new THREE.ShaderMaterial( {
+            uniforms:       uniforms,
+            attributes:     attributes,
+            vertexShader:   this.vertexShader,
+            fragmentShader: this.fragmentShader,
+            vertexColors: THREE.FaceColors,
+            color: 0xFFFFFF,
+            side:           THREE.BackSide
         });
 
+        /*material = new THREE.MeshBasicMaterial({
+            //map: map,
+            color: 0xFFFFFF,
+            transparent: true,
+            vertexColors: THREE.FaceColors,
+            side: THREE.BackSide
+            //wireframe: true
+        });*/
+
+        console.log(THREE);
         var mesh = new THREE.Mesh( geometry, material );
         return mesh;
     },
@@ -584,8 +617,8 @@ GraphicInterface.prototype = {
             }
         }
 
-        var u = this.globalTime / 100;
-        u = 0;
+        var u = this.globalTime / 40;
+        //u = 0;
 
         var point = this.path.getPointAt(u);
         var cameraPosition = this.getCameraPositionAt(u);
