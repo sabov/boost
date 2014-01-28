@@ -15,11 +15,6 @@ void main() {
 
     vec4 textureColor = texture2D(texture, vec2(vUv.s, vUv.t));
 
-    if(color == vec3(0,0,0)) {
-        textureColor += texture2D(texture2, vec2(vUv.s, vUv.t));
-        color = vec3(1,1,1);
-    }
-
     float depth = gl_FragCoord.z / gl_FragCoord.w;
     float near = 0.0;
     float far = 600.0;

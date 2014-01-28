@@ -47,8 +47,6 @@ GraphicInterface.prototype = {
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.scene.add(this.camera);
-        //this.arrow = this.createAnimatedRows(1, 20);
-        //this.scene.add(this.arrow);
 
 
         var path = new THREE.SplineCurve3([
@@ -62,6 +60,9 @@ GraphicInterface.prototype = {
 
         this.path = new Path(path, 4000);
 
+        this.arrow = this.createArrows(this.path, 0);
+        this.scene.add(this.arrow);
+
         this.tube = this.createTubePiece(this.path, 0);
         this.scene.add(this.tube);
         for(var i = 1; i < 20; i++) {
@@ -74,7 +75,7 @@ GraphicInterface.prototype = {
         var y = new THREE.Vector3(0, 1, 0);
         var z = new THREE.Vector3(0, 0, 1);
 
-        var u = this.conf.textureLength/this.path.getLength() * 1.5;
+        var u = this.conf.textureLength/this.path.getLength() * 2.5;
         var p = this.path.getPointAt(u);
 
         var t = this.path.getTangentAt(u).normalize();
@@ -96,13 +97,12 @@ GraphicInterface.prototype = {
 
         this.cube.position = p;
 
-        p = this.path.getPointAt(u+0.001);
         //this.arrow.position = p;
 
         var angZ = Math.acos(ny.dot(x));
         var angY = Math.acos(nz.dot(x));
         var angX = Math.acos(nx.dot(z));
-        this.a = z;
+        //this.a = x;
 
 
         this.cube.rotateZ(angZ);
@@ -110,15 +110,25 @@ GraphicInterface.prototype = {
         this.cube.rotateX(-angX);
         this.cube.geometry.verticesNeedUpdate = true;
 
+        //this.arrow.rotateX(angX);
+        //this.arrow.rotateY(Math.PI*3/2 + angY);
+        //this.arrow.rotateZ(angZ);
+
+        //this.arrow.rotateZ(angZ);
+        //this.arrow.rotateY(angY);
+        //this.arrow.rotateX(-angX);
+        //this.arrow.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0,  -getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.5));
+        //this.arrow.rotateY(Math.PI / 12 * 3);
+
         //p = this.getCubePositionAt(u);
         this.cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 8, 0, 0));
 
         this.cube.rotateZ(Math.PI / 12 * 3);
-        for ( i = 0; i < this.tube.geometry.faces.length / 24 * 10; i ++ ) {
+        //for ( i = 0; i < this.tube.geometry.faces.length / 24 * 20; i ++ ) {
             if(i % 24 === 0 || (i - 1) % 24 === 0) {
-                this.tube.geometry.faces[ i ].color.setHex( 0x000000);
+                //this.tube.geometry.faces[ i ].color.setHex(this.conf.colors[0]);
             }
-        }
+        //}
         //var an = Math.acos(n.clone().dot(x));
         //var l = n.clone().cross(x).normalize();
 
@@ -225,7 +235,6 @@ GraphicInterface.prototype = {
 
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
-            transparent: true,
             attributes:     attributes,
             vertexShader:   this.vertexShader,
             fragmentShader: this.fragmentShader,
@@ -386,16 +395,28 @@ GraphicInterface.prototype = {
         this.uniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
     },
-    createArrows: function(pos, distance) {
+    createArrows: function(path, num) {
 
         var length = this.conf.arrowLength * this.conf.textureLength;
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
         var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.01;
 
-        var geometry = new THREE.PlaneGeometry(width, length, 1, this.conf.arrowLength * 10);
-        geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
-        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, distanceToCenter, -length/2)));
-        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
+        //var geometry = new THREE.TubePlaneGeometry(width, length, 1, this.conf.arrowLength * 10);
+        
+        var geometry = new THREE.TubePlaneGeometry(
+            path,
+            this.conf.tubePieceLength * num,
+            this.conf.tubePieceLength,
+            this.conf.tubePieceLength / this.conf.textureLength,
+            this.conf.radius - 0.1,
+            this.conf.numOfSegments,
+            3
+        );
+
+
+        //geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
+        //geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, distanceToCenter, -length/2)));
+        //geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
         var map = THREE.ImageUtils.loadTexture( "textures/arrow.png" );
 
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
@@ -405,59 +426,69 @@ GraphicInterface.prototype = {
         var attributes = {};
 
         var uniforms = {
-            color:      { type: "c", value: new THREE.Color(0xffffff) },
-            texture:    { type: "t", value: map },
-            globalTime: { type: "f", value: 0.0 },
-            position:   { type: "f", value: pos },
-            dynamic:    { type: "f", value: true },
-            highlight:  { type: "f", value: 1.0 },
-            distance:   { type: "f", value: distance * this.conf.textureLength},
-            speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
-            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, this.conf.arrowLength ) }
+            //color:      { type: "c", value: new THREE.Color( 0xffffff ) },
+            //texture:    { type: "t", value: map },
+            //texture2:    { type: "t", value: map2 },
+            uvScale:    { type: "v2", value: new THREE.Vector2(10, 12) }
         };
 
-        var material = new THREE.ShaderMaterial( {
-            uniforms:       uniforms,
-            attributes:     attributes,
-            transparent:    true,
-            vertexShader:   this.vertexShader,
-            fragmentShader: this.fragmentShader
-        });
-        this.uniformsArr.push(uniforms);
-        this.arrowUniformsArr.push(uniforms);
+
+        var material = new THREE.MeshBasicMaterial( {
+            //map: map,
+            color: 0x000000,
+            //wireframe: true,
+            //wireframe: true
+            side:THREE.DoubleSide
+            //transparent: true
+        } );
+
+        //var material = new THREE.ShaderMaterial( {
+            //uniforms:       uniforms,
+            //attributes:     attributes,
+            //vertexShader:   this.vertexShader,
+            //fragmentShader: this.fragmentShader,
+            ////vertexColors: THREE.FaceColors,
+            //color: 0xFFFFFF,
+            //transparent: true,
+            //side:           THREE.BackSide
+        /*});*/
+
+        //this.uniformsArr.push(uniforms);
+        //this.arrowUniformsArr.push(uniforms);
 
         return new THREE.Mesh( geometry, material );
     },
     createAnimatedRows: function(pos, distance) {
-        var length = this.conf.arrowLength * 1;
+        var length = this.conf.arrowLength;
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
         var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.01;
 
-        var geometry = new THREE.PlaneGeometry(width, length, 1, this.conf.arrowLength * 10);
+        var geometry = new THREE.PlaneGeometry(width, this.conf.textureLength, 1, 1);
+        //var geometry = new THREE.PlaneGeometry(10, 10, 2, 2);
         //geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
         //geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 10, -50)));
         //geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
 
         var map = THREE.ImageUtils.loadTexture( "textures/arrow2.png" );
-        this.animator = new this.TextureAnimator( map, 4, 1, 4, 200 );    
+        //this.animator = new this.TextureAnimator( map, 4, 1, 4, 200 );    
 
-        map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        var maxAnisotropy = this.renderer.getMaxAnisotropy();
-        map.anisotropy = maxAnisotropy;
+        //map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        //var maxAnisotropy = this.renderer.getMaxAnisotropy();
+        //map.anisotropy = maxAnisotropy;
 
-        var attributes = {};
+        //var attributes = {};
 
-        var uniforms = {
-            color:      { type: "c", value: new THREE.Color(0xffffff) },
-            texture:    { type: "t", value: map },
-            globalTime: { type: "f", value: 0.0 },
-            position:   { type: "f", value: pos },
-            dynamic:    { type: "f", value: false },
-            highlight:  { type: "f", value: 1.0 },
-            distance:   { type: "f", value: distance * this.conf.textureLength},
-            speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
-            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, this.conf.arrowLength ) }
-        };
+        //var uniforms = {
+            //color:      { type: "c", value: new THREE.Color(0xffffff) },
+            //texture:    { type: "t", value: map },
+            //globalTime: { type: "f", value: 0.0 },
+            //position:   { type: "f", value: pos },
+            //dynamic:    { type: "f", value: false },
+            //highlight:  { type: "f", value: 1.0 },
+            //distance:   { type: "f", value: distance * this.conf.textureLength},
+            //speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
+            //uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, this.conf.arrowLength ) }
+        //};
 
         /*var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
@@ -467,12 +498,14 @@ GraphicInterface.prototype = {
             fragmentShader: this.fragmentShader
         });*/
         var material = new THREE.MeshBasicMaterial( {
-            map: map, 
-            side:THREE.DoubleSide, 
-            transparent: true
+            //map: map, 
+            color: 0x000000,
+            //wireframe: true
+            side:THREE.DoubleSide
+            //transparent: true
         } );
-        this.uniformsArr.push(uniforms);
-        this.arrowUniformsArr.push(uniforms);
+        //this.uniformsArr.push(uniforms);
+        //this.arrowUniformsArr.push(uniforms);
 
         return new THREE.Mesh( geometry, material );
     },
@@ -711,6 +744,11 @@ GraphicInterface.prototype = {
 
         var u = this.globalTime / 40;
         u = 0;
+
+        if(this.a) {
+            this.arrow.rotateOnAxis(this.a, this.globalTime / 100);
+        }
+
 
         var point = this.path.getPointAt(u);
         var cameraPosition = this.getCameraPositionAt(u);
