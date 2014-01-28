@@ -47,6 +47,43 @@ html, body {
     height: 200px;   
     bottom: -100px;          
 }
+
+.browser-menu
+{
+   width: 150px;
+   height: 150px;     
+}
+
+.browser-menu a{
+     display: block; /* Ссылка как блочный элемент */
+     text-align: center; /* Выравнивание по центру */
+     height: 100%;
+}
+
+.browser-holder{
+    position: absolute;
+    left: 50%;
+    margin-left:  -200px;
+    width: 400px;
+    height: auto;
+    bottom : 20%;
+    vertical-align: top;
+}
+
+.firefox-menu
+{
+    background: url(../img/firefox.png)  no-repeat center center;
+    background-size:cover;
+    float: left;
+}
+
+.chrome-menu
+{
+    background: url(../img/chrome.png)  no-repeat center center;
+    background-size:cover;   
+    float: right;
+}
+
 .start-menu
 {
    position: absolute;
@@ -113,11 +150,35 @@ html, body {
     font-size: 100pt;
     color: #1a82f7; 
 }
+
+.title-holder h2{
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 30pt;
+    color: white;
+    text-align: center; 
+}
+
+.title-holder h3{
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 16pt;
+    color: white; 
+    text-align: center;
+}
+
 .title{
     position: absolute;
     left: 50%;
     top: 20%;
     margin-left: -210px; 
+}
+
+.browser-title{
+    position: absolute;
+    top: 20%;
+    margin-left: 200px;
+    margin-right: 150px; 
 }
 .title-shadow{    
     text-shadow: -10px 10px 5px rgba(0, 0, 0, 1);    
