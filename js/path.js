@@ -1,4 +1,3 @@
-
 var Path = function(curve, segments) {
     this.curve = curve;
     this.segments = segments;

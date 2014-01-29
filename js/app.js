@@ -1,7 +1,7 @@
-var Boost = function(conf) {
+var Boost = function(conf, pathConf) {
     var dropSpeed = false;
     this.shift = 0;
-    this.G = new GraphicInterface(conf);
+    this.G = new GraphicInterface(conf, pathConf);
     this.keyboard = new THREEx.KeyboardState();
     this.bindOrientation();
     this.G.onRender(function(renderer) {
@@ -56,5 +56,5 @@ Boost.prototype = {
 };
 
 jQuery(function(){
-    new Boost(config);
+    new Boost(config, pathConfig);
 });
