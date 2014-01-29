@@ -56,7 +56,7 @@ GraphicInterface.prototype = {
         this.arrow = this.createArrows(this.path, 0);
         this.scene.add(this.arrow);
 
-        var cube = this.createCube(this.conf.colors[0], 10);
+        var cube = this.createCube(this.conf.colors[0], this.textures.simple);
         this.setCubePosiotion(cube, 3, 1);
         this.scene.add(cube);
 
@@ -122,13 +122,11 @@ GraphicInterface.prototype = {
             attributes:     attributes,
             vertexShader:   this.vertexShader,
             fragmentShader: this.fragmentShader,
-            color:          0xFFFFFF,
             vertexColors:   THREE.FaceColors,
             side:           THREE.BackSide
         });
 
-        var mesh = new THREE.Mesh( geometry, material );
-        return mesh;
+        return new THREE.Mesh( geometry, material );
     },
     createObstacle: function(pos, color, distance, type) {
         type = type || 'cube';
@@ -149,32 +147,19 @@ GraphicInterface.prototype = {
         return types[type].bind(this)();
     },
     createCube: function(color, map) {
+
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
 
         var geometry = new THREE.CubeGeometry(this.conf.cubeHeight, width, this.conf.textureLength);
-        map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
 
-        map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        var maxAnisotropy = this.renderer.getMaxAnisotropy();
-        map.anisotropy = maxAnisotropy;
-
-
-        var material = new THREE.MeshBasicMaterial({
-            map: map
+        geometry.faces.forEach(function(face) {
+            face.color.setHex(color);
         });
 
-
-        /*var attributes = {};
+        var attributes = {};
 
         var uniforms = {
-            color:      { type: "c", value: new THREE.Color(color) },
             texture:    { type: "t", value: map },
-            globalTime: { type: "f", value: 0.0 },
-            position:   { type: "f", value: pos },
-            dynamic:    { type: "f", value: true },
-            highlight:  { type: "f", value: 1.0 },
-            distance:   { type: "f", value: (distance - 1) * this.conf.textureLength},
-            speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
             uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 1.0) }
         };
 
@@ -182,8 +167,9 @@ GraphicInterface.prototype = {
             uniforms:       uniforms,
             attributes:     attributes,
             vertexShader:   this.vertexShader,
-            fragmentShader: this.fragmentShader
-        });*/
+            fragmentShader: this.fragmentShader,
+            vertexColors:   THREE.FaceColors
+        });
 
         return new THREE.Mesh( geometry, material );
     },

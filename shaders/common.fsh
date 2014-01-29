@@ -24,11 +24,6 @@ void main() {
     l = normalize(l);
     float d0 = max(0.2,dot(vNormal, l));
     
-    // faking shadow
-    //if (shadow == 1.0 && d0 > 0.82) {
-        //float p = (d0 - 0.82);
-        //d0 = d0-min(p*12.0, 0.7);
-    //}
     vec4 Ca = textureColor;
     vec3 Cb = color;
     vec3 c = Ca.rgb * Ca.a + Cb.rgb * (1.0 - Ca.a);
