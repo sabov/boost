@@ -1,5 +1,6 @@
 //uniform vec3 color;
 uniform sampler2D texture;
+uniform sampler2D texture2;
 uniform vec3 light;
 //uniform float shadow;
 //uniform float highlight;
