@@ -144,6 +144,7 @@ GraphicInterface.prototype = {
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
+
     createCamera: function() {
         var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
         return camera;
@@ -160,6 +161,7 @@ GraphicInterface.prototype = {
             //this.conf.numOfSegments,
             //this.conf.tubeLength * 10,
             //true);
+
         geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(-Math.PI/2,0,0)));
         geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, 0, -50) ) );
 
@@ -171,18 +173,21 @@ GraphicInterface.prototype = {
 
         var attributes = {};
 
+        distance = distance || 0;
         var uniforms = {
             color:      { type: "c", value: new THREE.Color( 0xffffff ) },
             texture:    { type: "t", value: map },
             globalTime: { type: "f", value: 0.0 },
-            speed:      { type: "f", value: this.conf.speed },
-            dynamic:    { type: "f", value: false },
+            speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
+            distance:   { type: "f", value: distance * this.conf.textureLength },
+            dynamic:    { type: "f", value: dynamic },
             highlight:  { type: "f", value: 1.0 },
             //uvScale:    { type: "v2", value: new THREE.Vector2( this.conf.numOfSegments, this.conf.tubeLength) }
             uvScale:    { type: "v2", value: new THREE.Vector2(1, 1) }
         };
         this.tubeUniform = uniforms;
         this.uniformsArr.push(uniforms);
+        this.tubeUniforms = uniforms;
 
         //var material = new THREE.ShaderMaterial( {
             //uniforms:       uniforms,
@@ -597,6 +602,11 @@ GraphicInterface.prototype = {
             position = position - divisor * num;
         }
         this.camerPosition = position;
+    },
+    changeTubeTexture: function(texture1, texture2) {
+        this.tubeUniforms.dynamic.value = true;
+        this.scene.add(this.createTube(10, this.conf.tubeLength, true, 'textures/' + texture2));
+        this.scene.add(this.createTube(this.conf.tubeLength, this.conf.tubeLength + 10, true, 'textures/' + texture1));
     },
     runBoostEffect: function() {
     },
