@@ -405,23 +405,22 @@ GraphicInterface.prototype = {
         
         var geometry = new THREE.TubePlaneGeometry(
             path,
-            this.conf.tubePieceLength * num,
-            this.conf.tubePieceLength,
-            this.conf.tubePieceLength / this.conf.textureLength,
+            this.conf.tubePieceLength * num + 20,
+            this.conf.tubePieceLength - 180,
+            //this.conf.tubePieceLength / this.conf.textureLength,
+            1,
             this.conf.radius - 0.1,
             this.conf.numOfSegments,
-            3
+            0
         );
 
+        var map = THREE.ImageUtils.loadTexture( "textures/arrow2.png" );
+        this.animator = new this.TextureAnimator( map, 4, 1, 4, 200 );    
 
-        //geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
-        //geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, distanceToCenter, -length/2)));
-        //geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
-        var map = THREE.ImageUtils.loadTexture( "textures/arrow.png" );
-
-        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        //map.wrapS = map.wrapT = THREE.RepeatWrapping;
         var maxAnisotropy = this.renderer.getMaxAnisotropy();
-        map.anisotropy = maxAnisotropy;
+        //map.anisotropy = maxAnisotropy;
+        //map.repeat.set(1, 12);
 
         var attributes = {};
 
@@ -434,12 +433,11 @@ GraphicInterface.prototype = {
 
 
         var material = new THREE.MeshBasicMaterial( {
-            //map: map,
-            color: 0x000000,
-            //wireframe: true,
+            map: map,
+            //color: 0x000000,
             //wireframe: true
-            side:THREE.DoubleSide
-            //transparent: true
+            side:THREE.DoubleSide,
+            transparent: true
         } );
 
         //var material = new THREE.ShaderMaterial( {
@@ -699,7 +697,7 @@ GraphicInterface.prototype = {
         this.rendererStats.update(this.renderer);
 
         var delta = this.clock.getDelta(); 
-        //this.animator.update(1000 * delta);
+        this.animator.update(1000 * delta);
 
         this.onRenderFunctions.forEach(function(func) {
             func(this.renderer);

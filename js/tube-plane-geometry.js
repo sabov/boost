@@ -90,10 +90,15 @@ THREE.TubePlaneGeometry = function(path, shift, length, segments, radius, radial
             c = this.grid[ ip ][ jp ];
             d = this.grid[ i ][ jp ];
 
-            uva = new THREE.Vector2( i / this.segments, j / this.radialSegments );
-            uvb = new THREE.Vector2( ( i + 1 ) / this.segments, j / this.radialSegments );
-            uvc = new THREE.Vector2( ( i + 1 ) / this.segments, ( j + 1 ) / this.radialSegments );
-            uvd = new THREE.Vector2( i / this.segments, ( j + 1 ) / this.radialSegments );
+            //uva = new THREE.Vector2( i / this.segments, j / this.radialSegments );
+            //uvb = new THREE.Vector2( ( i + 1 ) / this.segments, j / this.radialSegments );
+            //uvc = new THREE.Vector2( ( i + 1 ) / this.segments, ( j + 1 ) / this.radialSegments );
+            //uvd = new THREE.Vector2( i / this.segments, ( j + 1 ) / this.radialSegments );
+
+            uva = new THREE.Vector2(1, 1);
+            uvb = new THREE.Vector2(1, 0);
+            uvc = new THREE.Vector2(0, 0);
+            uvd = new THREE.Vector2(0, 1);
 
             this.faces.push(new THREE.Face3( a, b, d ));
             this.faceVertexUvs[ 0 ].push( [ uva, uvb, uvd ] );
