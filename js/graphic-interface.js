@@ -406,9 +406,9 @@ GraphicInterface.prototype = {
         var geometry = new THREE.TubePlaneGeometry(
             path,
             this.conf.tubePieceLength * num + 20,
-            this.conf.tubePieceLength - 180,
+            this.conf.tubePieceLength - 60,
             //this.conf.tubePieceLength / this.conf.textureLength,
-            1,
+            7,
             this.conf.radius - 0.1,
             this.conf.numOfSegments,
             0
@@ -741,7 +741,7 @@ GraphicInterface.prototype = {
         }
 
         var u = this.globalTime / 40;
-        u = 0;
+        //u = 0;
 
         if(this.a) {
             this.arrow.rotateOnAxis(this.a, this.globalTime / 100);
