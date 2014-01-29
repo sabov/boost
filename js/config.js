@@ -23,5 +23,6 @@ var config = {
     textureLength: 20,
     speed: 0,
     pathLength: 20,
-    arrowLength: 8
+    arrowLength: 8,
+    cubeHeight: 18
 };

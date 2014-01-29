@@ -51,73 +51,20 @@ GraphicInterface.prototype = {
         this.camera = this.createCamera();
         this.scene.add(this.camera);
 
+        this.createTube();
+
         this.arrow = this.createArrows(this.path, 0);
         this.scene.add(this.arrow);
 
-        for(var i = 0; i < 20; i++) {
-            var m = i % 2 === 0?  this.textures.simple : this.textures.corner;
-            this.scene.add(this.createTubePiece(i, m));
-        }
+        var cube = this.createCube(this.conf.colors[0], 10);
+        this.setCubePosiotion(cube, 3, 1);
+        this.scene.add(cube);
 
-        this.cube = this.createCube(1, this.conf.colors[0], 10);
-
-        var x = new THREE.Vector3(1, 0, 0);
-        var y = new THREE.Vector3(0, 1, 0);
-        var z = new THREE.Vector3(0, 0, 1);
-
-        var u = this.conf.textureLength/this.path.getLength() * 2.5;
-        var p = this.path.getPointAt(u);
-
-        var t = this.path.getTangentAt(u).normalize();
-        var n = this.path.getNormalAt(u).normalize();
-        var b = this.path.getBinormalAt(u).normalize();
-
-
-        n = n.clone();
-        var nz = n.clone();
-        nz.y = 0;
-        nz = nz.normalize();
-
-        var ny = n.clone();
-        ny.z = 0;
-        ny = ny.normalize();
-
-        var nx = t.clone();
-
-        this.cube.position = p;
-
-
-        var angZ = Math.acos(ny.dot(x));
-        var angY = Math.acos(nz.dot(x));
-        var angX = Math.acos(nx.dot(z));
-
-
-        this.cube.rotateZ(angZ);
-        this.cube.rotateY(angY);
-        this.cube.rotateX(-angX);
-        this.cube.geometry.verticesNeedUpdate = true;
-
-
-        this.cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 8, 0, 0));
-
-        this.cube.rotateZ(Math.PI / 12 * 3);
         //for ( i = 0; i < this.tube.geometry.faces.length / 24 * 20; i ++ ) {
-            if(i % 24 === 0 || (i - 1) % 24 === 0) {
+            //if(i % 24 === 0 || (i - 1) % 24 === 0) {
                 //this.tube.geometry.faces[ i ].color.setHex(this.conf.colors[0]);
-            }
+            //}
         //}
-        //var an = Math.acos(n.clone().dot(x));
-        //var l = n.clone().cross(x).normalize();
-
-        //var ang = Math.acos(c.dot(e));
-        //var d = a.cross(c).normalize();
-        //this.a = c.cross(e).normalize();
-        //this.a = x;
-
-        //this.cube.rotateOnAxis(l, an);
-        
-
-        this.scene.add(this.cube);
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -145,6 +92,10 @@ GraphicInterface.prototype = {
         return camera;
     },
     createTube: function(spline) {
+        for(var i = 0; i < 20; i++) {
+            var m = i % 2 === 0?  this.textures.simple : this.textures.corner;
+            this.scene.add(this.createTubePiece(i, m));
+        }
     },
     createTubePiece: function(num, map) {
 
@@ -197,12 +148,11 @@ GraphicInterface.prototype = {
         };
         return types[type].bind(this)();
     },
-    createCube: function(pos, color, distance) {
+    createCube: function(color, map) {
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
-        var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.01;
 
-        var geometry = new THREE.CubeGeometry(16, width, this.conf.textureLength);
-        var map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
+        var geometry = new THREE.CubeGeometry(this.conf.cubeHeight, width, this.conf.textureLength);
+        map = THREE.ImageUtils.loadTexture( "textures/sq2.jpg" );
 
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         var maxAnisotropy = this.renderer.getMaxAnisotropy();
@@ -211,7 +161,6 @@ GraphicInterface.prototype = {
 
         var material = new THREE.MeshBasicMaterial({
             map: map
-            //wireframe: true
         });
 
 
@@ -237,6 +186,46 @@ GraphicInterface.prototype = {
         });*/
 
         return new THREE.Mesh( geometry, material );
+    },
+    setCubePosiotion: function(cube, pos, radialPos) {
+
+        var x = new THREE.Vector3(1, 0, 0);
+        var y = new THREE.Vector3(0, 1, 0);
+        var z = new THREE.Vector3(0, 0, 1);
+
+        var u = this.conf.textureLength/this.path.getLength() * (pos + 0.5);
+        var p = this.path.getPointAt(u);
+
+        var t = this.path.getTangentAt(u).normalize();
+        var n = this.path.getNormalAt(u).normalize();
+        var b = this.path.getBinormalAt(u).normalize();
+
+        var nz = n.clone();
+        nz.y = 0;
+        nz = nz.normalize();
+
+        var ny = n.clone();
+        ny.z = 0;
+        ny = ny.normalize();
+
+        var nx = t.clone();
+
+        var angZ = Math.acos(ny.dot(x));
+        var angY = Math.acos(nz.dot(x));
+        var angX = Math.acos(nx.dot(z));
+
+        cube.position = p;
+
+        cube.rotateZ(angZ);
+        cube.rotateY(angY);
+        cube.rotateX(-angX);
+        cube.geometry.verticesNeedUpdate = true;
+
+        var distToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius);
+        var shift = distToCenter - this.conf.cubeHeight / 2;
+        cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(shift, 0, 0));
+
+        cube.rotateZ(-Math.PI / 12 - Math.PI / 6 * radialPos);
     },
     createPillar: function(pos, color, distance) {
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
