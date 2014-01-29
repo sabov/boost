@@ -224,6 +224,58 @@ html, body {
     height: 50%;    
 }
 
+.acceleration-trapez{
+    border-top: 40px solid rgba(255, 255, 255, 0.5);
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    height: 0;
+    width: 100px;
+    position: absolute;
+    left: 50%;
+    margin-left: -70px; 
+    top: 0px;
+    text-align: center;
+    transition-property: all;
+    transition-duration: 1s;
+    transition-timing-function: linear;
+    /* Safari */
+    -webkit-transition-property: all;
+    -webkit-transition-duration:1s;
+    -webkit-transition-timing-function:linear;
+    
+}
+
+.acceleration-holder{
+    width: 140px;
+    height: 60px;
+    position: absolute;
+    left: 50%;
+    margin-left: -70px;
+    text-align: center;
+    top: 0;
+    padding-top: 5px;
+}
+
+.acceleration-0x
+{
+    display: none;
+}
+
+.acceleration-1x .first-accelerator, .acceleration-1x .second-accelerator
+{
+    display: none;
+}
+
+.acceleration-2x .first-accelerator 
+{
+    display: none;
+}
+
+.acceleration-3x 
+{
+    display: block;
+}
+
 .popup {
     position: absolute;
     background: #333333;
