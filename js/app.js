@@ -59,6 +59,12 @@ Boost.prototype = {
             this.G.init();
             this.G.animate();
         }.bind(this));
+        jQuery(window).on('keypress', function() {
+            if(this.keyboard.pressed('escape')) {
+                jQuery('.pause-page').toggle();
+                this.G.toggleAnimation();
+            }
+        }.bind(this));
     },
     generateObstacles: function() {
     }

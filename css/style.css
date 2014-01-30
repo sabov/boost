@@ -8,12 +8,17 @@ html, body {
 }
 
 .page {
-    background: url(../img/tex.jpg) repeat;
     width: 100%;
     height: 100%;
 }
 
 .start-page {
+    background: url(../img/tex.jpg) repeat;
+}
+.pause-page {
+    display: none;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.7);
 }
 
 @keyframes rows-animation
@@ -113,7 +118,7 @@ html, body {
    bottom: 20%;
 }
 
-.quit-menu
+.quit-button
 {
    position: absolute;
    left: 60%;
@@ -128,8 +133,8 @@ html, body {
     font-style: italic;
     font-size: 30pt;
     text-align: center; 
-    color: white;
-    text-shadow: -10px 10px 5px rgba(0, 0, 0, 1);
+    color: #E8E8E8; 
+    text-shadow: -4px 4px 3px rgba(0, 0, 0, 1);
     top: 20px;        
 } 
 .start-icon

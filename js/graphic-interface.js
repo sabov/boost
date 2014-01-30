@@ -427,6 +427,12 @@ GraphicInterface.prototype = {
     stopAnimation: function() {
         this.runAnimation = false;
     },
+    toggleAnimation: function() {
+        this.runAnimation = !this.runAnimation;
+        if(this.runAnimation) {
+            this.animate();
+        }
+    },
     getCameraPosition: function() {
         return this.cameraPosition;
     },
