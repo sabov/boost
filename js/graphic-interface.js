@@ -104,9 +104,10 @@ GraphicInterface.prototype = {
         );
 
         var uniforms = {
-            color:   { type: "c", value: new THREE.Color(0xFFFFFF) },
-            texture: { type: "t", value: map },
-            uvScale: { type: "v2", value: new THREE.Vector2(segments, this.conf.numOfSegments) }
+            color:     { type: "c", value: new THREE.Color(0xFFFFFF) },
+            highlight: { type: "f", value: 1.0 },
+            texture:   { type: "t", value: map },
+            uvScale:   { type: "v2", value: new THREE.Vector2(segments, this.conf.numOfSegments) }
         };
 
         var material = new THREE.ShaderMaterial({
@@ -143,9 +144,10 @@ GraphicInterface.prototype = {
         var geometry = new THREE.CubeGeometry(this.conf.cubeHeight, width, this.conf.textureLength);
 
         var uniforms = {
-            color:   { type: "c", value: new THREE.Color(color) },
-            texture: { type: "t", value: map },
-            uvScale: { type: "v2", value: new THREE.Vector2( 1.0, 1.0) }
+            color:     { type: "c", value: new THREE.Color(color) },
+            highlight: { type: "f", value: 1.0 },
+            texture:   { type: "t", value: map },
+            uvScale:   { type: "v2", value: new THREE.Vector2( 1.0, 1.0) }
         };
 
         var material = new THREE.ShaderMaterial( {
@@ -195,6 +197,13 @@ GraphicInterface.prototype = {
         cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(shift, 0, 0));
 
         cube.rotateZ(Math.PI / 12 + Math.PI / 6 * radialPos);
+
+        this.objects.push({
+            type:      'cube',
+            uniforms:  cube.material.uniforms,
+            pos:       pos,
+            radialPos: radialPos
+        });
     },
     createPillar: function(pos, color, distance) {
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
@@ -249,9 +258,10 @@ GraphicInterface.prototype = {
         );
 
         var uniforms = {
-            color:   { type: "c", value: new THREE.Color(color) },
-            texture: { type: "t", value: map },
-            uvScale: { type: "v2", value: new THREE.Vector2(1.0, 1.0) }
+            color:     { type: "c", value: new THREE.Color(color) },
+            highlight: { type: "f", value: 1.0 },
+            texture:   { type: "t", value: map },
+            uvScale:   { type: "v2", value: new THREE.Vector2(1.0, 1.0) }
         };
 
         var material = new THREE.ShaderMaterial( {
@@ -259,6 +269,13 @@ GraphicInterface.prototype = {
             vertexShader:   this.vertexShader,
             fragmentShader: this.fragmentShader,
             side:           THREE.BackSide
+        });
+
+        this.objects.push({
+            type:      'path',
+            uniforms:  uniforms,
+            pos:       pos,
+            radialPos: radialPos
         });
 
         return new THREE.Mesh( geometry, material );
@@ -411,7 +428,7 @@ GraphicInterface.prototype = {
         this.runAnimation = false;
     },
     getCameraPosition: function() {
-        return this.camerPosition;
+        return this.cameraPosition;
     },
     rotateCamera: function(angle) {
         this.cameraAngle += angle;
@@ -422,7 +439,7 @@ GraphicInterface.prototype = {
             var divisor = Math.floor(position / num);
             position = position - divisor * num;
         }
-        this.camerPosition = position;
+        this.cameraPosition = position;
     },
     runFlashEffect: function() {
         this.uniformsArr.forEach(function(uniform) {
@@ -445,16 +462,15 @@ GraphicInterface.prototype = {
 
         return cameraTarget;
     },
-    highlightLine: function(position) {
-        /*if(!this.flashEffect) {
-            this.uniformsArr.forEach(function(uniform) {
-                if(uniform.position && uniform.position.value == position) {
-                    uniform.highlight.value = 2.0;
-                } else {
-                    uniform.highlight.value = 1.0;
-                }
-            });
-        }*/
+    highlightLine: function(radialPos) {
+        this.objects.forEach(function(object) {
+            if(object.radialPos === radialPos && 
+               (object.type === 'cube' || object.type === 'path')) {
+                object.uniforms.highlight.value = 2.0;
+            } else {
+                object.uniforms.highlight.value = 1.0;
+            }
+        });
     },
     setupStats: function() {
         this.rendererStats = new THREEx.RendererStats();
