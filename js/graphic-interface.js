@@ -53,11 +53,10 @@ GraphicInterface.prototype = {
 
         this.createTube();
 
-        this.arrow = this.createArrows(this.path, 0);
-        this.scene.add(this.arrow);
+        this.scene.add(this.createArrows(5, 1, this.textures.arrowColorSprite));
 
         var cube = this.createCube(this.conf.colors[0], this.textures.simple);
-        this.setCubePosiotion(cube, 3, 1);
+        this.setCubePosiotion(cube, 6, 0);
         this.scene.add(cube);
 
         //for ( i = 0; i < this.tube.geometry.faces.length / 24 * 20; i ++ ) {
@@ -211,7 +210,7 @@ GraphicInterface.prototype = {
         var shift = distToCenter - this.conf.cubeHeight / 2;
         cube.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(shift, 0, 0));
 
-        cube.rotateZ(-Math.PI / 12 - Math.PI / 6 * radialPos);
+        cube.rotateZ(Math.PI / 12 + Math.PI / 6 * radialPos);
     },
     createPillar: function(pos, color, distance) {
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
@@ -290,66 +289,29 @@ GraphicInterface.prototype = {
         this.uniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
     },
-    createArrows: function(path, num) {
+    createArrows: function(pos, radialPos, map) {
 
         var length = this.conf.arrowLength * this.conf.textureLength;
-        var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
-        var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.01;
 
-        //var geometry = new THREE.TubePlaneGeometry(width, length, 1, this.conf.arrowLength * 10);
-        
         var geometry = new THREE.TubePlaneGeometry(
-            path,
-            this.conf.tubePieceLength * num + 20,
-            this.conf.tubePieceLength - 60,
-            //this.conf.tubePieceLength / this.conf.textureLength,
-            7,
+            this.path,
+            this.conf.textureLength * pos,
+            length,
+            this.conf.arrowLength,
             this.conf.radius - 0.1,
             this.conf.numOfSegments,
-            0
+            radialPos
         );
 
-        var map = THREE.ImageUtils.loadTexture( "textures/arrow2.png" );
-        this.animator = new this.TextureAnimator( map, 4, 1, 4, 200 );    
-
-        //map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        var maxAnisotropy = this.renderer.getMaxAnisotropy();
-        //map.anisotropy = maxAnisotropy;
-        //map.repeat.set(1, 12);
-
-        var attributes = {};
-
-        var uniforms = {
-            //color:      { type: "c", value: new THREE.Color( 0xffffff ) },
-            //texture:    { type: "t", value: map },
-            //texture2:    { type: "t", value: map2 },
-            uvScale:    { type: "v2", value: new THREE.Vector2(10, 12) }
-        };
-
+        this.animator = new this.TextureAnimator( map, 4, 1, 4, 200 );
 
         var material = new THREE.MeshBasicMaterial( {
             map: map,
-            //color: 0x000000,
-            //wireframe: true
             side:THREE.DoubleSide,
             transparent: true
-        } );
+        });
 
-        //var material = new THREE.ShaderMaterial( {
-            //uniforms:       uniforms,
-            //attributes:     attributes,
-            //vertexShader:   this.vertexShader,
-            //fragmentShader: this.fragmentShader,
-            ////vertexColors: THREE.FaceColors,
-            //color: 0xFFFFFF,
-            //transparent: true,
-            //side:           THREE.BackSide
-        /*});*/
-
-        //this.uniformsArr.push(uniforms);
-        //this.arrowUniformsArr.push(uniforms);
-
-        return new THREE.Mesh( geometry, material );
+        return new THREE.Mesh(geometry, material);
     },
     createAnimatedRows: function(pos, distance) {
         var length = this.conf.arrowLength;

@@ -13,6 +13,11 @@ var config = {
             name:   'corner',
             file:   'sq.jpg',
             repeat: true
+        },
+        {
+            name:   'arrowColorSprite',
+            file:   'arrow2.png',
+            repeat: true
         }
     ],
 
@@ -23,6 +28,6 @@ var config = {
     textureLength: 20,
     speed: 0,
     pathLength: 20,
-    arrowLength: 8,
+    arrowLength: 7,
     cubeHeight: 18
 };
