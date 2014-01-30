@@ -2,8 +2,316 @@ html, body {
     margin: 0;
     padding: 0;
     overflow: hidden;
+    width: 100%;
+    height: 100%;
+        
 }
+
+.page {
+    width: 100%;
+    height: 100%;
+}
+
+.start-page {
+    background: url(../img/tex.jpg) repeat;
+}
+.pause-page {
+    display: none;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.browser-page {
+    background: url(../img/tex.jpg) repeat;
+    display: none;
+}
+
+@keyframes rows-animation
+{
+    from {box-shadow: 14px -14px 15px -15px #d87c21;}
+    to {box-shadow: 14px -14px 15px -15px black;}
+}
+
+@-webkit-keyframes rows-animation /* Safari and Chrome */
+{
+    from {box-shadow: 14px -14px 15px -15px #d87c21;}
+    to {box-shadow: 14px -14px 15px -15px black;}
+}
+
+.row
+{
+    -webkit-transform: rotate(-45deg); 
+    -moz-transform: rotate(-45deg); 
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3); 
+    -o-transform: rotate(-45deg);
+    position: absolute;
+    left: 50%;
+    box-shadow: 14px -14px 15px -15px #d87c21;
+    animation:rows-animation 1s linear 1s infinite alternate;
+    -webkit-animation:rows-animation 1s linear 1s infinite alternate;
+}
+
+.first-row
+{
+    margin-left: -175px;
+    width: 350px ;
+    height: 350px;   
+    top: 10px;      
+}
+.second-row
+{    
+    margin-left: -100px;
+    width: 200px ;
+    height: 200px;   
+    bottom: -100px;          
+}
+
+.browser-menu
+{
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 14pt;
+    text-align: center; 
+    color: #E8E8E8; 
+    text-shadow: -4px 4px 3px rgba(0, 0, 0, 1);
+    width: 200px;
+    margin: 0 25px;
+    height: 200px;     
+    float: left;
+}
+
+.browser-menu a{
+     display: block; /* Ссылка как блочный элемент */
+     text-align: center; /* Выравнивание по центру */
+     height: 100%;
+}
+
+.browser-holder{
+    position: absolute;
+    left: 50%;
+    margin-left:  -250px;
+    width: 500px;
+    height: auto;
+    bottom : 30%;
+    vertical-align: top;
+}
+
+.browser-holder img {
+    height: 150px;
+}
+
+.browser-holder a {
+}
+
+.firefox-menu
+{
+    background: url(../img/firefox.png)  no-repeat center center;
+    background-size:cover;
+    float: left;
+}
+
+.chrome-menu
+{
+    background: url(../img/chrome.png)  no-repeat center center;
+    background-size:cover;   
+    float: right;
+}
+
+.start-button
+{
+   position: absolute;
+   left: 50%;
+   width: 200px;
+   height: 180px;
+   margin-left: -100px;
+   cursor: pointer;
+   bottom: 20%;
+}
+
+.restart-button
+{
+   position: absolute;
+   left: 40%;
+   width: 200px;
+   height: 200px;
+   margin-left: -100px;
+   bottom: 20%;
+}
+
+.quit-button
+{
+   position: absolute;
+   left: 60%;
+   width: 200px;
+   height: 200px;
+   margin-left: -100px; 
+   bottom: 20%;  
+}
+
+.menu-font {
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 30pt;
+    text-align: center; 
+    color: #E8E8E8; 
+    text-shadow: -4px 4px 3px rgba(0, 0, 0, 1);
+    top: 20px;        
+} 
+.start-icon
+{
+    width: 200px;
+    height: 120px;
+    background: url(../img/row.png)  no-repeat center center;
+}
+
+.restart-icon
+{
+    width: 200px;
+    height: 120px;
+    background: url(../img/restart.png)  no-repeat center center;
+}
+
+.quit-icon
+{
+    width: 200px;
+    height: 120px;
+    background: url(../img/quit.png)  no-repeat center center;
+}
+
+.title-holder {
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 100pt;
+    color: #E8E8E8; 
+}
+
+.title-holder h2{
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 30pt;
+    color: white;
+    text-align: center; 
+}
+
+.title-holder h3{
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 16pt;
+    color: white; 
+    text-align: center;
+}
+
+.title{
+    position: absolute;
+    left: 50%;
+    top: 20%;
+    margin-left: -210px; 
+}
+
+.browser-title{
+    position: absolute;
+    top: 20%;
+    width: 100%;
+}
+.title-shadow{    
+    text-shadow: -10px 10px 5px rgba(0, 0, 0, 1);
+    -webkit-text-fill-color: transparent;
+}
+.title-gradient { 
+    /*background: -webkit-gradient(linear, left bottom , right top, from(#E8E8E8), to(#2F2727));*/
+    background: -webkit-radial-gradient(center, ellipse cover, #f3f3f3 30%,#363636 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;    
+    color:transparent;
+}
+
+.info-holder{
+ position: absolute;
+ bottom: 0px;
+ height: 40px;
+ width: 100%;
+} 
+.info{
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 10pt;
+    color: white;
+    bottom: 20px; 
+    text-shadow: -4px 4px 3px rgba(0, 0, 0, 1);   
+    padding: 10px 20px;
+}
+.left-info{
+    float: left;
+}
+.right-info{
+    float: right;
+}
+
+.header{
+    position: relative;
+    width: 100%;
+    height: 50%;   
+}
+.footer{
+    position: relative;
+    width: 100%;
+    height: 50%;    
+}
+
+.acceleration-trapez{
+    border-top: 40px solid rgba(255, 255, 255, 0.5);
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    height: 0;
+    width: 100px;
+    position: absolute;
+    left: 50%;
+    margin-left: -70px; 
+    top: 0px;
+    text-align: center;
+    transition-property: all;
+    transition-duration: 1s;
+    transition-timing-function: linear;
+    /* Safari */
+    -webkit-transition-property: all;
+    -webkit-transition-duration:1s;
+    -webkit-transition-timing-function:linear;
+    
+}
+
+.acceleration-holder{
+    width: 140px;
+    height: 60px;
+    position: absolute;
+    left: 50%;
+    margin-left: -70px;
+    text-align: center;
+    top: 0;
+    padding-top: 5px;
+}
+
+.acceleration-0x
+{
+    display: none;
+}
+
+.acceleration-1x .first-accelerator, .acceleration-1x .second-accelerator
+{
+    display: none;
+}
+
+.acceleration-2x .first-accelerator 
+{
+    display: none;
+}
+
+.acceleration-3x 
+{
+    display: block;
+}
+
 .popup {
+    display: none;
     position: absolute;
     background: #333333;
     background: rgba(0,0,0,0.6);
@@ -13,7 +321,7 @@ html, body {
     bottom: 0;
     left: 0;
     right: 0;
-    display: none;
+    opacity: 0;
 }
 .popup-inner {
     position: absolute;
@@ -29,3 +337,11 @@ h1 {
     text-align: center;
     color: #FFFFFF;
 }
+
+a {
+    color: white;
+    text-decoration: none;        
+}
+
+a:hover {
+    color: #1a82f7;

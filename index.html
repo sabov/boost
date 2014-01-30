@@ -16,8 +16,14 @@
     <script type="text/javascript" src="bower_components/threex.keyboardstate/threex.keyboardstate.js"></script>
     <script type="text/javascript" src="bower_components/threex.rendererstats/threex.rendererstats.js"></script>
 
+    <!--     Extras     -->
+    <script type="text/javascript" src="js/tube-piece-geometry.js"></script>
+    <script type="text/javascript" src="js/tube-plane-geometry.js"></script>
+    <script type="text/javascript" src="js/path.js"></script>
+
     <!--    Application     -->
     <script type="text/javascript" src="js/config.js"></script>
+    <script type="text/javascript" src="js/path-config.js"></script>
     <script type="text/javascript" src="js/helpers.js"></script>
     <script type="text/javascript" src="js/graphic-interface.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
@@ -27,13 +33,144 @@
     <script type="x-shader/x-fragment" data-name="commonShader" data-src="shaders/common.fsh" ></script>
 
     <link rel="stylesheet" href="css/style.css">
-
+    <link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>
 </head>
 <body>
+    <section class="page start-page">
+        <div class="header">   
+            <div class="first-row row"></div>    
+            <div class="second-row row"></div>
+            
+            <div class="title-holder">
+                <div class="title title-shadow">
+                       boost
+                </div>
+                <div class="title title-gradient">
+                       boost
+                </div>
+            </div>
+        </div> 
+
+
+        <div class="footer">  
+            <div class="start-button">
+                <div class="start-icon"></div>  
+                <div class="menu-font">play</div>
+            </div>
+            <div class="info-holder">
+                <div class="info left-info">
+                <a href="https://github.com/sabov/boost" target="_blank">Project on Github</a>
+                </div>
+                <div class="info right-info">
+                Inspired by
+                    <a href="http://jonathanlanis.com"
+                    target="_blank">Jonathan Lanis</a> 
+                and his
+                <a
+                    href="https://itunes.apple.com/ru/app/boost-2/id333191476?mt=8"
+                    target="_blank">Boost2</a> 
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="page pause-page">
+        <div class="header">   
+            <div class="title-holder">
+                <div class="title title-shadow">                    
+                       pause
+                </div>
+                <div class="title title-gradient">
+                       pause
+                </div>
+            </div>
+        </div> 
+
+
+        <div class="footer">  
+            <div class="restart-button">
+                <div class="restart-icon"></div>  
+                <div class="menu-font">restart</div>
+            </div>
+            <div class="quit-button">
+                <div class="quit-icon"></div>  
+                <div class="menu-font">quit</div>
+            </div>
+            <div class="info-holder">
+                <div class="info left-info">
+                <a href="https://github.com/sabov/boost" target="_blank">Project on Github</a>
+                </div>
+                <div class="info right-info">
+                Inspired by
+                    <a href="http://jonathanlanis.com"
+                    target="_blank">Jonathan Lanis</a> 
+                and his
+                <a
+                    href="https://itunes.apple.com/ru/app/boost-2/id333191476?mt=8"
+                    target="_blank">Boost2</a> 
+                </div>
+            </div>
+        </div>
+
+        <div class="acceleration-3x">
+            <div class="acceleration-trapez"></div>
+            <div class="acceleration-holder">
+                <img class="first-accelerator" src="img/accelerationRow.png">
+                <img class="second-accelerator" src="img/accelerationRow.png">
+                <img class="third-accelerator" src="img/accelerationRow.png">
+            </div>
+        </div>
+    </section>
+
+    <section class="page browser-page">
+        <div class="header">   
+            <div class="title-holder">
+                <div class="browser-title title-shadow">                    
+                       <h2>Your browser does not support WebGl</h2>               
+                       <h3> please, install one of this browsers</h3>
+                </div>            
+                <div class="browser-title title-gradient">                    
+                       <h2>Your browser does not support WebGl</h2>               
+                       <h3> please, install one of this browsers</h3>
+                </div>            
+            </div>
+        </div> 
+
+        <div class="footer"> 
+            <div class="browser-holder"> 
+                <div class="browser-menu">
+                    <a href="http://www.mozilla.org/en-US/firefox/new/?from=sfx&uid=253948&t=311#download-fx">
+                        <img src="../img/firefox.png" alt="">
+                        Mozilla Firefox
+                    </a>
+                </div>
+                <div class="browser-menu">
+                    <a href="https://www.google.com/intl/uk/chrome/browser/thankyou.html?installdataindex=defaultbrowser">
+                        <img src="../img/chrome.png" alt="">
+                        Google Chrome
+                    </a>
+                </div>
+            </div>
+             <div class="info-holder">
+                <div class="info left-info">
+                <a href="https://github.com/sabov/boost" target="_blank">Project on Github</a>
+                </div>
+                <div class="info right-info">
+                Inspired by
+                    <a href="http://jonathanlanis.com"
+                    target="_blank">Jonathan Lanis</a> 
+                and his
+                <a
+                    href="https://itunes.apple.com/ru/app/boost-2/id333191476?mt=8"
+                    target="_blank">Boost2</a> 
+                </div>
+            </div>            
+        </div>
+    </section>
 
     <div class="popup">
         <div class="popup-inner">
-            <h1>End Game</h1>
+            <h1>Game Over</h1>
         </div>
     </div>
 
