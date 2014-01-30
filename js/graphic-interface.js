@@ -17,13 +17,9 @@ var GraphicInterface = function(conf, pathConf) {
     this.tubePieces = [];
     this.objects    = [];
 
-    var container = document.createElement( 'div' );
-    document.body.appendChild( container );
-
     try {
         this.renderer = new THREE.WebGLRenderer({antialias: true});
         this.renderer.setSize( window.innerWidth, window.innerHeight );
-        container.appendChild( this.renderer.domElement );
     }
     catch (e) {
         console.log('No WebGL!');
@@ -34,17 +30,21 @@ var GraphicInterface = function(conf, pathConf) {
         this.fragmentShader = data.commonShader.fragment;
         this.vertexShader = data.commonShader.vertex;
         
-        this.setupStats();
         this.initTextures();
         this.initPath();
-        this.init();
-        this.animate();
 
     }.bind(this));
 };
 
 GraphicInterface.prototype = {
     init: function(){
+
+        this.setupStats();
+
+        var container = document.createElement( 'div' );
+        document.body.appendChild( container );
+        container.appendChild( this.renderer.domElement );
+
         var conf = this.conf;
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();

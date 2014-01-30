@@ -25,6 +25,8 @@ var Boost = function(conf, pathConf) {
         }
     }.bind(this));
 
+    this.initEvents();
+
 };
 
 Boost.prototype = {
@@ -50,6 +52,13 @@ Boost.prototype = {
         window.addEventListener("deviceorientation", function(e) {
             this.shift = e.beta;
         }.bind(this), true);
+    },
+    initEvents: function() {
+        jQuery('.start-button').click(function(){
+            jQuery('.start-page').hide();
+            this.G.init();
+            this.G.animate();
+        }.bind(this));
     },
     generateObstacles: function() {
     }
