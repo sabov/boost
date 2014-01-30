@@ -55,9 +55,9 @@ GraphicInterface.prototype = {
         this.scene.add(this.createArrows(5, 1, this.textures.arrowColorSprite));
 
         var cube = this.createCube(this.conf.colors[0], this.textures.simple);
-        this.setCubePosiotion(cube, 6, 0);
+        this.setCubePosiotion(cube, 6, 1);
         this.scene.add(cube);
-        this.scene.add(this.createPath(0, 0, this.conf.colors[0], this.textures.simple));
+        this.scene.add(this.createPath(0, 1, this.conf.colors[0], this.textures.simple));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -396,16 +396,16 @@ GraphicInterface.prototype = {
     setSpeed: function(speed) {
     },
     onCollisions: function(callback) {
-        var p = this.camerPosition;
-        /*this.cubeUniformsArr.forEach(function(uniform, i) {
-            if(uniform.position && uniform.position.value == p) {
-                if(uniform.distance &&
-                    this.distance - this.conf.textureLength > uniform.distance.value &&
-                    this.distance - 2 * this.conf.textureLength < uniform.distance.value ) {
-                    if(callback) callback();
-                }
+        var o;
+        var p = this.getCameraPosition();
+        var l = this.conf.textureLength;
+        for(var i = 0; i < this.objects.length; i++) {
+            o = this.objects[i];
+            if(o.radialPos === p && this.isObstacle(o) &&
+               o.pos * l - l/2 < this.distance && o.pos * l + l  > this.distance) {
+                if(callback) callback();
             }
-        }.bind(this));*/
+        }
     },
     onArrowCollisions: function(callback) {
         var index = -1;
@@ -495,6 +495,10 @@ GraphicInterface.prototype = {
             bottom: '0px'
         }).appendTo($('body'));
     },
+    isObstacle: function(object) {
+        return object.type === 'cube' ||
+               object.type === 'pillar';
+    },
 
     TextureAnimator: function (texture, tilesHoriz, tilesVert, numTiles, tileDispDuration) {   
         this.tilesHorizontal = tilesHoriz;
@@ -558,7 +562,6 @@ GraphicInterface.prototype = {
         var radians = angleToRadians(this.cameraAngle);
 
         this.globalTime += delta * 0.0006;
-        this.distance = this.globalTime * this.conf.speed * this.conf.textureLength;
 
         /*this.uniformsArr.forEach(function(uniform) {
             uniform.globalTime.value = this.globalTime;
@@ -584,9 +587,13 @@ GraphicInterface.prototype = {
             }
         }
 
-        var u = this.globalTime / 40;
-        u = 0;
+        this.distance += 0.5;
+        var u = this.distance / this.path.getLength();
 
+        if(this.distance % 20 == 0) {
+            console.log(this.distance);
+            console.log(this.cameraPosition);
+        }
         var point = this.path.getPointAt(u);
         var cameraPosition = this.getCameraPositionAt(u);
         var cameraTarget = this.getCameraPositionAt(u + 0.001);

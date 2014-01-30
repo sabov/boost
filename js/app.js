@@ -18,10 +18,10 @@ var Boost = function(conf, pathConf) {
         }.bind(this));
         this.G.onCollisions(function(){
             this.G.setSpeed(2);
-            this.G.runFlashEffect();
-            this.G.shakeCamera();
+            //this.G.runFlashEffect();
+            //this.G.shakeCamera();
             dropSpeed = true;
-            jQuery('.popup').delay(500).animate({'opacity':  '1'}, 1000);
+            jQuery('.popup').show().delay(500).animate({'opacity':  '1'}, 1000);
         }.bind(this));
         if(dropSpeed) {
             this.dropSpeed();
