@@ -1,8 +1,7 @@
-//uniform vec3 color;
+uniform vec3 color;
 uniform sampler2D texture;
 uniform sampler2D texture2;
 uniform vec3 light;
-//uniform float shadow;
 //uniform float highlight;
             
 varying vec3 vNormal;
@@ -11,7 +10,6 @@ varying vec3 vColor;
 
 
 void main() {
-    vec3 color = vColor;
 
     vec4 textureColor = texture2D(texture, vec2(vUv.s, vUv.t));
 

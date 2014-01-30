@@ -58,12 +58,7 @@ GraphicInterface.prototype = {
         var cube = this.createCube(this.conf.colors[0], this.textures.simple);
         this.setCubePosiotion(cube, 6, 0);
         this.scene.add(cube);
-
-        //for ( i = 0; i < this.tube.geometry.faces.length / 24 * 20; i ++ ) {
-            //if(i % 24 === 0 || (i - 1) % 24 === 0) {
-                //this.tube.geometry.faces[ i ].color.setHex(this.conf.colors[0]);
-            //}
-        //}
+        this.scene.add(this.createPath(0, 0, this.conf.colors[0], this.textures.simple));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -112,16 +107,16 @@ GraphicInterface.prototype = {
         var attributes = {};
 
         var uniforms = {
+            color:   { type: "c", value: new THREE.Color(0xFFFFFF) },
             texture: { type: "t", value: map },
             uvScale: { type: "v2", value: new THREE.Vector2(segments, this.conf.numOfSegments) }
         };
 
-        var material = new THREE.ShaderMaterial( {
+        var material = new THREE.ShaderMaterial({
             uniforms:       uniforms,
             attributes:     attributes,
             vertexShader:   this.vertexShader,
             fragmentShader: this.fragmentShader,
-            vertexColors:   THREE.FaceColors,
             side:           THREE.BackSide
         });
 
@@ -158,16 +153,16 @@ GraphicInterface.prototype = {
         var attributes = {};
 
         var uniforms = {
-            texture:    { type: "t", value: map },
-            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, 1.0) }
+            color:   { type: "c", value: new THREE.Color(color) },
+            texture: { type: "t", value: map },
+            uvScale: { type: "v2", value: new THREE.Vector2( 1.0, 1.0) }
         };
 
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
             attributes:     attributes,
             vertexShader:   this.vertexShader,
-            fragmentShader: this.fragmentShader,
-            vertexColors:   THREE.FaceColors
+            fragmentShader: this.fragmentShader
         });
 
         return new THREE.Mesh( geometry, material );
@@ -250,43 +245,34 @@ GraphicInterface.prototype = {
         this.cubeUniformsArr.push(uniforms);
         return new THREE.Mesh( geometry, material );
     },
-    createPath: function(pos, color, distance) {
+    createPath: function(pos, radialPos, color, map) {
 
         var length = this.conf.pathLength * this.conf.textureLength;
-        var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
-        var distanceToCenter = getDistanceToSegment(this.conf.numOfSegments, this.conf.radius) - 0.02;
 
-        var geometry = new THREE.PlaneGeometry(width, length, 1, this.conf.pathLength * 10);
-        geometry.applyMatrix( new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(Math.PI/2,0,0)));
-        geometry.applyMatrix( new THREE.Matrix4().setPosition( new THREE.Vector3( 0, distanceToCenter, -length/2)));
-        geometry.applyMatrix( new THREE.Matrix4().makeRotationZ(-Math.PI/12 - Math.PI/6*pos));
-        var map = THREE.ImageUtils.loadTexture( "textures/mask.png" );
-
-        map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        var maxAnisotropy = this.renderer.getMaxAnisotropy();
-        map.anisotropy = maxAnisotropy;
-
-        var attributes = {};
+        var geometry = new THREE.TubePlaneGeometry(
+            this.path,
+            this.conf.textureLength * pos,
+            length,
+            this.conf.pathLength,
+            this.conf.radius - 0.1,
+            this.conf.numOfSegments,
+            radialPos
+        );
 
         var uniforms = {
-            color:      { type: "c", value: new THREE.Color(color) },
-            texture:    { type: "t", value: map },
-            globalTime: { type: "f", value: 0.0 },
-            position:   { type: "f", value: pos },
-            dynamic:    { type: "f", value: true },
-            highlight:  { type: "f", value: 1.0 },
-            distance:   { type: "f", value: distance * this.conf.textureLength},
-            speed:      { type: "f", value: this.conf.speed * this.conf.textureLength },
-            uvScale:    { type: "v2", value: new THREE.Vector2( 1.0, this.conf.pathLength ) }
+            color:   { type: "c", value: new THREE.Color(color) },
+            texture: { type: "t", value: map },
+            uvScale: { type: "v2", value: new THREE.Vector2(1.0, 1.0) }
         };
 
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
-            attributes:     attributes,
+            attributes:     {},
             vertexShader:   this.vertexShader,
-            fragmentShader: this.fragmentShader
+            fragmentShader: this.fragmentShader,
+            side:           THREE.BackSide
         });
-        this.uniformsArr.push(uniforms);
+
         return new THREE.Mesh( geometry, material );
     },
     createArrows: function(pos, radialPos, map) {
@@ -400,14 +386,8 @@ GraphicInterface.prototype = {
         return point;
     },
     getSpeed: function() {
-        return this.tubeUniform.speed.value;
     },
     setSpeed: function(speed) {
-        this.globalTime = this.globalTime * this.tubeUniform.speed.value/speed;
-        this.uniformsArr.forEach(function(uniform) {
-            uniform.speed.value = speed * this.conf.textureLength;
-        }.bind(this));
-        this.tubeUniform.speed.value = speed;
     },
     onCollisions: function(callback) {
         var p = this.camerPosition;
@@ -454,15 +434,6 @@ GraphicInterface.prototype = {
             position = position - divisor * num;
         }
         this.camerPosition = position;
-    },
-    changeTubeTexture: function(texture1, texture2) {
-        this.tubeUniforms.dynamic.value = true;
-        this.scene.add(this.createTube(10, this.conf.tubeLength, true, 'textures/' + texture2));
-        this.scene.add(this.createTube(this.conf.tubeLength, this.conf.tubeLength + 10, true, 'textures/' + texture1));
-    },
-    runBoostEffect: function() {
-    },
-    runCrashEffect: function() {
     },
     runFlashEffect: function() {
         this.uniformsArr.forEach(function(uniform) {
@@ -526,7 +497,7 @@ GraphicInterface.prototype = {
         this.currentDisplayTime = 0;
 
         this.currentTile = 0;
-            
+
         this.update = function( milliSec ) {
             this.currentDisplayTime += milliSec;
             while (this.currentDisplayTime > this.tileDisplayDuration)

@@ -29,5 +29,5 @@ var config = {
     speed: 0,
     pathLength: 20,
     arrowLength: 7,
-    cubeHeight: 18
+    cubeHeight: 16
 };
