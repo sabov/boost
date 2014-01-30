@@ -1,7 +1,10 @@
 var Boost = function(conf, pathConf) {
     var dropSpeed = false;
     this.shift = 0;
-    this.G = new GraphicInterface(conf, pathConf);
+    this.G = new GraphicInterface(conf, pathConf, function() {
+        jQuery('.start-page').hide();
+        jQuery('.browser-page').css('display', 'block');
+    });
     this.keyboard = new THREEx.KeyboardState();
     this.bindOrientation();
     this.G.onRender(function(renderer) {

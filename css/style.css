@@ -21,6 +21,11 @@ html, body {
     background: rgba(0, 0, 0, 0.7);
 }
 
+.browser-page {
+    background: url(../img/tex.jpg) repeat;
+    display: none;
+}
+
 @keyframes rows-animation
 {
     from {box-shadow: 14px -14px 15px -15px #d87c21;}
@@ -63,8 +68,16 @@ html, body {
 
 .browser-menu
 {
-   width: 150px;
-   height: 150px;     
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 14pt;
+    text-align: center; 
+    color: #E8E8E8; 
+    text-shadow: -4px 4px 3px rgba(0, 0, 0, 1);
+    width: 200px;
+    margin: 0 25px;
+    height: 200px;     
+    float: left;
 }
 
 .browser-menu a{
@@ -76,11 +89,18 @@ html, body {
 .browser-holder{
     position: absolute;
     left: 50%;
-    margin-left:  -200px;
-    width: 400px;
+    margin-left:  -250px;
+    width: 500px;
     height: auto;
-    bottom : 20%;
+    bottom : 30%;
     vertical-align: top;
+}
+
+.browser-holder img {
+    height: 150px;
+}
+
+.browser-holder a {
 }
 
 .firefox-menu
@@ -191,15 +211,13 @@ html, body {
 .browser-title{
     position: absolute;
     top: 20%;
-    margin-left: 200px;
-    margin-right: 150px; 
+    width: 100%;
 }
 .title-shadow{    
     text-shadow: -10px 10px 5px rgba(0, 0, 0, 1);
     -webkit-text-fill-color: transparent;
 }
 .title-gradient { 
-    width: 450px;        
     /*background: -webkit-gradient(linear, left bottom , right top, from(#E8E8E8), to(#2F2727));*/
     background: -webkit-radial-gradient(center, ellipse cover, #f3f3f3 30%,#363636 100%);
     -webkit-background-clip: text;
@@ -219,7 +237,7 @@ html, body {
     font-size: 10pt;
     color: white;
     bottom: 20px; 
-    text-shadow: -10px 10px 5px rgba(0, 0, 0, 1);   
+    text-shadow: -4px 4px 3px rgba(0, 0, 0, 1);   
     padding: 10px 20px;
 }
 .left-info{

@@ -1,4 +1,4 @@
-var GraphicInterface = function(conf, pathConf) {
+var GraphicInterface = function(conf, pathConf, onError) {
 
     this.conf = conf;
     this.pathConf = pathConf;
@@ -22,7 +22,7 @@ var GraphicInterface = function(conf, pathConf) {
         this.renderer.setSize( window.innerWidth, window.innerHeight );
     }
     catch (e) {
-        console.log('No WebGL!');
+        if(onError) onError();
         return;
     }
     SHADER_LOADER.load(function(data) {
