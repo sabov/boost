@@ -8,15 +8,14 @@ var GraphicInterface = function(conf, pathConf) {
     this.distance = 0;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
-    this.cameraTarget = new THREE.Vector3(0,10000,0);
-    this.uniformsArr = [];
-    this.cubeUniformsArr = [];
-    this.arrowUniformsArr = [];
     this.onRenderFunctions = [];
     this.flashEffect = false;
     this.shakeAnimation = false;
     this.animator = null;
     this.clock = new THREE.Clock();
+
+    this.tubePieces = [];
+    this.objects    = [];
 
     var container = document.createElement( 'div' );
     document.body.appendChild( container );
@@ -62,7 +61,6 @@ GraphicInterface.prototype = {
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
-
     initTextures: function() {
         this.textures = [];
         this.conf.textures.forEach(function(t) {
@@ -81,6 +79,7 @@ GraphicInterface.prototype = {
         var curve = new THREE.SplineCurve3(threePoints);
         this.path = new Path(curve, this.pathConf.fragmentation);
     },
+
     createCamera: function() {
         var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
         return camera;
@@ -104,8 +103,6 @@ GraphicInterface.prototype = {
             this.conf.numOfSegments
         );
 
-        var attributes = {};
-
         var uniforms = {
             color:   { type: "c", value: new THREE.Color(0xFFFFFF) },
             texture: { type: "t", value: map },
@@ -114,7 +111,6 @@ GraphicInterface.prototype = {
 
         var material = new THREE.ShaderMaterial({
             uniforms:       uniforms,
-            attributes:     attributes,
             vertexShader:   this.vertexShader,
             fragmentShader: this.fragmentShader,
             side:           THREE.BackSide
@@ -146,12 +142,6 @@ GraphicInterface.prototype = {
 
         var geometry = new THREE.CubeGeometry(this.conf.cubeHeight, width, this.conf.textureLength);
 
-        geometry.faces.forEach(function(face) {
-            face.color.setHex(color);
-        });
-
-        var attributes = {};
-
         var uniforms = {
             color:   { type: "c", value: new THREE.Color(color) },
             texture: { type: "t", value: map },
@@ -160,7 +150,6 @@ GraphicInterface.prototype = {
 
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
-            attributes:     attributes,
             vertexShader:   this.vertexShader,
             fragmentShader: this.fragmentShader
         });
@@ -267,7 +256,6 @@ GraphicInterface.prototype = {
 
         var material = new THREE.ShaderMaterial( {
             uniforms:       uniforms,
-            attributes:     {},
             vertexShader:   this.vertexShader,
             fragmentShader: this.fragmentShader,
             side:           THREE.BackSide
@@ -299,6 +287,7 @@ GraphicInterface.prototype = {
 
         return new THREE.Mesh(geometry, material);
     },
+
     createAnimatedRows: function(pos, distance) {
         var length = this.conf.arrowLength;
         var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
@@ -391,7 +380,7 @@ GraphicInterface.prototype = {
     },
     onCollisions: function(callback) {
         var p = this.camerPosition;
-        this.cubeUniformsArr.forEach(function(uniform, i) {
+        /*this.cubeUniformsArr.forEach(function(uniform, i) {
             if(uniform.position && uniform.position.value == p) {
                 if(uniform.distance &&
                     this.distance - this.conf.textureLength > uniform.distance.value &&
@@ -399,12 +388,12 @@ GraphicInterface.prototype = {
                     if(callback) callback();
                 }
             }
-        }.bind(this));
+        }.bind(this));*/
     },
     onArrowCollisions: function(callback) {
         var index = -1;
         var p = this.camerPosition;
-        this.arrowUniformsArr.forEach(function(uniform, i) {
+        /*this.arrowUniformsArr.forEach(function(uniform, i) {
             if(uniform.position && uniform.position.value == p) {
                 if(uniform.distance &&
                     this.distance - this.conf.textureLength > uniform.distance.value &&
@@ -416,7 +405,7 @@ GraphicInterface.prototype = {
         }.bind(this));
         if(index !== -1) {
             this.arrowUniformsArr.splice(index, 1);
-        }
+        }*/
     },
     stopAnimation: function() {
         this.runAnimation = false;
@@ -457,7 +446,7 @@ GraphicInterface.prototype = {
         return cameraTarget;
     },
     highlightLine: function(position) {
-        if(!this.flashEffect) {
+        /*if(!this.flashEffect) {
             this.uniformsArr.forEach(function(uniform) {
                 if(uniform.position && uniform.position.value == position) {
                     uniform.highlight.value = 2.0;
@@ -465,7 +454,7 @@ GraphicInterface.prototype = {
                     uniform.highlight.value = 1.0;
                 }
             });
-        }
+        }*/
     },
     setupStats: function() {
         this.rendererStats = new THREEx.RendererStats();
@@ -549,7 +538,7 @@ GraphicInterface.prototype = {
         this.globalTime += delta * 0.0006;
         this.distance = this.globalTime * this.conf.speed * this.conf.textureLength;
 
-        this.uniformsArr.forEach(function(uniform) {
+        /*this.uniformsArr.forEach(function(uniform) {
             uniform.globalTime.value = this.globalTime;
             if(this.flashEffect) {
                 if(uniform.highlight.value < 1.2) {
@@ -559,7 +548,7 @@ GraphicInterface.prototype = {
                     uniform.highlight.value -= 0.5;
                 }
             }
-        }.bind(this));
+        }.bind(this));*/
 
         if(this.shakeAnimation) {
             var E = 0.01;
