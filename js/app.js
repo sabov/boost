@@ -36,12 +36,12 @@ var Boost = function(conf, pathConf) {
 Boost.prototype = {
     setCameraRotation: function() {
         if(this.keyboard.pressed("left")) {
-            this.G.rotateCamera(2);
-        } else if(this.keyboard.pressed("right")) {
             this.G.rotateCamera(-2);
+        } else if(this.keyboard.pressed("right")) {
+            this.G.rotateCamera(2);
         }
         if(this.shift !== 0) {
-            this.G.rotateCamera(-0.15 * this.shift);
+            this.G.rotateCamera(0.15 * this.shift);
         }
     },
     flashEffect: function() {

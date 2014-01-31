@@ -53,11 +53,20 @@ GraphicInterface.prototype = {
 
         this.createTube();
 
-        this.scene.add(this.createArrows(5, 1, this.textures.arrowColorSprite));
-
-        this.scene.add(this.createObstacle(10, 2, this.conf.colors[0]));
+        this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(455, 6, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(455, 0, this.textures.arrowColorSprite));
+        this.generateRandomObstacle();
 
         THREEx.WindowResize(this.renderer, this.camera);
+    },
+    generateRandomObstacle: function() {
+        var radialPos = Math.floor(Math.random() * 12);
+        var pos = Math.round(this.distance / this.conf.textureLength) + Math.floor(Math.random() * 10);
+        var color = Math.floor(Math.random() * 3);
+        console.log([radialPos, pos, color]);
+        this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color]));
     },
     initTextures: function() {
         this.textures = [];
@@ -83,9 +92,9 @@ GraphicInterface.prototype = {
         return camera;
     },
     createTube: function(spline) {
-        for(var i = 0; i < 20; i++) {
-            var m = i % 2 === 0?  this.textures.simple : this.textures.corner;
-            this.scene.add(this.createTubePiece(i, m));
+        for(var i = 0; i < 30; i++) {
+            //var m = i % 2 === 0?  this.textures.simple : this.textures.corner;
+            this.scene.add(this.createTubePiece(i, this.textures.simple));
         }
     },
     createTubePiece: function(num, map) {
@@ -597,6 +606,11 @@ GraphicInterface.prototype = {
         var radians = angleToRadians(this.cameraAngle);
 
         this.globalTime += delta * 0.0006;
+        if(this.distance % 50 === 0){
+            this.generateRandomObstacle();
+            this.generateRandomObstacle();
+            this.generateRandomObstacle();
+        }
 
         this.distance += this.speed;
         var u = this.distance / this.path.getLength();
