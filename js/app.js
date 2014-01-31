@@ -2,45 +2,39 @@ var Boost = function(conf, pathConf) {
     var dropSpeed = false;
     this.shift = 0;
     this.G = new GraphicInterface(conf, pathConf, function() {
+        //on error
         jQuery('.start-page').hide();
         jQuery('.browser-page').css('display', 'block');
     });
     this.keyboard = new THREEx.KeyboardState();
     this.bindOrientation();
+
     this.G.onRender(function(renderer) {
         var p = this.G.getCameraPosition();
         this.G.highlightLine(p);
         this.setCameraRotation();
-        this.G.onArrowCollisions(function() {
-            this.G.setSpeed(30);
-            this.G.runFlashEffect();
-            this.G.shakeCamera();
-        }.bind(this));
-        this.G.onCollisions(function(){
-            this.G.setSpeed(2);
-            //this.G.runFlashEffect();
-            //this.G.shakeCamera();
-            dropSpeed = true;
-            jQuery('.popup').show().delay(500).animate({'opacity':  '1'}, 1000);
-        }.bind(this));
-        if(dropSpeed) {
-            this.dropSpeed();
-        }
     }.bind(this));
 
+    //this.G.onArrowCollisions(function() {
+        //this.G.setSpeed(30);
+        //this.G.runFlashEffect();
+        //this.G.shakeCamera();
+    //}.bind(this));
+
+    this.G.onCollisions(function(){
+        //this.G.setSpeed(2);
+        //this.G.runFlashEffect();
+        //this.G.shakeCamera();
+        //dropSpeed = true;
+        jQuery('.game-over-page').show().animate({'opacity':  '1'}, 1000);
+        this.G.shakeCamera();
+        this.G.slowDownTo(0, -0.01);
+    }.bind(this));
     this.initEvents();
 
 };
 
 Boost.prototype = {
-    dropSpeed: function(callback) {
-        var currSpeed = this.G.getSpeed();
-        if(currSpeed > 0) {
-            this.G.setSpeed(currSpeed - 0.01);
-        } else {
-            if(callback) callback();
-        }
-    },
     setCameraRotation: function() {
         if(this.keyboard.pressed("left")) {
             this.G.rotateCamera(2);

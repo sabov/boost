@@ -6,6 +6,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
+    this.speed = 1.5;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
@@ -392,20 +393,36 @@ GraphicInterface.prototype = {
         return point;
     },
     getSpeed: function() {
+        return this.speed;
     },
     setSpeed: function(speed) {
+        this.speed = speed;
     },
-    onCollisions: function(callback) {
-        var o;
-        var p = this.getCameraPosition();
-        var l = this.conf.textureLength;
-        for(var i = 0; i < this.objects.length; i++) {
-            o = this.objects[i];
-            if(o.radialPos === p && this.isObstacle(o) &&
-               o.pos * l - l/2 < this.distance && o.pos * l + l  > this.distance) {
+    slowDownTo: function(newSpeed, step, callback) {
+        var index = this.onRender(function() {
+            if(this.speed + step > newSpeed) {
+                this.speed += step;
+            } else {
+                this.speed = newSpeed;
+                this.removeOnRenderHandler(index);
                 if(callback) callback();
             }
-        }
+        }.bind(this));
+    },
+    onCollisions: function(callback) {
+        var index = this.onRender(function() {
+            var o;
+            var p = this.getCameraPosition();
+            var l = this.conf.textureLength;
+            for(var i = 0; i < this.objects.length; i++) {
+                o = this.objects[i];
+                if(o.radialPos === p && this.isObstacle(o) &&
+                   o.pos * l - l/2 < this.distance && o.pos * l + l  > this.distance) {
+                    if(callback) callback();
+                }
+            }
+        }.bind(this));
+        
     },
     onArrowCollisions: function(callback) {
         var index = -1;
@@ -453,9 +470,22 @@ GraphicInterface.prototype = {
         });
         this.flashEffect = true;
     },
-    shakeCamera: function() {
+    shakeCamera: function(callback) {
         this.shakeAnimation = true;
-        this.shakeAnimationI = 0;
+        var shakeAnimationI = 0;
+        var E = 0.01;
+        var index = this.onRender(function() {
+            var CT = this.cameraTarget;
+            var newCT = this.computeCameraTargetVector();
+            if(Math.abs(CT.x - newCT.x) < E && Math.abs(CT.y - newCT.y) < E) {
+                this.shakeAnimation = false;
+                this.cameraTarget = new THREE.Vector3(0, 0, -70);
+            } else {
+                this.cameraTarget = newCT;
+                this.removeOnRenderHandler(index);
+                if(callback) callback();
+            }
+        }.bind(this));
     },
     computeCameraTargetVector: function() {
         this.shakeAnimationI += 0.1;
@@ -530,7 +560,10 @@ GraphicInterface.prototype = {
     },
 
     onRender: function(func) {
-        this.onRenderFunctions.push(func);
+        return this.onRenderFunctions.push(func);
+    },
+    removeOnRenderHandler: function(index) {
+        this.onRenderFunctions.splice(index, 1);
     },
 
     animate: function() {
@@ -575,34 +608,20 @@ GraphicInterface.prototype = {
             }
         }.bind(this));*/
 
-        if(this.shakeAnimation) {
-            var E = 0.01;
-            var CT = this.cameraTarget;
-            var newCT = this.computeCameraTargetVector();
-            if(Math.abs(CT.x - newCT.x) < E && Math.abs(CT.y - newCT.y) < E) {
-                this.shakeAnimation = false;
-                this.cameraTarget = new THREE.Vector3(0, 0, -70);
-            } else {
-                this.cameraTarget = newCT;
-            }
-        }
+        
 
-        this.distance += 0.5;
+        this.distance += this.speed;
         var u = this.distance / this.path.getLength();
 
-        if(this.distance % 20 == 0) {
-            console.log(this.distance);
-            console.log(this.cameraPosition);
-        }
         var point = this.path.getPointAt(u);
         var cameraPosition = this.getCameraPositionAt(u);
-        var cameraTarget = this.getCameraPositionAt(u + 0.001);
+        this.cameraTarget = this.getCameraPositionAt(u + 0.001);
         var up = new THREE.Vector3();
         up.subVectors(point, cameraPosition);
 
         this.camera.position = cameraPosition;
         this.camera.up = up;
-        this.camera.lookAt(cameraTarget);
+        this.camera.lookAt(this.cameraTarget);
 
         this.renderer.render(this.scene, this.camera);
         this.stats.end();
