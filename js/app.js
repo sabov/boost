@@ -15,16 +15,14 @@ var Boost = function(conf, pathConf) {
         this.setCameraRotation();
     }.bind(this));
 
-    //this.G.onArrowCollisions(function() {
-        //this.G.setSpeed(30);
-        //this.G.runFlashEffect();
-        //this.G.shakeCamera();
-    //}.bind(this));
+    this.G.onArrowCollisions(function() {
+        this.G.setSpeed(this.G.getSpeed() + 3);
+        this.flashEffect();
+        this.G.shakeCamera();
+    }.bind(this));
 
     this.G.onCollisions(function(){
-        jQuery('.flash').show().animate({'opacity':  '0.8'}, 50).animate({'opacity':  '0'}, 500, function() {
-            jQuery('.flash').hide();
-        });
+        this.flashEffect();
         jQuery('.game-over-page').show().animate({'opacity':  '1'}, 1000);
         this.G.shakeCamera(function() {
             this.G.stopAnimation();
@@ -45,6 +43,11 @@ Boost.prototype = {
         if(this.shift !== 0) {
             this.G.rotateCamera(-0.15 * this.shift);
         }
+    },
+    flashEffect: function() {
+        jQuery('.flash').show().animate({'opacity':  '0.8'}, 50).animate({'opacity':  '0'}, 500, function() {
+            jQuery('.flash').hide();
+        });
     },
     bindOrientation: function() {
         window.addEventListener("deviceorientation", function(e) {

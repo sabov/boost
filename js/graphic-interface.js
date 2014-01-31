@@ -443,21 +443,20 @@ GraphicInterface.prototype = {
         
     },
     onArrowCollisions: function(callback) {
-        var index = -1;
-        var p = this.camerPosition;
-        /*this.arrowUniformsArr.forEach(function(uniform, i) {
-            if(uniform.position && uniform.position.value == p) {
-                if(uniform.distance &&
-                    this.distance - this.conf.textureLength > uniform.distance.value &&
-                    this.distance - 10 * this.conf.textureLength < uniform.distance.value ) {
-                    index = i;
+         var index = this.onRender(function() {
+            var o;
+            var p = this.getCameraPosition();
+            var t = this.conf.textureLength;
+            var l = t * this.conf.pathLength;
+            for(var i = 0; i < this.objects.length; i++) {
+                o = this.objects[i];
+                if(o.radialPos === p && o.type === 'path' &&
+                   o.pos * t - t/2 < this.distance && o.pos * t + l  > this.distance) {
                     if(callback) callback();
+                    this.removeOnRenderHandler(index);
                 }
             }
         }.bind(this));
-        if(index !== -1) {
-            this.arrowUniformsArr.splice(index, 1);
-        }*/
     },
     stopAnimation: function() {
         this.runAnimation = false;
@@ -503,17 +502,6 @@ GraphicInterface.prototype = {
                 this.removeOnRenderHandler(index);
             }
         }.bind(this));
-    },
-    computeCameraTargetVector: function() {
-        this.shakeAnimationI += 0.1;
-
-        var cameraTarget = this.cameraTarget.clone();
-        var radians = angleToRadians(this.cameraAngle);
-
-        cameraTarget.x = Math.sin(radians) * Math.sin(this.shakeAnimationI * 7) * 15 * Math.exp(-this.shakeAnimationI * 0.7);
-        cameraTarget.y = Math.cos(radians) * Math.sin(this.shakeAnimationI * 7) * 15 * Math.exp(-this.shakeAnimationI * 0.7);
-
-        return cameraTarget;
     },
     highlightLine: function(radialPos) {
         this.objects.forEach(function(object) {
@@ -610,18 +598,6 @@ GraphicInterface.prototype = {
         var radians = angleToRadians(this.cameraAngle);
 
         this.globalTime += delta * 0.0006;
-
-        /*this.uniformsArr.forEach(function(uniform) {
-            uniform.globalTime.value = this.globalTime;
-            if(this.flashEffect) {
-                if(uniform.highlight.value < 1.2) {
-                    uniform.highlight.value = 1;
-                    this.flashEffect = false;
-                } else {
-                    uniform.highlight.value -= 0.5;
-                }
-            }
-        }.bind(this));*/
 
         this.distance += this.speed;
         var u = this.distance / this.path.getLength();
