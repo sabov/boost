@@ -6,6 +6,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
+    this.speed = 1.5;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
@@ -52,14 +53,20 @@ GraphicInterface.prototype = {
 
         this.createTube();
 
-        this.scene.add(this.createArrows(5, 1, this.textures.arrowColorSprite));
-
-        var cube = this.createCube(this.conf.colors[0], this.textures.simple);
-        this.setCubePosiotion(cube, 6, 0);
-        this.scene.add(cube);
-        this.scene.add(this.createPath(0, 0, this.conf.colors[0], this.textures.simple));
+        this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(455, 6, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(455, 0, this.textures.arrowColorSprite));
+        this.generateRandomObstacle();
 
         THREEx.WindowResize(this.renderer, this.camera);
+    },
+    generateRandomObstacle: function() {
+        var radialPos = Math.floor(Math.random() * 12);
+        var pos = Math.round(this.distance / this.conf.textureLength) + Math.floor(Math.random() * 10);
+        var color = Math.floor(Math.random() * 3);
+        console.log([radialPos, pos, color]);
+        this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color]));
     },
     initTextures: function() {
         this.textures = [];
@@ -85,9 +92,9 @@ GraphicInterface.prototype = {
         return camera;
     },
     createTube: function(spline) {
-        for(var i = 0; i < 20; i++) {
-            var m = i % 2 === 0?  this.textures.simple : this.textures.corner;
-            this.scene.add(this.createTubePiece(i, m));
+        for(var i = 0; i < 30; i++) {
+            //var m = i % 2 === 0?  this.textures.simple : this.textures.corner;
+            this.scene.add(this.createTubePiece(i, this.textures.simple));
         }
     },
     createTubePiece: function(num, map) {
@@ -119,13 +126,15 @@ GraphicInterface.prototype = {
 
         return new THREE.Mesh( geometry, material );
     },
-    createObstacle: function(pos, color, distance, type) {
+    createObstacle: function(position, radialPos, color, type) {
         type = type || 'cube';
         group = new THREE.Object3D();
         var types = {
             cube: function() {
-                group.add(this.createCube(pos, color, distance + this.conf.pathLength));
-                group.add(this.createPath(pos, color, distance));
+                var cube = this.createCube(color, this.textures.simple);
+                this.setCubePosiotion(cube, position + this.conf.pathLength, radialPos);
+                group.add(cube);
+                group.add(this.createPath(position, radialPos, color, this.textures.simple));
                 return group;
             },
             pillar: function() {
@@ -302,6 +311,12 @@ GraphicInterface.prototype = {
             transparent: true
         });
 
+        this.objects.push({
+            type:      'arrows',
+            pos:       pos,
+            radialPos: radialPos
+        });
+
         return new THREE.Mesh(geometry, material);
     },
 
@@ -358,6 +373,22 @@ GraphicInterface.prototype = {
     },
     removeObstacle: function(obstacle) {
     },
+    getPositionAt: function(u, radius, angle) {
+
+        var point = this.path.getPointAt(u);
+        var normal = this.path.getNormalAt(u);
+        var binormal = this.path.getBinormalAt(u);
+
+        var radians = angleToRadians(angle);
+        var cx = -radius * Math.cos(radians);
+        var cy = radius * Math.sin(radians);
+
+        point.x += cx * normal.x + cy * binormal.x;
+        point.y += cx * normal.y + cy * binormal.y;
+        point.z += cx * normal.z + cy * binormal.z;
+
+        return point;
+    },
     getCubePositionAt: function(u) {
         var point = this.path.getPointAt(u);
         var normal = this.path.getNormalAt(u);
@@ -391,38 +422,55 @@ GraphicInterface.prototype = {
 
         return point;
     },
+
     getSpeed: function() {
+        return this.speed;
     },
     setSpeed: function(speed) {
+        this.speed = speed;
+    },
+    slowDownTo: function(newSpeed, step, callback) {
+        var index = this.onRender(function() {
+            if(this.speed + step > newSpeed) {
+                this.speed += step;
+            } else {
+                this.speed = newSpeed;
+                this.removeOnRenderHandler(index);
+                if(callback) callback();
+            }
+        }.bind(this));
     },
     onCollisions: function(callback) {
-        var p = this.camerPosition;
-        /*this.cubeUniformsArr.forEach(function(uniform, i) {
-            if(uniform.position && uniform.position.value == p) {
-                if(uniform.distance &&
-                    this.distance - this.conf.textureLength > uniform.distance.value &&
-                    this.distance - 2 * this.conf.textureLength < uniform.distance.value ) {
+        var index = this.onRender(function() {
+            var o;
+            var p = this.getCameraPosition();
+            var l = this.conf.textureLength;
+            for(var i = 0; i < this.objects.length; i++) {
+                o = this.objects[i];
+                if(o.radialPos === p && this.isObstacle(o) &&
+                   o.pos * l - l/2 < this.distance && o.pos * l + l  > this.distance) {
                     if(callback) callback();
-                }
-            }
-        }.bind(this));*/
-    },
-    onArrowCollisions: function(callback) {
-        var index = -1;
-        var p = this.camerPosition;
-        /*this.arrowUniformsArr.forEach(function(uniform, i) {
-            if(uniform.position && uniform.position.value == p) {
-                if(uniform.distance &&
-                    this.distance - this.conf.textureLength > uniform.distance.value &&
-                    this.distance - 10 * this.conf.textureLength < uniform.distance.value ) {
-                    index = i;
-                    if(callback) callback();
+                    this.removeOnRenderHandler(index);
                 }
             }
         }.bind(this));
-        if(index !== -1) {
-            this.arrowUniformsArr.splice(index, 1);
-        }*/
+        
+    },
+    onArrowCollisions: function(callback) {
+         var index = this.onRender(function() {
+            var o;
+            var p = this.getCameraPosition();
+            var t = this.conf.textureLength;
+            var l = t * this.conf.arrowLength;
+            for(var i = 0; i < this.objects.length; i++) {
+                o = this.objects[i];
+                if(o.radialPos === p && o.type === 'arrows' &&
+                   o.pos * t - t/2 < this.distance && o.pos * t + l  > this.distance) {
+                    if(callback) callback();
+                    this.removeOnRenderHandler(index);
+                }
+            }
+        }.bind(this));
     },
     stopAnimation: function() {
         this.runAnimation = false;
@@ -447,34 +495,29 @@ GraphicInterface.prototype = {
         }
         this.cameraPosition = position;
     },
-    runFlashEffect: function() {
-        this.uniformsArr.forEach(function(uniform) {
-            uniform.highlight.value = 12.5;
-        });
-        this.flashEffect = true;
-    },
-    shakeCamera: function() {
-        this.shakeAnimation = true;
-        this.shakeAnimationI = 0;
-    },
-    computeCameraTargetVector: function() {
-        this.shakeAnimationI += 0.1;
-
-        var cameraTarget = this.cameraTarget.clone();
-        var radians = angleToRadians(this.cameraAngle);
-
-        cameraTarget.x = Math.sin(radians) * Math.sin(this.shakeAnimationI * 7) * 15 * Math.exp(-this.shakeAnimationI * 0.7);
-        cameraTarget.y = Math.cos(radians) * Math.sin(this.shakeAnimationI * 7) * 15 * Math.exp(-this.shakeAnimationI * 0.7);
-
-        return cameraTarget;
+    shakeCamera: function(callback) {
+        var i = 0;
+        var index = this.onRender(function() {
+            var u = this.distance / this.path.getLength();
+            var shift = Math.sin(i * 7) * 15 * Math.exp(-i * 0.7);
+            this.cameraTarget = this.getPositionAt(u + 0.01, this.conf.cameraRadius + shift, this.cameraAngle);
+            this.camera.lookAt(this.cameraTarget);
+            var sign = shift/Math.abs(shift);
+            shift = -sign * (Math.abs(shift) - 0.1);
+            i += 0.1;
+            if(i > 10) {
+                if(callback) callback();
+                this.removeOnRenderHandler(index);
+            }
+        }.bind(this));
     },
     highlightLine: function(radialPos) {
         this.objects.forEach(function(object) {
             if(object.radialPos === radialPos && 
                (object.type === 'cube' || object.type === 'path')) {
-                object.uniforms.highlight.value = 2.0;
+                if(object.uniforms) object.uniforms.highlight.value = 2.0;
             } else {
-                object.uniforms.highlight.value = 1.0;
+                if(object.uniforms) object.uniforms.highlight.value = 1.0;
             }
         });
     },
@@ -494,6 +537,10 @@ GraphicInterface.prototype = {
             right: '0px',
             bottom: '0px'
         }).appendTo($('body'));
+    },
+    isObstacle: function(object) {
+        return object.type === 'cube' ||
+               object.type === 'pillar';
     },
 
     TextureAnimator: function (texture, tilesHoriz, tilesVert, numTiles, tileDispDuration) {   
@@ -526,7 +573,11 @@ GraphicInterface.prototype = {
     },
 
     onRender: function(func) {
-        this.onRenderFunctions.push(func);
+        return this.onRenderFunctions.push(func) - 1;
+    },
+    removeOnRenderHandler: function(index) {
+        //this.onRenderFunctions.splice(index, 1);
+        this.onRenderFunctions[index] = null;
     },
 
     animate: function() {
@@ -543,9 +594,6 @@ GraphicInterface.prototype = {
         var delta = this.clock.getDelta(); 
         this.animator.update(1000 * delta);
 
-        this.onRenderFunctions.forEach(function(func) {
-            func(this.renderer);
-        }.bind(this));
 
         var time = new Date().getTime();
         delta = time - this.oldTime;
@@ -558,44 +606,28 @@ GraphicInterface.prototype = {
         var radians = angleToRadians(this.cameraAngle);
 
         this.globalTime += delta * 0.0006;
-        this.distance = this.globalTime * this.conf.speed * this.conf.textureLength;
-
-        /*this.uniformsArr.forEach(function(uniform) {
-            uniform.globalTime.value = this.globalTime;
-            if(this.flashEffect) {
-                if(uniform.highlight.value < 1.2) {
-                    uniform.highlight.value = 1;
-                    this.flashEffect = false;
-                } else {
-                    uniform.highlight.value -= 0.5;
-                }
-            }
-        }.bind(this));*/
-
-        if(this.shakeAnimation) {
-            var E = 0.01;
-            var CT = this.cameraTarget;
-            var newCT = this.computeCameraTargetVector();
-            if(Math.abs(CT.x - newCT.x) < E && Math.abs(CT.y - newCT.y) < E) {
-                this.shakeAnimation = false;
-                this.cameraTarget = new THREE.Vector3(0, 0, -70);
-            } else {
-                this.cameraTarget = newCT;
-            }
+        if(this.distance % 50 === 0){
+            this.generateRandomObstacle();
+            this.generateRandomObstacle();
+            this.generateRandomObstacle();
         }
 
-        var u = this.globalTime / 40;
-        u = 0;
+        this.distance += this.speed;
+        var u = this.distance / this.path.getLength();
 
         var point = this.path.getPointAt(u);
         var cameraPosition = this.getCameraPositionAt(u);
-        var cameraTarget = this.getCameraPositionAt(u + 0.001);
+        this.cameraTarget = this.getCameraPositionAt(u + 0.001);
         var up = new THREE.Vector3();
         up.subVectors(point, cameraPosition);
 
         this.camera.position = cameraPosition;
         this.camera.up = up;
-        this.camera.lookAt(cameraTarget);
+        this.camera.lookAt(this.cameraTarget);
+
+        this.onRenderFunctions.forEach(function(func) {
+            if(func) func(this.renderer);
+        }.bind(this));
 
         this.renderer.render(this.scene, this.camera);
         this.stats.end();
