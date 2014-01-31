@@ -55,10 +55,7 @@ GraphicInterface.prototype = {
 
         this.scene.add(this.createArrows(5, 1, this.textures.arrowColorSprite));
 
-        var cube = this.createCube(this.conf.colors[0], this.textures.simple);
-        this.setCubePosiotion(cube, 6, 1);
-        this.scene.add(cube);
-        this.scene.add(this.createPath(0, 1, this.conf.colors[0], this.textures.simple));
+        this.scene.add(this.createObstacle(10, 2, this.conf.colors[0]));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -120,13 +117,15 @@ GraphicInterface.prototype = {
 
         return new THREE.Mesh( geometry, material );
     },
-    createObstacle: function(pos, color, distance, type) {
+    createObstacle: function(position, radialPos, color, type) {
         type = type || 'cube';
         group = new THREE.Object3D();
         var types = {
             cube: function() {
-                group.add(this.createCube(pos, color, distance + this.conf.pathLength));
-                group.add(this.createPath(pos, color, distance));
+                var cube = this.createCube(color, this.textures.simple);
+                this.setCubePosiotion(cube, position + this.conf.pathLength, radialPos);
+                group.add(cube);
+                group.add(this.createPath(position, radialPos, color, this.textures.simple));
                 return group;
             },
             pillar: function() {
@@ -303,6 +302,12 @@ GraphicInterface.prototype = {
             transparent: true
         });
 
+        this.objects.push({
+            type:      'arrows',
+            pos:       pos,
+            radialPos: radialPos
+        });
+
         return new THREE.Mesh(geometry, material);
     },
 
@@ -447,10 +452,10 @@ GraphicInterface.prototype = {
             var o;
             var p = this.getCameraPosition();
             var t = this.conf.textureLength;
-            var l = t * this.conf.pathLength;
+            var l = t * this.conf.arrowLength;
             for(var i = 0; i < this.objects.length; i++) {
                 o = this.objects[i];
-                if(o.radialPos === p && o.type === 'path' &&
+                if(o.radialPos === p && o.type === 'arrows' &&
                    o.pos * t - t/2 < this.distance && o.pos * t + l  > this.distance) {
                     if(callback) callback();
                     this.removeOnRenderHandler(index);
@@ -481,12 +486,6 @@ GraphicInterface.prototype = {
         }
         this.cameraPosition = position;
     },
-    runFlashEffect: function() {
-        this.uniformsArr.forEach(function(uniform) {
-            uniform.highlight.value = 12.5;
-        });
-        this.flashEffect = true;
-    },
     shakeCamera: function(callback) {
         var i = 0;
         var index = this.onRender(function() {
@@ -507,9 +506,9 @@ GraphicInterface.prototype = {
         this.objects.forEach(function(object) {
             if(object.radialPos === radialPos && 
                (object.type === 'cube' || object.type === 'path')) {
-                object.uniforms.highlight.value = 2.0;
+                if(object.uniforms) object.uniforms.highlight.value = 2.0;
             } else {
-                object.uniforms.highlight.value = 1.0;
+                if(object.uniforms) object.uniforms.highlight.value = 1.0;
             }
         });
     },
