@@ -359,6 +359,22 @@ GraphicInterface.prototype = {
     },
     removeObstacle: function(obstacle) {
     },
+    getPositionAt: function(u, radius, angle) {
+
+        var point = this.path.getPointAt(u);
+        var normal = this.path.getNormalAt(u);
+        var binormal = this.path.getBinormalAt(u);
+
+        var radians = angleToRadians(angle);
+        var cx = -radius * Math.cos(radians);
+        var cy = radius * Math.sin(radians);
+
+        point.x += cx * normal.x + cy * binormal.x;
+        point.y += cx * normal.y + cy * binormal.y;
+        point.z += cx * normal.z + cy * binormal.z;
+
+        return point;
+    },
     getCubePositionAt: function(u) {
         var point = this.path.getPointAt(u);
         var normal = this.path.getNormalAt(u);
@@ -392,6 +408,7 @@ GraphicInterface.prototype = {
 
         return point;
     },
+
     getSpeed: function() {
         return this.speed;
     },
@@ -419,6 +436,7 @@ GraphicInterface.prototype = {
                 if(o.radialPos === p && this.isObstacle(o) &&
                    o.pos * l - l/2 < this.distance && o.pos * l + l  > this.distance) {
                     if(callback) callback();
+                    this.removeOnRenderHandler(index);
                 }
             }
         }.bind(this));
@@ -471,19 +489,18 @@ GraphicInterface.prototype = {
         this.flashEffect = true;
     },
     shakeCamera: function(callback) {
-        this.shakeAnimation = true;
-        var shakeAnimationI = 0;
-        var E = 0.01;
+        var i = 0;
         var index = this.onRender(function() {
-            var CT = this.cameraTarget;
-            var newCT = this.computeCameraTargetVector();
-            if(Math.abs(CT.x - newCT.x) < E && Math.abs(CT.y - newCT.y) < E) {
-                this.shakeAnimation = false;
-                this.cameraTarget = new THREE.Vector3(0, 0, -70);
-            } else {
-                this.cameraTarget = newCT;
-                this.removeOnRenderHandler(index);
+            var u = this.distance / this.path.getLength();
+            var shift = Math.sin(i * 7) * 15 * Math.exp(-i * 0.7);
+            this.cameraTarget = this.getPositionAt(u + 0.01, this.conf.cameraRadius + shift, this.cameraAngle);
+            this.camera.lookAt(this.cameraTarget);
+            var sign = shift/Math.abs(shift);
+            shift = -sign * (Math.abs(shift) - 0.1);
+            i += 0.1;
+            if(i > 10) {
                 if(callback) callback();
+                this.removeOnRenderHandler(index);
             }
         }.bind(this));
     },
@@ -560,10 +577,11 @@ GraphicInterface.prototype = {
     },
 
     onRender: function(func) {
-        return this.onRenderFunctions.push(func);
+        return this.onRenderFunctions.push(func) - 1;
     },
     removeOnRenderHandler: function(index) {
-        this.onRenderFunctions.splice(index, 1);
+        //this.onRenderFunctions.splice(index, 1);
+        this.onRenderFunctions[index] = null;
     },
 
     animate: function() {
@@ -580,9 +598,6 @@ GraphicInterface.prototype = {
         var delta = this.clock.getDelta(); 
         this.animator.update(1000 * delta);
 
-        this.onRenderFunctions.forEach(function(func) {
-            func(this.renderer);
-        }.bind(this));
 
         var time = new Date().getTime();
         delta = time - this.oldTime;
@@ -608,8 +623,6 @@ GraphicInterface.prototype = {
             }
         }.bind(this));*/
 
-        
-
         this.distance += this.speed;
         var u = this.distance / this.path.getLength();
 
@@ -622,6 +635,10 @@ GraphicInterface.prototype = {
         this.camera.position = cameraPosition;
         this.camera.up = up;
         this.camera.lookAt(this.cameraTarget);
+
+        this.onRenderFunctions.forEach(function(func) {
+            if(func) func(this.renderer);
+        }.bind(this));
 
         this.renderer.render(this.scene, this.camera);
         this.stats.end();

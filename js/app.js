@@ -22,13 +22,14 @@ var Boost = function(conf, pathConf) {
     //}.bind(this));
 
     this.G.onCollisions(function(){
-        //this.G.setSpeed(2);
-        //this.G.runFlashEffect();
-        //this.G.shakeCamera();
-        //dropSpeed = true;
+        jQuery('.flash').show().animate({'opacity':  '0.8'}, 50).animate({'opacity':  '0'}, 500, function() {
+            jQuery('.flash').hide();
+        });
         jQuery('.game-over-page').show().animate({'opacity':  '1'}, 1000);
-        this.G.shakeCamera();
-        this.G.slowDownTo(0, -0.01);
+        this.G.shakeCamera(function() {
+            this.G.stopAnimation();
+        }.bind(this));
+        this.G.slowDownTo(0, -0.05);
     }.bind(this));
     this.initEvents();
 

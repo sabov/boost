@@ -318,32 +318,13 @@ html, body {
     display: block;
 }
 
-.popup {
-    display: none;
+.flash {
     position: absolute;
-    background: #333333;
-    background: rgba(0,0,0,0.6);
     width: 100%;
     height: 100%;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    display: none;
     opacity: 0;
-}
-.popup-inner {
-    position: absolute;
-    width: 100%;
-    top: 50%;
-}
-h1 {
-    font-size: 45px;
-    text-shadow: 1px 1px rgba(0,0,0,0.5);
-    font-family: Arial;
-    margin-top: -25px;
-    text-transform: uppercase;
-    text-align: center;
-    color: #FFFFFF;
+    background: #FFFFFF;
 }
 
 a {
