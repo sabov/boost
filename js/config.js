@@ -21,7 +21,7 @@ var config = {
         },
         {
             name:   'arrowColorSprite',
-            file:   'arrow2.png',
+            file:   'arrow.png',
             repeat: true
         }
     ],
