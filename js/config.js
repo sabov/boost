@@ -6,12 +6,17 @@ var config = {
     textures: [
         {
             name:   'simple',
-            file:   'mask.png',
+            file:   'level-1.png',
             repeat: true
         },
         {
             name:   'corner',
-            file:   'sq.jpg',
+            file:   'level-2.jpg',
+            repeat: true
+        },
+        {
+            name: 'inverted',
+            file: 'level-3.jpg',
             repeat: true
         },
         {
