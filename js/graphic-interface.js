@@ -6,7 +6,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.speed = 1.5;
+    this.speed = 0.5;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
@@ -46,18 +46,54 @@ GraphicInterface.prototype = {
         document.body.appendChild( container );
         container.appendChild( this.renderer.domElement );
 
+
+
+
+/*        var width = window.innerWidth || 2;*/
+        //var height = window.innerHeight || 2;
+        //var effectHBlur = new THREE.ShaderPass( THREE.HorizontalBlurShader );
+        //var effectVBlur = new THREE.ShaderPass( THREE.VerticalBlurShader );
+        //effectVBlur.renderToScreen = true;
+        //var rtParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat, stencilBuffer: true };
+        //effectHBlur.uniforms.h.value = 2 / ( width / 2 );
+        //effectVBlur.uniforms.v.value = 2 / ( height / 2 );
+        //composerScene = new THREE.EffectComposer( this.renderer);
+        //composerScene.addPass( effectHBlur );
+        //composerScene.addPass( effectVBlur );
+        ////renderScene = new THREE.TexturePass( composerScene.renderTarget2 );
+
+
         var conf = this.conf;
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.scene.add(this.camera);
 
+
+
+        composer = new THREE.EffectComposer(this.renderer);
+        renderModel = new THREE.RenderPass(this.scene,this.camera);
+        renderModel.renderToScreen = false; 
+        composer.addPass(renderModel);
+        
+        var effectVBlur = new THREE.ShaderPass( THREE.VerticalBlurShader );
+        effectVBlur.uniforms.v.value = 10;
+        effectVBlur.renderToScreen = false;
+        composer.addPass(effectVBlur);
+
+        var effectHBlur = new THREE.ShaderPass( THREE.HorizontalBlurShader );
+        effectHBlur.uniforms.h.value = 10;
+        effectHBlur.renderToScreen = true;
+        composer.addPass(effectHBlur);
+
+
+
         this.createTube();
 
-        this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
-        this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
-        this.scene.add(this.createArrows(455, 6, this.textures.arrowColorSprite));
-        this.scene.add(this.createArrows(455, 0, this.textures.arrowColorSprite));
-        this.generateRandomObstacle();
+        //this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
+        //this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
+        //this.scene.add(this.createArrows(455, 6, this.textures.arrowColorSprite));
+        //this.scene.add(this.createArrows(455, 0, this.textures.arrowColorSprite));
+        //this.generateRandomObstacle();
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -65,7 +101,6 @@ GraphicInterface.prototype = {
         var radialPos = Math.floor(Math.random() * 12);
         var pos = Math.round(this.distance / this.conf.textureLength) + Math.floor(Math.random() * 10);
         var color = Math.floor(Math.random() * 3);
-        console.log([radialPos, pos, color]);
         this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color]));
     },
     initTextures: function() {
@@ -94,7 +129,8 @@ GraphicInterface.prototype = {
     createTube: function(spline) {
         for(var i = 0; i < 30; i++) {
             //var m = i % 2 === 0?  this.textures.simple : this.textures.corner;
-            this.scene.add(this.createTubePiece(i, this.textures.simple));
+            var tubePiece = this.createTubePiece(i, this.textures.corner);
+            this.scene.add(tubePiece);
         }
     },
     createTubePiece: function(num, map) {
@@ -110,6 +146,7 @@ GraphicInterface.prototype = {
             this.conf.numOfSegments
         );
 
+        map.repeat.set( 10, 12 );
         var uniforms = {
             color:     { type: "c", value: new THREE.Color(0xFFFFFF) },
             highlight: { type: "f", value: 1.0 },
@@ -117,12 +154,21 @@ GraphicInterface.prototype = {
             uvScale:   { type: "v2", value: new THREE.Vector2(segments, this.conf.numOfSegments) }
         };
 
-        var material = new THREE.ShaderMaterial({
+
+
+        var material = new THREE.MeshBasicMaterial( {
+            color: 0xFFFFFF,
+            map: map,
+            transparent: true,
+            side:THREE.BackSide
+        });
+
+        /*var material = new THREE.ShaderMaterial({
             uniforms:       uniforms,
             vertexShader:   this.vertexShader,
             fragmentShader: this.fragmentShader,
             side:           THREE.BackSide
-        });
+        });*/
 
         return new THREE.Mesh( geometry, material );
     },
@@ -592,7 +638,7 @@ GraphicInterface.prototype = {
         this.rendererStats.update(this.renderer);
 
         var delta = this.clock.getDelta(); 
-        this.animator.update(1000 * delta);
+        //this.animator.update(1000 * delta);
 
 
         var time = new Date().getTime();
@@ -607,9 +653,9 @@ GraphicInterface.prototype = {
 
         this.globalTime += delta * 0.0006;
         if(this.distance % 50 === 0){
-            this.generateRandomObstacle();
-            this.generateRandomObstacle();
-            this.generateRandomObstacle();
+            //this.generateRandomObstacle();
+            //this.generateRandomObstacle();
+            //this.generateRandomObstacle();
         }
 
         this.distance += this.speed;
@@ -629,7 +675,15 @@ GraphicInterface.prototype = {
             if(func) func(this.renderer);
         }.bind(this));
 
-        this.renderer.render(this.scene, this.camera);
+        //this.renderer.render(this.scene, this.camera);
+        //this.renderer.clear();
+        //composerScene.render();
+        //composerScene.render();
+
+        this.renderer.clear(); 
+        composer.render();
+
+
         this.stats.end();
     }
 };
