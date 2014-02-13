@@ -11,12 +11,12 @@ var config = {
         },
         {
             name:   'corner',
-            file:   'level-2.jpg',
+            file:   'level-2.png',
             repeat: true
         },
         {
             name: 'inverted',
-            file: 'level-3.jpg',
+            file: 'level-3.png',
             repeat: true
         },
         {
