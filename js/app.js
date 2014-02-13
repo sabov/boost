@@ -24,15 +24,9 @@ var Boost = function(conf, pathConf) {
 
 
     this.G.onCollisions(function(){
-        this.flashEffect();
-        jQuery('.game-over-page').show().animate({'opacity':  '1'}, 1000);
-        this.G.shakeCamera(function() {
-            this.G.stopAnimation();
-        }.bind(this));
-        this.G.slowDownTo(0, -0.05);
+        this.onCollisionsHandler();
     }.bind(this));
     this.initEvents();
-
 };
 
 Boost.prototype = {
@@ -56,6 +50,25 @@ Boost.prototype = {
         }        
         setTimeout(function(){
             this.G.onArrowCollisions(this.arrowCollisionHandler.bind(this));
+        }.bind(this), 1000);
+    },
+    onCollisionsHandler: function()
+    {
+        this.flashEffect();
+        if (this.G.getSpeed() > this.conf.speed)
+        {
+            $(".acceleration-3x").hide();
+            this.G.shakeCamera();
+            this.G.setSpeed(this.conf.speed);
+        }else {
+        jQuery('.game-over-page').show().animate({'opacity':  '1'}, 1000);
+        this.G.shakeCamera(function() {
+            this.G.stopAnimation();
+        }.bind(this));
+        this.G.slowDownTo(0, -0.05);
+        }    
+        setTimeout(function(){
+            this.G.onCollisions(this.onCollisionsHandler.bind(this));
         }.bind(this), 1000);
     },
     setCameraRotation: function() {

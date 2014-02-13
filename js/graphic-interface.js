@@ -6,7 +6,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.speed = 2.5;
+    this.speed = this.conf.speed;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
@@ -112,11 +112,12 @@ GraphicInterface.prototype = {
 
         this.createTube();
 
-        //this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(455, 6, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(10, 7, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(100, 1, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(150, 6, this.textures.arrowColorSprite));
         //this.scene.add(this.createArrows(455, 0, this.textures.arrowColorSprite));
-        //this.generateRandomObstacle();
+        this.scene.add(this.createObstacle(200, 2, this.conf.colors[1]));
+        this.generateRandomObstacle();
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -153,7 +154,7 @@ GraphicInterface.prototype = {
     createTube: function(spline) {
         for(var i = 0; i < 30; i++) {
             //var m = i % 2 === 0?  this.textures.simple : this.textures.corner;
-            var tubePiece = this.createTubePiece(i, this.textures.corner);
+            var tubePiece = this.createTubePiece(i, this.textures.simple);
             this.scene.add(tubePiece);
         }
     },
