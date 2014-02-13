@@ -191,9 +191,7 @@ html, body {
     font-style: italic;
     font-size: 100pt;
     color: #E8E8E8; 
-    position: absolute;
-    top: 20%;
-    width: 100%;
+    
 }
 
 .title-holder h2{
@@ -221,17 +219,25 @@ html, body {
     top: 20%;
     width: 100%;
 }
-.title-shadow{    
-    text-shadow: -10px 10px 5px rgba(0, 0, 0, 1);
-    -webkit-text-fill-color: transparent;
-}
+
 .title-gradient { 
     /*background: -webkit-gradient(linear, left bottom , right top, from(#E8E8E8), to(#2F2727));*/
     background: -webkit-radial-gradient(center, ellipse cover, #f3f3f3 30%,#363636 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;    
     color:transparent;
+    position: absolute;
+    top: 20%;
+    width: 100%;
 }
+.title-shadow{    
+    text-shadow: -10px 10px 5px rgba(0, 0, 0, 1);
+    -webkit-text-fill-color: transparent;
+    position: absolute;
+    top: 20%;
+    width: 100%;
+}
+
 
 .info-holder{
  position: absolute;
@@ -239,6 +245,7 @@ html, body {
  height: 40px;
  width: 100%;
 } 
+
 .info{
     font-family: 'Audiowide', cursive;
     font-style: italic;
