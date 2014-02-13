@@ -101,7 +101,7 @@ GraphicInterface.prototype = {
         THREEx.WindowResize(this.renderer, this.camera);
     },
     generateObstacles: function(time) {
-        setTimeout(this.generateObstacles.bind(this, time*0.99 ), time);
+        setTimeout(this.generateObstacles.bind(this, time*0.98 ), time);
         var tex = this.textures.simple;
         var l = this.conf.tubePieceLength;
         if(this.distance > l * 31 ) {
@@ -116,7 +116,7 @@ GraphicInterface.prototype = {
         this.generateRandomObstacle(tex);
     },
     generateRandomObstacle: function(texture) {
-        var radialPos = Math.floor(Math.random() * 11) - 1;
+        var radialPos = Math.floor(Math.random() * 12) - 1;
         var pos = Math.round(this.distance / this.conf.textureLength) - Math.floor(Math.random() * 10);
         if(pos === this.lastPos) {
             this.lastPos = ++pos;
@@ -167,7 +167,7 @@ GraphicInterface.prototype = {
             tubePiece = this.createTubePiece(i++, this.textures.corner, 0xFFFFFF);
             this.scene.add(tubePiece);
         }
-        while(i < 92) {
+        while(i < 115) {
             tubePiece = this.createTubePiece(i++, this.textures.cornerInverted, 0x000000);
             this.scene.add(tubePiece);
         }

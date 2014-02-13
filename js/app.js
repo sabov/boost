@@ -17,6 +17,12 @@ var Boost = function(conf, pathConf) {
         this.setCameraRotation();
         var dist = Math.round(this.G.distance/10)
         $(".counter").html(dist);
+        if(this.G.distance > this.conf.tubePieceLength * 100) {
+            this.flashEffect();
+            jQuery('.game-over-page').show().animate({'opacity':  '1'}, 1000);
+            this.gameOver = true;
+            this.G.stopAnimation();
+        }
     }.bind(this));
 
 
