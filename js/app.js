@@ -95,6 +95,9 @@ Boost.prototype = {
             this.G.init();
             this.G.animate();
         }.bind(this));
+        jQuery('.restart-button, .quit-button').click(function(){
+            location.reload();
+        }.bind(this));
         jQuery(window).on('keypress', function() {
             if(this.keyboard.pressed('escape')) {
                 jQuery('.pause-page').toggle();

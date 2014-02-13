@@ -14,7 +14,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.shakeAnimation = false;
     this.animator = null;
     this.lastPos = 0;
-    //this.clock = new THREE.Clock();
+    this.clock = new THREE.Clock();
 
     this.tubePieces = [];
     this.objects    = [];
@@ -691,8 +691,8 @@ GraphicInterface.prototype = {
         this.stats.begin();
         this.rendererStats.update(this.renderer);
 
-        //var delta = this.clock.getDelta(); 
-        //this.animator.update(1000 * delta);
+        var delta = this.clock.getDelta(); 
+        if(this.animator) this.animator.update(1000 * delta);
 
 
         var time = new Date().getTime();
@@ -724,15 +724,8 @@ GraphicInterface.prototype = {
             if(func) func(this.renderer);
         }.bind(this));
 
-        //this.renderer.render(this.scene, this.camera);
-        //this.renderer.clear();
-        //composerScene.render();
-        //composerScene.render();
-
-        //this.renderer.clear(); 
         //composer.render();
         //composer.render( 0.1 );
-        //cube.rotation.z += 0.01;
         this.renderer.render(this.scene, this.camera);
 
 
