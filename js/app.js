@@ -33,12 +33,13 @@ var Boost = function(conf, pathConf) {
 
 Boost.prototype = {
 
-    arrowCollisionHandler: function(){
-        this.G.setSpeed(this.G.getSpeed() + this.conf.acceleration);
+    arrowCollisionHandler: function(){        
         this.flashEffect();
         this.G.shakeCamera();
         var arrNum = ((this.G.getSpeed() - this.conf.speed)/this.conf.acceleration);
-        if (arrNum <= 3 && arrNum >= 1){            
+        if (arrNum <= 2){ 
+        this.G.setSpeed(this.G.getSpeed() + this.conf.acceleration);
+        arrNum = ((this.G.getSpeed() - this.conf.speed)/this.conf.acceleration);           
             $(".acceleration-3x").show();
             $(".acceleration-trapez").show();
             $(".acceleration-holder").show();
@@ -58,6 +59,9 @@ Boost.prototype = {
         if (this.G.getSpeed() > this.conf.speed)
         {
             $(".acceleration-3x").hide();
+            $(".second-accelerator").hide();
+            $(".first-accelerator").hide();
+            $(".third-accelerator").hide();
             this.G.shakeCamera();
             this.G.setSpeed(this.conf.speed);
         }else {
