@@ -270,7 +270,14 @@ html, body {
  text-align: center;
  height: 10px;
  width: 400px;
- 
+ }
+
+.soc-btnn {
+        opacity:0.5;
+}
+
+.soc-btnn:hover{
+        opacity:1;
 }
 
 .social-buttons li{
