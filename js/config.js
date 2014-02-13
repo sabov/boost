@@ -1,6 +1,6 @@
 var config = {
 
-    colors: [0xcb3131, 0x338eda, 0xd03ddd],
+    colors: [0xcb3131, 0x338eda, 0x00D280, 0xd03ddd, 0xFDF518, 0x9C1DFF],
 
     textureFolder: 'textures',
     textures: [
