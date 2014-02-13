@@ -6,7 +6,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.speed = 3.5;
+    this.speed = this.conf.speed;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
@@ -103,27 +103,12 @@ GraphicInterface.prototype = {
 
         this.createTube();
 
-        setInterval(function() {
-            var tex = this.textures.simple;
-            var l = this.conf.tubePieceLength;
-            if(this.distance > l * 31 ) {
-                tex = this.textures.corner;
-                console.log('now');
-            }
-            if(this.distance > l * 62 ) {
-                tex = this.textures.cornerInverted;
-            }
-            if(this.distance < l * 2) return;
-            if(this.distance > l * 26 && this.distance < l * 31) return;
-            if(this.distance > l * 56 && this.distance < l * 61) return;
-            this.generateRandomObstacle(tex);
-        }.bind(this), 1000);
-
-        //this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(455, 6, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(10, 7, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(100, 1, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(150, 6, this.textures.arrowColorSprite));
         //this.scene.add(this.createArrows(455, 0, this.textures.arrowColorSprite));
-        //this.generateRandomObstacle();
+        this.scene.add(this.createObstacle(200, 2, this.conf.colors[1]));
+        this.generateRandomObstacle();
 
         THREEx.WindowResize(this.renderer, this.camera);
     },

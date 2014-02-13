@@ -36,8 +36,9 @@ var config = {
     tubePieceLength: 200,
     numOfSegments: 12,
     textureLength: 20,
-    speed: 0,
     pathLength: 40,
+    speed: 1.5,
+    acceleration: 1.5, 
     arrowLength: 7,
     cubeHeight: 16
 };
