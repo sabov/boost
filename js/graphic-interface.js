@@ -6,7 +6,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.speed = 2.5;
+    this.speed = 3.5;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
@@ -47,8 +47,6 @@ GraphicInterface.prototype = {
         container.appendChild( this.renderer.domElement );
 
 
-
-
 /*        var width = window.innerWidth || 2;*/
         //var height = window.innerHeight || 2;
         //var effectHBlur = new THREE.ShaderPass( THREE.HorizontalBlurShader );
@@ -69,18 +67,6 @@ GraphicInterface.prototype = {
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.scene.add(this.camera);
-
-        var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
-
-        var geometry = new THREE.CubeGeometry(this.conf.cubeHeight, width, this.conf.textureLength);
-
-        var material = new THREE.MeshBasicMaterial( {
-            color: 0xAA9988
-        });
-
-        var obj = new THREE.Mesh( geometry, material );
-        this.scene.add(obj);
-
 
         //hblur = new THREE.ShaderPass( THREE.ShaderExtras[ "horizontalTiltShift" ] );
         //vblur = new THREE.ShaderPass( THREE.ShaderExtras[ "verticalTiltShift" ] );
@@ -110,7 +96,28 @@ GraphicInterface.prototype = {
         composer.addPass( hblur );
         composer.addPass( vblur );
 
+        //cube = this.createCube(this.conf.colors[0], this.textures.simple);
+        //this.setCubePosiotion(cube, 3, 6);
+        //this.scene.add(this.createPath(3, 5, this.conf.colors[2], this.textures.simple));
+        //this.scene.add(cube);
+
         this.createTube();
+
+        setInterval(function() {
+            var tex = this.textures.simple;
+            var l = this.conf.tubePieceLength;
+            if(this.distance > l * 31 ) {
+                tex = this.textures.corner;
+                console.log('now');
+            }
+            if(this.distance > l * 62 ) {
+                tex = this.textures.cornerInverted;
+            }
+            if(this.distance < l * 2) return;
+            if(this.distance > l * 26 && this.distance < l * 31) return;
+            if(this.distance > l * 56 && this.distance < l * 61) return;
+            this.generateRandomObstacle(tex);
+        }.bind(this), 1000);
 
         //this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
         //this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
@@ -120,11 +127,11 @@ GraphicInterface.prototype = {
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
-    generateRandomObstacle: function() {
+    generateRandomObstacle: function(texture) {
         var radialPos = Math.floor(Math.random() * 12);
-        var pos = Math.round(this.distance / this.conf.textureLength) + Math.floor(Math.random() * 10);
+        var pos = Math.round(this.distance / this.conf.textureLength) - Math.floor(Math.random() * 10);
         var color = Math.floor(Math.random() * 3);
-        this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color]));
+        this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color], texture));
     },
     initTextures: function() {
         this.textures = [];
@@ -151,13 +158,25 @@ GraphicInterface.prototype = {
         return camera;
     },
     createTube: function(spline) {
-        for(var i = 0; i < 30; i++) {
-            //var m = i % 2 === 0?  this.textures.simple : this.textures.corner;
-            var tubePiece = this.createTubePiece(i, this.textures.corner);
+        var i = 0;
+        var tubePiece;
+        while(i < 30) {
+            tubePiece = this.createTubePiece(i++, this.textures.simple, 0xFFFFFF);
             this.scene.add(tubePiece);
         }
+        this.scene.add(this.createTubePiece(i++, this.textures.inverted, 0x000000));
+        this.scene.add(this.createTubePiece(i++, this.textures.inverted, 0x000000));
+        while(i < 62) {
+            tubePiece = this.createTubePiece(i++, this.textures.corner, 0xFFFFFF);
+            this.scene.add(tubePiece);
+        }
+        while(i < 92) {
+            tubePiece = this.createTubePiece(i++, this.textures.cornerInverted, 0x000000);
+            this.scene.add(tubePiece);
+        }
+
     },
-    createTubePiece: function(num, map) {
+    createTubePiece: function(num, map, color) {
 
         var segments = this.conf.tubePieceLength / this.conf.textureLength;
 
@@ -172,7 +191,7 @@ GraphicInterface.prototype = {
 
         map.repeat.set( 10, 12 );
         var uniforms = {
-            color:     { type: "c", value: new THREE.Color(0xFFFFFF) },
+            color:     { type: "c", value: new THREE.Color(color) },
             highlight: { type: "f", value: 1.0 },
             texture:   { type: "t", value: map },
             uvScale:   { type: "v2", value: new THREE.Vector2(segments, this.conf.numOfSegments) }
@@ -195,15 +214,15 @@ GraphicInterface.prototype = {
 
         return new THREE.Mesh( geometry, material );
     },
-    createObstacle: function(position, radialPos, color, type) {
+    createObstacle: function(position, radialPos, color, texture, type) {
         type = type || 'cube';
         group = new THREE.Object3D();
         var types = {
             cube: function() {
-                var cube = this.createCube(color, this.textures.simple);
+                var cube = this.createCube(color, texture);
                 this.setCubePosiotion(cube, position + this.conf.pathLength, radialPos);
                 group.add(cube);
-                group.add(this.createPath(position, radialPos, color, this.textures.simple));
+                group.add(this.createPath(position, radialPos, color, texture));
                 return group;
             },
             pillar: function() {
@@ -675,11 +694,6 @@ GraphicInterface.prototype = {
         var radians = angleToRadians(this.cameraAngle);
 
         this.globalTime += delta * 0.0006;
-        if(this.distance % 50 === 0){
-            //this.generateRandomObstacle();
-            //this.generateRandomObstacle();
-            //this.generateRandomObstacle();
-        }
 
         this.distance += this.speed;
         var u = this.distance / this.path.getLength();
@@ -705,8 +719,9 @@ GraphicInterface.prototype = {
 
         //this.renderer.clear(); 
         //composer.render();
-        composer.render( 0.1 );
-        //this.renderer.render(this.scene, this.camera);
+        //composer.render( 0.1 );
+        //cube.rotation.z += 0.01;
+        this.renderer.render(this.scene, this.camera);
 
 
         this.stats.end();

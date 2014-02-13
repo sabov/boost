@@ -20,6 +20,11 @@ var config = {
             repeat: true
         },
         {
+            name: 'cornerInverted',
+            file: 'level-4.png',
+            repeat: true
+        },
+        {
             name:   'arrowColorSprite',
             file:   'arrow.png',
             repeat: true
@@ -32,7 +37,7 @@ var config = {
     numOfSegments: 12,
     textureLength: 20,
     speed: 0,
-    pathLength: 20,
+    pathLength: 40,
     arrowLength: 7,
     cubeHeight: 16
 };
