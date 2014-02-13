@@ -37,7 +37,7 @@ var config = {
     numOfSegments: 12,
     textureLength: 20,
     pathLength: 40,
-    speed: 1.5,
+    speed: 3,
     acceleration: 1.5, 
     arrowLength: 7,
     cubeHeight: 16

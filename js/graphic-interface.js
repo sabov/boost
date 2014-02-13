@@ -6,7 +6,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.speed = 3;
+    this.speed = this.conf.speed;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
@@ -14,7 +14,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.shakeAnimation = false;
     this.animator = null;
     this.lastPos = 0;
-    //this.clock = new THREE.Clock();
+    this.clock = new THREE.Clock();
 
     this.tubePieces = [];
     this.objects    = [];
@@ -106,13 +106,13 @@ GraphicInterface.prototype = {
         this.createTube();
         this.generateObstacles(1000);
 
+        setInterval(function() {
+            this.generateArrows();
+        }.bind(this), 5000);
         
 
-        //this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(455, 6, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(455, 0, this.textures.arrowColorSprite));
-        //this.generateRandomObstacle();
+        //this.scene.add(this.createArrows(155, 6, this.textures.arrowColorSprite));
+        //this.scene.add(this.createArrows(155, 0, this.textures.arrowColorSprite));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -139,9 +139,14 @@ GraphicInterface.prototype = {
         if(pos === this.lastPos) {
             this.lastPos = ++pos;
         }
-        console.log([pos, radialPos]);
         var color = Math.floor(Math.random() * 3);
         this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color], texture));
+    },
+    generateArrows: function() {
+        var radialPos = Math.floor(Math.random() * 4) + 1;
+        var pos = Math.round(this.distance / this.conf.textureLength) + 40;
+        this.scene.add(this.createArrows(pos, radialPos, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(pos, radialPos + 6, this.textures.arrowColorSprite));
     },
     initTextures: function() {
         this.textures = [];
@@ -206,14 +211,6 @@ GraphicInterface.prototype = {
             texture:   { type: "t", value: map },
             uvScale:   { type: "v2", value: new THREE.Vector2(segments, this.conf.numOfSegments) }
         };
-
-
-        //var material = new THREE.MeshBasicMaterial( {
-            //color: 0xFFFFFF,
-            //map: map,
-            //transparent: true,
-            //side:THREE.BackSide
-        //});
 
         var material = new THREE.ShaderMaterial({
             uniforms:       uniforms,
@@ -626,12 +623,6 @@ GraphicInterface.prototype = {
         });
     },
     setupStats: function() {
-        this.rendererStats = new THREEx.RendererStats();
-        $(this.rendererStats.domElement).css({
-            position: 'absolute',
-            left: '0px',
-            bottom: '0px'
-        }).appendTo($('body'));
 
         this.stats = new Stats();
         this.stats.setMode(0); // 0: fps, 1: ms
@@ -693,10 +684,9 @@ GraphicInterface.prototype = {
     render: function() {
 
         this.stats.begin();
-        this.rendererStats.update(this.renderer);
 
-        //var delta = this.clock.getDelta(); 
-        //this.animator.update(1000 * delta);
+        var delta = this.clock.getDelta(); 
+        if(this.animator) this.animator.update(1000 * delta);
 
 
         var time = new Date().getTime();
@@ -728,15 +718,8 @@ GraphicInterface.prototype = {
             if(func) func(this.renderer);
         }.bind(this));
 
-        //this.renderer.render(this.scene, this.camera);
-        //this.renderer.clear();
-        //composerScene.render();
-        //composerScene.render();
-
-        //this.renderer.clear(); 
         //composer.render();
         //composer.render( 0.1 );
-        //cube.rotation.z += 0.01;
         this.renderer.render(this.scene, this.camera);
 
 

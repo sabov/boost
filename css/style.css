@@ -138,6 +138,7 @@ html, body {
 
 .restart-button
 {
+   cursor: pointer;
    position: absolute;
    left: 40%;
    width: 200px;
@@ -148,6 +149,7 @@ html, body {
 
 .quit-button
 {
+   cursor: pointer;
    position: absolute;
    left: 60%;
    width: 200px;

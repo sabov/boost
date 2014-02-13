@@ -38,7 +38,6 @@ Boost.prototype = {
         this.flashEffect();
         this.G.shakeCamera();
         var arrNum = ((this.G.getSpeed() - this.conf.speed)/this.conf.acceleration);
-        console.log("arr num is:" + arrNum);
         if (arrNum <= 3 && arrNum >= 1){            
             $(".acceleration-3x").show();
             $(".acceleration-trapez").show();
@@ -48,7 +47,6 @@ Boost.prototype = {
             } else if (arrNum == 2){            
                 $(".second-accelerator").show();
             } else $(".third-accelerator").show();
-            
         }        
         setTimeout(function(){
             this.G.onArrowCollisions(this.arrowCollisionHandler.bind(this));
@@ -98,6 +96,9 @@ Boost.prototype = {
             jQuery('.start-page').hide();
             this.G.init();
             this.G.animate();
+        }.bind(this));
+        jQuery('.restart-button, .quit-button').click(function(){
+            location.reload();
         }.bind(this));
         jQuery(window).on('keypress', function() {
             if(this.keyboard.pressed('escape')) {
