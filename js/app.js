@@ -105,7 +105,7 @@ Boost.prototype = {
         jQuery('.restart-button, .quit-button').click(function(){
             location.reload();
         }.bind(this));
-        jQuery(window).on('keypress', function() {
+        jQuery(window).on('keydown', function(e) {
             if(this.keyboard.pressed('escape')) {
                 jQuery('.pause-page').toggle();
                 this.G.toggleAnimation();

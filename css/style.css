@@ -388,6 +388,7 @@ html, body {
     font-size: 50pt;
     color: #EEEEEE;
     bottom: 15px;
+    padding: 10px;
     left: 25px;
     text-shadow: -4px 4px 3px rgba(0, 0, 0, 1);
 }
