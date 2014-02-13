@@ -6,17 +6,27 @@ var config = {
     textures: [
         {
             name:   'simple',
-            file:   'mask.png',
+            file:   'level-1.png',
             repeat: true
         },
         {
             name:   'corner',
-            file:   'sq.jpg',
+            file:   'level-2.png',
+            repeat: true
+        },
+        {
+            name: 'inverted',
+            file: 'level-3.png',
+            repeat: true
+        },
+        {
+            name: 'cornerInverted',
+            file: 'level-4.png',
             repeat: true
         },
         {
             name:   'arrowColorSprite',
-            file:   'arrow2.png',
+            file:   'arrow.png',
             repeat: true
         }
     ],
@@ -26,8 +36,9 @@ var config = {
     tubePieceLength: 200,
     numOfSegments: 12,
     textureLength: 20,
-    speed: 0,
-    pathLength: 20,
+    pathLength: 40,
+    speed: 3,
+    acceleration: 1.5, 
     arrowLength: 7,
     cubeHeight: 16
 };

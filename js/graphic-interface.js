@@ -6,13 +6,14 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.speed = 1.5;
+    this.speed = this.conf.speed;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
     this.flashEffect = false;
     this.shakeAnimation = false;
     this.animator = null;
+    this.lastPos = 0;
     this.clock = new THREE.Clock();
 
     this.tubePieces = [];
@@ -46,27 +47,88 @@ GraphicInterface.prototype = {
         document.body.appendChild( container );
         container.appendChild( this.renderer.domElement );
 
+        this.SCREEN_WIDTH = window.innerWidth;
+        this.SCREEN_HEIGHT = window.innerHeight;
+
         var conf = this.conf;
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.scene.add(this.camera);
 
-        this.createTube();
+        var hblur = new THREE.ShaderPass( THREE.HorizontalTiltShiftShader );
+        var vblur = new THREE.ShaderPass( THREE.VerticalTiltShiftShader);
 
-        this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
-        this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
-        this.scene.add(this.createArrows(455, 6, this.textures.arrowColorSprite));
-        this.scene.add(this.createArrows(455, 0, this.textures.arrowColorSprite));
-        this.generateRandomObstacle();
+        this.hblur = hblur;
+        this.vblur = vblur;
+
+        this.blurEffects = [hblur, vblur];
+
+        var bluriness = 22;
+
+        hblur.uniforms.h.value = bluriness / this.SCREEN_WIDTH;
+        vblur.uniforms.v.value = bluriness / this.SCREEN_HEIGHT;
+        hblur.uniforms.r.value = vblur.uniforms.r.value = 0.55;
+
+        var renderModel = new THREE.RenderPass( this.scene, this.camera );
+
+        vblur.enabled = false;
+        hblur.enabled = false;
+
+        var effectVignette = new THREE.ShaderPass( THREE.VignetteShader );
+        effectVignette.uniforms[ "offset" ].value = 1.05;
+        effectVignette.uniforms[ "darkness" ].value = 1;
+        effectVignette.renderToScreen = true;
+
+        composer = new THREE.EffectComposer( this.renderer);
+
+        edgeEffect2 = new THREE.ShaderPass( THREE.EdgeShader2 );
+        edgeEffect2.uniforms[ 'aspect' ].value.x = window.innerWidth;
+        edgeEffect2.uniforms[ 'aspect' ].value.y = window.innerHeight;
+
+        composer.addPass( renderModel );
+        composer.addPass( hblur );
+        composer.addPass( vblur );
+        composer.addPass( effectVignette);
+
+        this.createTube();
+        this.generateObstacles(1000);
+
+        setInterval(function() {
+            this.generateArrows();
+        }.bind(this), 5000);
+        
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
-    generateRandomObstacle: function() {
-        var radialPos = Math.floor(Math.random() * 12);
-        var pos = Math.round(this.distance / this.conf.textureLength) + Math.floor(Math.random() * 10);
+    generateObstacles: function(time) {
+        setTimeout(this.generateObstacles.bind(this, time*0.99 ), time);
+        var tex = this.textures.simple;
+        var l = this.conf.tubePieceLength;
+        if(this.distance > l * 31 ) {
+            tex = this.textures.corner;
+        }
+        if(this.distance > l * 62 ) {
+            tex = this.textures.cornerInverted;
+        }
+        if(this.distance < l * 2) return;
+        if(this.distance > l * 26 && this.distance < l * 31) return;
+        if(this.distance > l * 56 && this.distance < l * 62) return;
+        this.generateRandomObstacle(tex);
+    },
+    generateRandomObstacle: function(texture) {
+        var radialPos = Math.floor(Math.random() * 11) - 1;
+        var pos = Math.round(this.distance / this.conf.textureLength) - Math.floor(Math.random() * 10);
+        if(pos === this.lastPos) {
+            this.lastPos = ++pos;
+        }
         var color = Math.floor(Math.random() * 3);
-        console.log([radialPos, pos, color]);
-        this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color]));
+        this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color], texture));
+    },
+    generateArrows: function() {
+        var radialPos = Math.floor(Math.random() * 4) + 1;
+        var pos = Math.round(this.distance / this.conf.textureLength) + 40;
+        this.scene.add(this.createArrows(pos, radialPos, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(pos, radialPos + 6, this.textures.arrowColorSprite));
     },
     initTextures: function() {
         this.textures = [];
@@ -89,15 +151,29 @@ GraphicInterface.prototype = {
 
     createCamera: function() {
         var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
+        //var camera = new THREE.Camera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
         return camera;
     },
     createTube: function(spline) {
-        for(var i = 0; i < 30; i++) {
-            //var m = i % 2 === 0?  this.textures.simple : this.textures.corner;
-            this.scene.add(this.createTubePiece(i, this.textures.simple));
+        var i = 0;
+        var tubePiece;
+        while(i < 30) {
+            tubePiece = this.createTubePiece(i++, this.textures.simple, 0xFFFFFF);
+            this.scene.add(tubePiece);
         }
+        this.scene.add(this.createTubePiece(i++, this.textures.inverted, 0x000000));
+        this.scene.add(this.createTubePiece(i++, this.textures.inverted, 0x000000));
+        while(i < 62) {
+            tubePiece = this.createTubePiece(i++, this.textures.corner, 0xFFFFFF);
+            this.scene.add(tubePiece);
+        }
+        while(i < 92) {
+            tubePiece = this.createTubePiece(i++, this.textures.cornerInverted, 0x000000);
+            this.scene.add(tubePiece);
+        }
+
     },
-    createTubePiece: function(num, map) {
+    createTubePiece: function(num, map, color) {
 
         var segments = this.conf.tubePieceLength / this.conf.textureLength;
 
@@ -110,8 +186,9 @@ GraphicInterface.prototype = {
             this.conf.numOfSegments
         );
 
+        map.repeat.set( 10, 12 );
         var uniforms = {
-            color:     { type: "c", value: new THREE.Color(0xFFFFFF) },
+            color:     { type: "c", value: new THREE.Color(color) },
             highlight: { type: "f", value: 1.0 },
             texture:   { type: "t", value: map },
             uvScale:   { type: "v2", value: new THREE.Vector2(segments, this.conf.numOfSegments) }
@@ -126,15 +203,15 @@ GraphicInterface.prototype = {
 
         return new THREE.Mesh( geometry, material );
     },
-    createObstacle: function(position, radialPos, color, type) {
+    createObstacle: function(position, radialPos, color, texture, type) {
         type = type || 'cube';
         group = new THREE.Object3D();
         var types = {
             cube: function() {
-                var cube = this.createCube(color, this.textures.simple);
+                var cube = this.createCube(color, texture);
                 this.setCubePosiotion(cube, position + this.conf.pathLength, radialPos);
                 group.add(cube);
-                group.add(this.createPath(position, radialPos, color, this.textures.simple));
+                group.add(this.createPath(position, radialPos, color, texture));
                 return group;
             },
             pillar: function() {
@@ -207,6 +284,9 @@ GraphicInterface.prototype = {
 
         cube.rotateZ(Math.PI / 12 + Math.PI / 6 * radialPos);
 
+        if(radialPos < 0) {
+            radialPos = 12 + radialPos;
+        }
         this.objects.push({
             type:      'cube',
             uniforms:  cube.material.uniforms,
@@ -280,6 +360,9 @@ GraphicInterface.prototype = {
             side:           THREE.BackSide
         });
 
+        if(radialPos < 0) {
+            radialPos = 12 + radialPos;
+        }
         this.objects.push({
             type:      'path',
             uniforms:  uniforms,
@@ -497,23 +580,33 @@ GraphicInterface.prototype = {
     },
     shakeCamera: function(callback) {
         var i = 0;
+        this.blurEffects.forEach(function(ef) {
+            ef.enabled = true;
+        });
         var index = this.onRender(function() {
             var u = this.distance / this.path.getLength();
-            var shift = Math.sin(i * 7) * 15 * Math.exp(-i * 0.7);
-            this.cameraTarget = this.getPositionAt(u + 0.01, this.conf.cameraRadius + shift, this.cameraAngle);
+            var shift = Math.sin(i * 7) * 5 * Math.exp(-i * 0.7);
+            this.cameraTarget = this.getPositionAt(u + 0.001, this.conf.cameraRadius + shift, this.cameraAngle);
             this.camera.lookAt(this.cameraTarget);
-            var sign = shift/Math.abs(shift);
-            shift = -sign * (Math.abs(shift) - 0.1);
+            var bluriness = 22-i*2;
+
+            this.hblur.uniforms.h.value = bluriness / this.SCREEN_WIDTH;
+            this.vblur.uniforms.v.value = bluriness / this.SCREEN_HEIGHT;
+
             i += 0.1;
             if(i > 10) {
                 if(callback) callback();
+
+                this.blurEffects.forEach(function(ef) {
+                    ef.enabled = false;
+                });
                 this.removeOnRenderHandler(index);
             }
         }.bind(this));
     },
     highlightLine: function(radialPos) {
         this.objects.forEach(function(object) {
-            if(object.radialPos === radialPos && 
+            if((object.radialPos === radialPos) && 
                (object.type === 'cube' || object.type === 'path')) {
                 if(object.uniforms) object.uniforms.highlight.value = 2.0;
             } else {
@@ -522,12 +615,6 @@ GraphicInterface.prototype = {
         });
     },
     setupStats: function() {
-        this.rendererStats = new THREEx.RendererStats();
-        $(this.rendererStats.domElement).css({
-            position: 'absolute',
-            left: '0px',
-            bottom: '0px'
-        }).appendTo($('body'));
 
         this.stats = new Stats();
         this.stats.setMode(0); // 0: fps, 1: ms
@@ -589,10 +676,9 @@ GraphicInterface.prototype = {
     render: function() {
 
         this.stats.begin();
-        this.rendererStats.update(this.renderer);
 
         var delta = this.clock.getDelta(); 
-        this.animator.update(1000 * delta);
+        if(this.animator) this.animator.update(1000 * delta);
 
 
         var time = new Date().getTime();
@@ -606,11 +692,6 @@ GraphicInterface.prototype = {
         var radians = angleToRadians(this.cameraAngle);
 
         this.globalTime += delta * 0.0006;
-        if(this.distance % 50 === 0){
-            this.generateRandomObstacle();
-            this.generateRandomObstacle();
-            this.generateRandomObstacle();
-        }
 
         this.distance += this.speed;
         var u = this.distance / this.path.getLength();
@@ -629,7 +710,10 @@ GraphicInterface.prototype = {
             if(func) func(this.renderer);
         }.bind(this));
 
-        this.renderer.render(this.scene, this.camera);
+        composer.render( 0.1 );
+        //this.renderer.render(this.scene, this.camera);
+
+
         this.stats.end();
     }
 };

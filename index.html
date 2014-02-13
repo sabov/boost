@@ -16,6 +16,16 @@
     <script type="text/javascript" src="bower_components/threex.keyboardstate/threex.keyboardstate.js"></script>
     <script type="text/javascript" src="bower_components/threex.rendererstats/threex.rendererstats.js"></script>
 
+
+    <script type="text/javascript" src="bower_components/threejs-examples/examples/js/postprocessing/EffectComposer.js"></script>
+    <script type="text/javascript" src="bower_components/threejs-examples/examples/js/postprocessing/RenderPass.js"></script>
+    <script type="text/javascript" src="bower_components/threejs-examples/examples/js/postprocessing/BloomPass.js"></script>
+    <script type="text/javascript" src="bower_components/threejs-examples/examples/js/postprocessing/DotScreenPass.js"></script>
+    <script type="text/javascript" src="bower_components/threejs-examples/examples/js/postprocessing/ShaderPass.js"></script>
+    <script type="text/javascript" src="bower_components/threejs-examples/examples/js/postprocessing/TexturePass.js"></script>
+    <script type="text/javascript" src="bower_components/threejs-examples/examples/js/postprocessing/SavePass.js"></script>
+    <script type="text/javascript" src="bower_components/threejs-examples/examples/js/postprocessing/MaskPass.js"></script>
+
     <!--     Extras     -->
     <script type="text/javascript" src="js/tube-piece-geometry.js"></script>
     <script type="text/javascript" src="js/tube-plane-geometry.js"></script>
@@ -29,11 +39,22 @@
     <script type="text/javascript" src="js/app.js"></script>
 
     <!--    Shaders    -->
+    <script src="bower_components/threejs-examples/examples/js/shaders/HorizontalBlurShader.js"></script>
+    <script src="bower_components/threejs-examples/examples/js/shaders/VerticalBlurShader.js"></script>
+    <script src="bower_components/threejs-examples/examples/js/shaders/HorizontalTiltShiftShader.js"></script>
+    <script src="bower_components/threejs-examples/examples/js/shaders/VerticalTiltShiftShader.js"></script>
+    <script src="bower_components/threejs-examples/examples/js/shaders/CopyShader.js"></script>
+    <script src="bower_components/threejs-examples/examples/js/shaders/BlendShader.js"></script>
+    <script src="bower_components/threejs-examples/examples/js/shaders/EdgeShader2.js"></script>
+    <script src="bower_components/threejs-examples/examples/js/shaders/EdgeShader.js"></script>
+    <script src="bower_components/threejs-examples/examples/js/shaders/VignetteShader.js"></script>
+
     <script type="x-shader/x-vertex" data-name="commonShader" data-src="shaders/common.vsh"></script>
     <script type="x-shader/x-fragment" data-name="commonShader" data-src="shaders/common.fsh" ></script>
 
     <link rel="stylesheet" href="css/style.css">
     <link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="http://vk.com/js/api/share.js?90" charset="windows-1251"></script>
 </head>
 <body>
     <section class="page start-page">
@@ -41,14 +62,31 @@
             <div class="first-row row"></div>    
             <div class="second-row row"></div>
             
-            <div class="title-holder">
-                <div class="title title-shadow">
+            <div class="title-holder title">
+                <div class=" title-shadow">
                        boost
                 </div>
-                <div class="title title-gradient">
+                <div class="title-gradient">
                        boost
-                </div>
+                </div>  
+                
+                
             </div>
+
+            <ul class="social-buttons">
+
+                <li>
+                    <div class="vk-share-button soc-btnn">
+                    <script type="text/javascript"><!--
+            document.write(VK.Share.button(false,{type: "round_nocount", text: "Share"}));
+                --></script>
+            </div>
+            </li>
+                    <li><a href="https://twitter.com/share" class="soc-btnn twitter-share-button" data-dnt="true" data-count="none">Tweet</a></li>
+                    
+                    <li><div class="fb-share-button soc-btnn" data-href="http://developers.facebook.com/docs/plugins/" data-type="button" data="share"></div></li>
+                    
+            <ul>
         </div> 
 
 
@@ -60,7 +98,8 @@
             <div class="info-holder">
                 <div class="info left-info">
                 <a href="https://github.com/sabov/boost" target="_blank">Project on Github</a>
-                </div>
+                </div>             
+
                 <div class="info right-info">
                 Inspired by
                     <a href="http://jonathanlanis.com"
@@ -110,16 +149,7 @@
                     target="_blank">Boost2</a> 
                 </div>
             </div>
-        </div>
-
-        <div class="acceleration-3x">
-            <div class="acceleration-trapez"></div>
-            <div class="acceleration-holder">
-                <img class="first-accelerator" src="img/accelerationRow.png">
-                <img class="second-accelerator" src="img/accelerationRow.png">
-                <img class="third-accelerator" src="img/accelerationRow.png">
-            </div>
-        </div>
+        </div>       
     </section>
 
 
@@ -161,14 +191,6 @@
             </div>
         </div>
 
-        <div class="acceleration-3x">
-            <div class="acceleration-trapez"></div>
-            <div class="acceleration-holder">
-                <img class="first-accelerator" src="img/accelerationRow.png">
-                <img class="second-accelerator" src="img/accelerationRow.png">
-                <img class="third-accelerator" src="img/accelerationRow.png">
-            </div>
-        </div>
     </section>
 
     <section class="page browser-page">
@@ -220,6 +242,51 @@
     <div class="flash">
     </div>
 
+     <div class="acceleration-3x">
+            <div class="acceleration-trapez"></div>
+            <div class="acceleration-holder">
+                <img class="first-accelerator" src="img/accelerationRow.png">
+                <img class="second-accelerator" src="img/accelerationRow.png">
+                <img class="third-accelerator" src="img/accelerationRow.png">
+            </div>
+        </div>
+
+    <div class="counter">        
+    </div>  
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+
+<div id="fb-root"></div>
+<script>
+ (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/uk_UA/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script type="text/javascript">
+  window.___gcfg = {lang: 'en-GB'};
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/platform.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+
+<!-- Google Analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48040791-1', 'sabov.github.io');
+  ga('send', 'pageview');
+
+</script>
 </body>
 </html>
 
