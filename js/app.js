@@ -96,6 +96,7 @@ Boost.prototype = {
             jQuery('.start-page').hide();
             this.G.init();
             this.G.animate();
+            $(".counter").show();
         }.bind(this));
         jQuery('.restart-button, .quit-button').click(function(){
             location.reload();
