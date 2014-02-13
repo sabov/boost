@@ -622,12 +622,6 @@ GraphicInterface.prototype = {
         });
     },
     setupStats: function() {
-        this.rendererStats = new THREEx.RendererStats();
-        $(this.rendererStats.domElement).css({
-            position: 'absolute',
-            left: '0px',
-            bottom: '0px'
-        }).appendTo($('body'));
 
         this.stats = new Stats();
         this.stats.setMode(0); // 0: fps, 1: ms
@@ -689,7 +683,6 @@ GraphicInterface.prototype = {
     render: function() {
 
         this.stats.begin();
-        this.rendererStats.update(this.renderer);
 
         var delta = this.clock.getDelta(); 
         if(this.animator) this.animator.update(1000 * delta);
