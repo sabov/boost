@@ -267,11 +267,9 @@ html, body {
 .social-buttons{
  position: absolute;
  top: 5px;
- left : 100%;
- margin-left: -410px;
+ right: 0;
  text-align: center;
- height: 10px;
- width: 400px;
+ padding: 0 20px;
  }
 
 .soc-btnn {
