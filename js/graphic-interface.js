@@ -6,13 +6,14 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.speed = this.conf.speed;
+    this.speed = 3;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
     this.flashEffect = false;
     this.shakeAnimation = false;
     this.animator = null;
+    this.lastPos = 0;
     //this.clock = new THREE.Clock();
 
     this.tubePieces = [];
@@ -102,19 +103,42 @@ GraphicInterface.prototype = {
         //this.scene.add(cube);
 
         this.createTube();
+        this.generateObstacles(1000);
 
-        this.scene.add(this.createArrows(10, 7, this.textures.arrowColorSprite));
-        this.scene.add(this.createArrows(100, 1, this.textures.arrowColorSprite));
-        this.scene.add(this.createArrows(150, 6, this.textures.arrowColorSprite));
+        
+
+        //this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
+        //this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
+        //this.scene.add(this.createArrows(455, 6, this.textures.arrowColorSprite));
         //this.scene.add(this.createArrows(455, 0, this.textures.arrowColorSprite));
-        this.scene.add(this.createObstacle(200, 2, this.conf.colors[1]));
-        this.generateRandomObstacle();
+        //this.generateRandomObstacle();
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
+    generateObstacles: function(time) {
+        setTimeout(this.generateObstacles.bind(this, time*0.99 ), time);
+        var tex = this.textures.simple;
+        console.log(time);
+        var l = this.conf.tubePieceLength;
+        if(this.distance > l * 31 ) {
+            tex = this.textures.corner;
+            console.log('now');
+        }
+        if(this.distance > l * 62 ) {
+            tex = this.textures.cornerInverted;
+        }
+        if(this.distance < l * 2) return;
+        if(this.distance > l * 26 && this.distance < l * 31) return;
+        if(this.distance > l * 56 && this.distance < l * 62) return;
+        this.generateRandomObstacle(tex);
+    },
     generateRandomObstacle: function(texture) {
-        var radialPos = Math.floor(Math.random() * 12);
+        var radialPos = Math.floor(Math.random() * 11) - 1;
         var pos = Math.round(this.distance / this.conf.textureLength) - Math.floor(Math.random() * 10);
+        if(pos === this.lastPos) {
+            this.lastPos = ++pos;
+        }
+        console.log([pos, radialPos]);
         var color = Math.floor(Math.random() * 3);
         this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color], texture));
     },
@@ -280,6 +304,9 @@ GraphicInterface.prototype = {
 
         cube.rotateZ(Math.PI / 12 + Math.PI / 6 * radialPos);
 
+        if(radialPos < 0) {
+            radialPos = 12 + radialPos;
+        }
         this.objects.push({
             type:      'cube',
             uniforms:  cube.material.uniforms,
@@ -353,6 +380,9 @@ GraphicInterface.prototype = {
             side:           THREE.BackSide
         });
 
+        if(radialPos < 0) {
+            radialPos = 12 + radialPos;
+        }
         this.objects.push({
             type:      'path',
             uniforms:  uniforms,
@@ -586,7 +616,7 @@ GraphicInterface.prototype = {
     },
     highlightLine: function(radialPos) {
         this.objects.forEach(function(object) {
-            if(object.radialPos === radialPos && 
+            if((object.radialPos === radialPos) && 
                (object.type === 'cube' || object.type === 'path')) {
                 if(object.uniforms) object.uniforms.highlight.value = 2.0;
             } else {
