@@ -121,7 +121,7 @@ GraphicInterface.prototype = {
         if(pos === this.lastPos) {
             this.lastPos = ++pos;
         }
-        var color = Math.floor(Math.random() * 3);
+        var color = Math.floor(Math.random() * 6);
         this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color], texture));
     },
     generateArrows: function() {
