@@ -588,8 +588,6 @@ GraphicInterface.prototype = {
             var shift = Math.sin(i * 7) * 5 * Math.exp(-i * 0.7);
             this.cameraTarget = this.getPositionAt(u + 0.001, this.conf.cameraRadius + shift, this.cameraAngle);
             this.camera.lookAt(this.cameraTarget);
-            var sign = shift/Math.abs(shift);
-            shift = -sign * (Math.abs(shift) - 0.1);
             var bluriness = 22-i*2;
 
             this.hblur.uniforms.h.value = bluriness / this.SCREEN_WIDTH;

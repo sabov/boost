@@ -1,5 +1,6 @@
 var Boost = function(conf, pathConf) {
     this.conf = conf;
+    this.gameOver = false;
     var dropSpeed = false;
     this.shift = 0;
     this.G = new GraphicInterface(conf, pathConf, function() {
@@ -66,6 +67,7 @@ Boost.prototype = {
             this.G.setSpeed(this.conf.speed);
         }else {
         jQuery('.game-over-page').show().animate({'opacity':  '1'}, 1000);
+        this.gameOver = true;
         this.G.shakeCamera(function() {
             this.G.stopAnimation();
         }.bind(this));
@@ -106,7 +108,7 @@ Boost.prototype = {
             location.reload();
         }.bind(this));
         jQuery(window).on('keydown', function(e) {
-            if(this.keyboard.pressed('escape')) {
+            if(this.keyboard.pressed('escape') && !this.gameOver) {
                 jQuery('.pause-page').toggle();
                 this.G.toggleAnimation();
             }
