@@ -35,3 +35,15 @@ If you have problems with this command, please, install [Node.js](http://nodejs.
 
 **Or** you can use ```gh-pages``` branch with all dependencies inside.
 
+After installation you should setup virtual host in Apache (or other web
+server).
+
+### Browser requirements
+
+You should use only **latest** Google Chrome or Mozilla Firefox browser.
+Tested in:
+
+* Chrome Version 32.0.1700.107
+* Mozilla FireFox Version 26.0
+
+Mac OS and Windows7
