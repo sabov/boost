@@ -6,7 +6,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.speed = 5.5;
+    this.speed = 2.5;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
@@ -101,7 +101,12 @@ GraphicInterface.prototype = {
 
         composer = new THREE.EffectComposer( this.renderer);
 
+        edgeEffect2 = new THREE.ShaderPass( THREE.EdgeShader2 );
+        edgeEffect2.uniforms[ 'aspect' ].value.x = window.innerWidth;
+        edgeEffect2.uniforms[ 'aspect' ].value.y = window.innerHeight;
+
         composer.addPass( renderModel );
+        //composer.addPass( edgeEffect2 );
         composer.addPass( hblur );
         composer.addPass( vblur );
 
