@@ -40,7 +40,6 @@ var GraphicInterface = function(conf, pathConf, onError) {
 
 GraphicInterface.prototype = {
     init: function(){
-        $(".counter").show();
 
         this.setupStats();
 
@@ -48,44 +47,37 @@ GraphicInterface.prototype = {
         document.body.appendChild( container );
         container.appendChild( this.renderer.domElement );
 
-
-/*        var width = window.innerWidth || 2;*/
-        //var height = window.innerHeight || 2;
-        //var effectHBlur = new THREE.ShaderPass( THREE.HorizontalBlurShader );
-        //var effectVBlur = new THREE.ShaderPass( THREE.VerticalBlurShader );
-        //effectVBlur.renderToScreen = true;
-        //var rtParameters = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBFormat, stencilBuffer: true };
-        //effectHBlur.uniforms.h.value = 2 / ( width / 2 );
-        //effectVBlur.uniforms.v.value = 2 / ( height / 2 );
-        //composerScene = new THREE.EffectComposer( this.renderer);
-        //composerScene.addPass( effectHBlur );
-        //composerScene.addPass( effectVBlur );
-        ////renderScene = new THREE.TexturePass( composerScene.renderTarget2 );
-
-        var SCREEN_WIDTH = window.innerWidth;
-        var SCREEN_HEIGHT = window.innerHeight;
+        this.SCREEN_WIDTH = window.innerWidth;
+        this.SCREEN_HEIGHT = window.innerHeight;
 
         var conf = this.conf;
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.scene.add(this.camera);
 
-        //hblur = new THREE.ShaderPass( THREE.ShaderExtras[ "horizontalTiltShift" ] );
-        //vblur = new THREE.ShaderPass( THREE.ShaderExtras[ "verticalTiltShift" ] );
+        var hblur = new THREE.ShaderPass( THREE.HorizontalTiltShiftShader );
+        var vblur = new THREE.ShaderPass( THREE.VerticalTiltShiftShader);
 
-        hblur = new THREE.ShaderPass( THREE.HorizontalTiltShiftShader );
-        vblur = new THREE.ShaderPass( THREE.VerticalTiltShiftShader);
+        this.hblur = hblur;
+        this.vblur = vblur;
 
-        var bluriness = 7;
+        this.blurEffects = [hblur, vblur];
 
-        hblur.uniforms[ 'h' ].value = bluriness / SCREEN_WIDTH;
-        vblur.uniforms[ 'v' ].value = bluriness / SCREEN_HEIGHT;
-        hblur.uniforms[ 'r' ].value = vblur.uniforms[ 'r' ].value = 0.6;
+        var bluriness = 22;
 
+        hblur.uniforms.h.value = bluriness / this.SCREEN_WIDTH;
+        vblur.uniforms.v.value = bluriness / this.SCREEN_HEIGHT;
+        hblur.uniforms.r.value = vblur.uniforms.r.value = 0.55;
 
         var renderModel = new THREE.RenderPass( this.scene, this.camera );
 
-        vblur.renderToScreen = true;
+        vblur.enabled = false;
+        hblur.enabled = false;
+
+        var effectVignette = new THREE.ShaderPass( THREE.VignetteShader );
+        effectVignette.uniforms[ "offset" ].value = 1.05;
+        effectVignette.uniforms[ "darkness" ].value = 1;
+        effectVignette.renderToScreen = true;
 
         composer = new THREE.EffectComposer( this.renderer);
 
@@ -94,14 +86,9 @@ GraphicInterface.prototype = {
         edgeEffect2.uniforms[ 'aspect' ].value.y = window.innerHeight;
 
         composer.addPass( renderModel );
-        //composer.addPass( edgeEffect2 );
         composer.addPass( hblur );
         composer.addPass( vblur );
-
-        //cube = this.createCube(this.conf.colors[0], this.textures.simple);
-        //this.setCubePosiotion(cube, 3, 6);
-        //this.scene.add(this.createPath(3, 5, this.conf.colors[2], this.textures.simple));
-        //this.scene.add(cube);
+        composer.addPass( effectVignette);
 
         this.createTube();
         this.generateObstacles(1000);
@@ -111,19 +98,14 @@ GraphicInterface.prototype = {
         }.bind(this), 5000);
         
 
-        //this.scene.add(this.createArrows(155, 6, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(155, 0, this.textures.arrowColorSprite));
-
         THREEx.WindowResize(this.renderer, this.camera);
     },
     generateObstacles: function(time) {
         setTimeout(this.generateObstacles.bind(this, time*0.99 ), time);
         var tex = this.textures.simple;
-        console.log(time);
         var l = this.conf.tubePieceLength;
         if(this.distance > l * 31 ) {
             tex = this.textures.corner;
-            console.log('now');
         }
         if(this.distance > l * 62 ) {
             tex = this.textures.cornerInverted;
@@ -598,16 +580,28 @@ GraphicInterface.prototype = {
     },
     shakeCamera: function(callback) {
         var i = 0;
+        this.blurEffects.forEach(function(ef) {
+            ef.enabled = true;
+        });
         var index = this.onRender(function() {
             var u = this.distance / this.path.getLength();
-            var shift = Math.sin(i * 7) * 15 * Math.exp(-i * 0.7);
-            this.cameraTarget = this.getPositionAt(u + 0.01, this.conf.cameraRadius + shift, this.cameraAngle);
+            var shift = Math.sin(i * 7) * 5 * Math.exp(-i * 0.7);
+            this.cameraTarget = this.getPositionAt(u + 0.001, this.conf.cameraRadius + shift, this.cameraAngle);
             this.camera.lookAt(this.cameraTarget);
             var sign = shift/Math.abs(shift);
             shift = -sign * (Math.abs(shift) - 0.1);
+            var bluriness = 22-i*2;
+
+            this.hblur.uniforms.h.value = bluriness / this.SCREEN_WIDTH;
+            this.vblur.uniforms.v.value = bluriness / this.SCREEN_HEIGHT;
+
             i += 0.1;
             if(i > 10) {
                 if(callback) callback();
+
+                this.blurEffects.forEach(function(ef) {
+                    ef.enabled = false;
+                });
                 this.removeOnRenderHandler(index);
             }
         }.bind(this));
@@ -718,9 +712,8 @@ GraphicInterface.prototype = {
             if(func) func(this.renderer);
         }.bind(this));
 
-        //composer.render();
-        //composer.render( 0.1 );
-        this.renderer.render(this.scene, this.camera);
+        composer.render( 0.1 );
+        //this.renderer.render(this.scene, this.camera);
 
 
         this.stats.end();
