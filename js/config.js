@@ -11,12 +11,12 @@ var config = {
         },
         {
             name:   'corner',
-            file:   'level-2.jpg',
+            file:   'level-2.png',
             repeat: true
         },
         {
             name: 'inverted',
-            file: 'level-3.jpg',
+            file: 'level-3.png',
             repeat: true
         },
         {
@@ -31,7 +31,8 @@ var config = {
     tubePieceLength: 200,
     numOfSegments: 12,
     textureLength: 20,
-    speed: 0,
+    speed: 1.5,
+    acceleration: 1.5, 
     pathLength: 20,
     arrowLength: 7,
     cubeHeight: 16

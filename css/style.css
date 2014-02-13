@@ -312,6 +312,7 @@ html, body {
     -webkit-transition-property: all;
     -webkit-transition-duration:1s;
     -webkit-transition-timing-function:linear;
+    display: none;
     
 }
 
@@ -331,7 +332,17 @@ html, body {
     display: none;
 }
 
-.acceleration-1x .first-accelerator, .acceleration-1x .second-accelerator
+.first-accelerator
+{
+    display: none;
+}
+
+.second-accelerator
+{
+    display: none;
+}
+
+.third-accelerator
 {
     display: none;
 }
@@ -343,7 +354,7 @@ html, body {
 
 .acceleration-3x 
 {
-    display: block;
+    display: none;
 }
 
 .flash {

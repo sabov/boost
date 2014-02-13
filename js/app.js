@@ -1,4 +1,5 @@
 var Boost = function(conf, pathConf) {
+    this.conf = conf;
     var dropSpeed = false;
     this.shift = 0;
     this.G = new GraphicInterface(conf, pathConf, function() {
@@ -15,11 +16,12 @@ var Boost = function(conf, pathConf) {
         this.setCameraRotation();
     }.bind(this));
 
+
     this.G.onArrowCollisions(function() {
-        this.G.setSpeed(this.G.getSpeed() + 3);
-        this.flashEffect();
-        this.G.shakeCamera();
+        this.arrowCollisionHandler();
     }.bind(this));
+
+
 
     this.G.onCollisions(function(){
         this.flashEffect();
@@ -34,6 +36,28 @@ var Boost = function(conf, pathConf) {
 };
 
 Boost.prototype = {
+
+    arrowCollisionHandler: function(){
+        this.G.setSpeed(this.G.getSpeed() + this.conf.acceleration);
+        this.flashEffect();
+        this.G.shakeCamera();
+        var arrNum = ((this.G.getSpeed() - this.conf.speed)/this.conf.acceleration);
+        console.log("arr num is:" + arrNum);
+        if (arrNum <= 3 && arrNum >= 1){            
+            $(".acceleration-3x").show();
+            $(".acceleration-trapez").show();
+            $(".acceleration-holder").show();
+            if(arrNum == 1){                
+                $(".first-accelerator").show();
+            } else if (arrNum == 2){            
+                $(".second-accelerator").show();
+            } else $(".third-accelerator").show();
+            
+        }        
+        setTimeout(function(){
+            this.G.onArrowCollisions(this.arrowCollisionHandler.bind(this));
+        }.bind(this), 1000);
+    },
     setCameraRotation: function() {
         if(this.keyboard.pressed("left")) {
             this.G.rotateCamera(-2);
