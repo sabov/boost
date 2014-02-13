@@ -6,14 +6,14 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.speed = 0.5;
+    this.speed = 5.5;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
     this.flashEffect = false;
     this.shakeAnimation = false;
     this.animator = null;
-    this.clock = new THREE.Clock();
+    //this.clock = new THREE.Clock();
 
     this.tubePieces = [];
     this.objects    = [];
@@ -62,30 +62,48 @@ GraphicInterface.prototype = {
         //composerScene.addPass( effectVBlur );
         ////renderScene = new THREE.TexturePass( composerScene.renderTarget2 );
 
+        var SCREEN_WIDTH = window.innerWidth;
+        var SCREEN_HEIGHT = window.innerHeight;
 
         var conf = this.conf;
         this.scene = new THREE.Scene();
         this.camera = this.createCamera();
         this.scene.add(this.camera);
 
+        var width = getSegmentWidth(this.conf.numOfSegments, this.conf.radius);
+
+        var geometry = new THREE.CubeGeometry(this.conf.cubeHeight, width, this.conf.textureLength);
+
+        var material = new THREE.MeshBasicMaterial( {
+            color: 0xAA9988
+        });
+
+        var obj = new THREE.Mesh( geometry, material );
+        this.scene.add(obj);
 
 
-        composer = new THREE.EffectComposer(this.renderer);
-        renderModel = new THREE.RenderPass(this.scene,this.camera);
-        renderModel.renderToScreen = false; 
-        composer.addPass(renderModel);
-        
-        var effectVBlur = new THREE.ShaderPass( THREE.VerticalBlurShader );
-        effectVBlur.uniforms.v.value = 10;
-        effectVBlur.renderToScreen = false;
-        composer.addPass(effectVBlur);
+        //hblur = new THREE.ShaderPass( THREE.ShaderExtras[ "horizontalTiltShift" ] );
+        //vblur = new THREE.ShaderPass( THREE.ShaderExtras[ "verticalTiltShift" ] );
 
-        var effectHBlur = new THREE.ShaderPass( THREE.HorizontalBlurShader );
-        effectHBlur.uniforms.h.value = 10;
-        effectHBlur.renderToScreen = true;
-        composer.addPass(effectHBlur);
+        hblur = new THREE.ShaderPass( THREE.HorizontalTiltShiftShader );
+        vblur = new THREE.ShaderPass( THREE.VerticalTiltShiftShader);
+
+        var bluriness = 7;
+
+        hblur.uniforms[ 'h' ].value = bluriness / SCREEN_WIDTH;
+        vblur.uniforms[ 'v' ].value = bluriness / SCREEN_HEIGHT;
+        hblur.uniforms[ 'r' ].value = vblur.uniforms[ 'r' ].value = 0.6;
 
 
+        var renderModel = new THREE.RenderPass( this.scene, this.camera );
+
+        vblur.renderToScreen = true;
+
+        composer = new THREE.EffectComposer( this.renderer);
+
+        composer.addPass( renderModel );
+        composer.addPass( hblur );
+        composer.addPass( vblur );
 
         this.createTube();
 
@@ -124,6 +142,7 @@ GraphicInterface.prototype = {
 
     createCamera: function() {
         var camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
+        //var camera = new THREE.Camera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
         return camera;
     },
     createTube: function(spline) {
@@ -155,20 +174,19 @@ GraphicInterface.prototype = {
         };
 
 
+        //var material = new THREE.MeshBasicMaterial( {
+            //color: 0xFFFFFF,
+            //map: map,
+            //transparent: true,
+            //side:THREE.BackSide
+        //});
 
-        var material = new THREE.MeshBasicMaterial( {
-            color: 0xFFFFFF,
-            map: map,
-            transparent: true,
-            side:THREE.BackSide
-        });
-
-        /*var material = new THREE.ShaderMaterial({
+        var material = new THREE.ShaderMaterial({
             uniforms:       uniforms,
             vertexShader:   this.vertexShader,
             fragmentShader: this.fragmentShader,
             side:           THREE.BackSide
-        });*/
+        });
 
         return new THREE.Mesh( geometry, material );
     },
@@ -637,7 +655,7 @@ GraphicInterface.prototype = {
         this.stats.begin();
         this.rendererStats.update(this.renderer);
 
-        var delta = this.clock.getDelta(); 
+        //var delta = this.clock.getDelta(); 
         //this.animator.update(1000 * delta);
 
 
@@ -680,8 +698,10 @@ GraphicInterface.prototype = {
         //composerScene.render();
         //composerScene.render();
 
-        this.renderer.clear(); 
-        composer.render();
+        //this.renderer.clear(); 
+        //composer.render();
+        composer.render( 0.1 );
+        //this.renderer.render(this.scene, this.camera);
 
 
         this.stats.end();
