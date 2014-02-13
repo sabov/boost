@@ -1,0 +1,14 @@
+{
+  "name": "threejs-examples",
+  "homepage": "https://github.com/bodylabs/threejs-examples",
+  "_release": "12e751a5b4",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "12e751a5b46d6973295871ea8183232f8638c52d"
+  },
+  "_source": "git://github.com/bodylabs/threejs-examples.git",
+  "_target": "*",
+  "_originalSource": "threejs-examples",
+  "_direct": true
+}
