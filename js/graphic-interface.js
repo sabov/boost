@@ -6,7 +6,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
     this.runAnimation = true;
     this.globalTime = 0;
     this.distance = 0;
-    this.speed = 3;
+    this.speed = this.conf.speed;
     this.cameraAngle = 0;
     this.cameraPosition = 0;
     this.onRenderFunctions = [];
@@ -105,13 +105,13 @@ GraphicInterface.prototype = {
         this.createTube();
         this.generateObstacles(1000);
 
+        setInterval(function() {
+            this.generateArrows();
+        }.bind(this), 5000);
         
 
-        //this.scene.add(this.createArrows(50, 7, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(50, 1, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(455, 6, this.textures.arrowColorSprite));
-        //this.scene.add(this.createArrows(455, 0, this.textures.arrowColorSprite));
-        //this.generateRandomObstacle();
+        //this.scene.add(this.createArrows(155, 6, this.textures.arrowColorSprite));
+        //this.scene.add(this.createArrows(155, 0, this.textures.arrowColorSprite));
 
         THREEx.WindowResize(this.renderer, this.camera);
     },
@@ -138,9 +138,14 @@ GraphicInterface.prototype = {
         if(pos === this.lastPos) {
             this.lastPos = ++pos;
         }
-        console.log([pos, radialPos]);
         var color = Math.floor(Math.random() * 3);
         this.scene.add(this.createObstacle(pos, radialPos, this.conf.colors[color], texture));
+    },
+    generateArrows: function() {
+        var radialPos = Math.floor(Math.random() * 4) + 1;
+        var pos = Math.round(this.distance / this.conf.textureLength) + 40;
+        this.scene.add(this.createArrows(pos, radialPos, this.textures.arrowColorSprite));
+        this.scene.add(this.createArrows(pos, radialPos + 6, this.textures.arrowColorSprite));
     },
     initTextures: function() {
         this.textures = [];
@@ -205,14 +210,6 @@ GraphicInterface.prototype = {
             texture:   { type: "t", value: map },
             uvScale:   { type: "v2", value: new THREE.Vector2(segments, this.conf.numOfSegments) }
         };
-
-
-        //var material = new THREE.MeshBasicMaterial( {
-            //color: 0xFFFFFF,
-            //map: map,
-            //transparent: true,
-            //side:THREE.BackSide
-        //});
 
         var material = new THREE.ShaderMaterial({
             uniforms:       uniforms,
