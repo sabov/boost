@@ -14,6 +14,8 @@ var Boost = function(conf, pathConf) {
         var p = this.G.getCameraPosition();
         this.G.highlightLine(p);
         this.setCameraRotation();
+        var dist = Math.round(this.G.distance/10)
+        $(".counter").html(dist);
     }.bind(this));
 
 

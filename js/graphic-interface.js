@@ -40,6 +40,7 @@ var GraphicInterface = function(conf, pathConf, onError) {
 
 GraphicInterface.prototype = {
     init: function(){
+        $(".counter").show();
 
         this.setupStats();
 

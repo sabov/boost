@@ -380,6 +380,20 @@ html, body {
     background: #FFFFFF;
 }
 
+.counter {
+    opacity: 0.8;
+    position: absolute;
+    font-family: 'Audiowide', cursive;
+    font-style: italic;
+    font-size: 50pt;
+    color: gray;
+    bottom: 10px;
+    margin-left: 100px;
+    text-shadow: -4px 4px 3px rgba(0, 0, 0, 1);
+    
+    width: 300px;
+}
+
 a {
     color: white;
     text-decoration: none;        
