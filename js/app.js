@@ -34,10 +34,10 @@ var Boost = function(conf, pathConf) {
 Boost.prototype = {
 
     arrowCollisionHandler: function(){        
-        this.flashEffect();
-        this.G.shakeCamera();
         var arrNum = ((this.G.getSpeed() - this.conf.speed)/this.conf.acceleration);
-        if (arrNum <= 2){ 
+        if (arrNum <= 2){
+        this.flashEffect();
+        this.G.shakeCamera(); 
         this.G.setSpeed(this.G.getSpeed() + this.conf.acceleration);
         arrNum = ((this.G.getSpeed() - this.conf.speed)/this.conf.acceleration);           
             $(".acceleration-3x").show();
