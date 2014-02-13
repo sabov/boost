@@ -34,6 +34,7 @@
 
     <link rel="stylesheet" href="css/style.css">
     <link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="http://vk.com/js/api/share.js?90" charset="windows-1251"></script>
 </head>
 <body>
     <section class="page start-page">
@@ -49,6 +50,24 @@
                        boost
                 </div>
             </div>
+
+            <ul class="social-buttons">
+
+                <li>
+                    <div class="vk-share-button">
+                    <script type="text/javascript"><!--
+            document.write(VK.Share.button(false,{type: "round_nocount", text: "Share"}));
+                --></script>
+            </div>
+            </li>
+                    <li><a href="https://twitter.com/share" class="soc-btnn twitter-share-button" data-dnt="true" data-count="none">Tweet</a></li>
+                    
+                    <li><div class="fb-share-button .soc-btnn" data-href="http://developers.facebook.com/docs/plugins/" data-type="button" data="share"></div></li>
+
+                    <li><div class="g-plus .soc-btnn" data-action="share" data-annotation="none"></div></li>
+
+                    
+            <ul>
         </div> 
 
 
@@ -60,7 +79,8 @@
             <div class="info-holder">
                 <div class="info left-info">
                 <a href="https://github.com/sabov/boost" target="_blank">Project on Github</a>
-                </div>
+                </div>             
+
                 <div class="info right-info">
                 Inspired by
                     <a href="http://jonathanlanis.com"
@@ -220,6 +240,27 @@
     <div class="flash">
     </div>
 
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+
+<div id="fb-root"></div>
+<script>
+ (function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/uk_UA/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script type="text/javascript">
+  window.___gcfg = {lang: 'en-GB'};
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/platform.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
 </body>
 </html>
 

@@ -255,6 +255,34 @@ html, body {
     float: right;
 }
 
+.social-buttons{
+ position: absolute;
+ top: 5px;
+ left : 100%;
+ margin-left: -410px;
+ text-align: center;
+ height: 10px;
+ width: 400px;
+ 
+}
+
+.social-buttons li{
+     display:inline;
+     margin: 2px;
+}
+
+.fb-share-button{
+    position:relative;
+    top:-5px;
+    margin-top: 4px;
+}
+
+.vk-share-button {
+    position: relative;
+    margin-top: 4px;
+    display: inline-block;
+}
+
 .header{
     position: relative;
     width: 100%;
